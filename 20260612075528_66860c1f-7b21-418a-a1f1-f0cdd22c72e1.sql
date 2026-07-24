@@ -1,0 +1,1 @@
+ALTER TABLE public.session_exercises ALTER COLUMN sets DROP NOT NULL;
