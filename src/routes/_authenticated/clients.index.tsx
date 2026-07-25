@@ -83,8 +83,8 @@ type LogRow = {
   status: string;
 };
 
-// A client is "on track" when every active session on or before today (that
-// actually has exercises assigned) has a matching workout_log. The bell
+// A client is "on track" when every active, non-optional session on or before
+// today (that actually has exercises assigned) has a matching workout_log. The bell
 // separately flags feedback the coach hasn't reviewed yet (status="pending").
 function useClientsTrainingStatus(clientIds: string[]) {
   return useQuery({
@@ -100,12 +100,15 @@ function useClientsTrainingStatus(clientIds: string[]) {
         (p.training_blocks ?? []).map((b) => b.id),
       );
 
+      // Optional sessions are excluded outright: skipping one is a legitimate
+      // choice, so it must not make the athlete look behind.
       const { data: sessRows } = blockIds.length
         ? await supabase
             .from("sessions")
             .select("id, day_of_week, week_number, block_id")
             .in("block_id", blockIds)
             .eq("status", "active")
+            .eq("is_optional", false)
         : { data: [] as SessionRow[] };
       const sessions = (sessRows ?? []) as SessionRow[];
       const sessionIds = sessions.map((s) => s.id);

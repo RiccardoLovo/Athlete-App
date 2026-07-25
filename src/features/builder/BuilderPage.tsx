@@ -346,6 +346,16 @@ export function BuilderPage() {
     if (error) return toast.error(`Save failed: ${error.message}`);
     invalidate();
   }
+  // Optional sessions still appear for the athlete, but skipping one doesn't
+  // count against them in the coach's on-track calculation.
+  async function toggleOptional() {
+    const { error } = await supabase
+      .from("sessions")
+      .update({ is_optional: !ctx?.is_optional })
+      .eq("id", sessionId);
+    if (error) return toast.error(`Save failed: ${error.message}`);
+    invalidate();
+  }
 
   useEffect(() => {
     function flushSessionName() {
@@ -508,6 +518,11 @@ export function BuilderPage() {
               {bodyRegionLabel(region)}
             </span>
           )}
+          {ctx.is_optional && (
+            <span className="rounded-full border border-yellow-300 bg-yellow-100 px-2 py-0.5 text-[11px] text-yellow-800 dark:bg-yellow-500/15 dark:text-yellow-300">
+              Optional
+            </span>
+          )}
           <Popover>
             <PopoverTrigger asChild>
               <button className="inline-flex items-center gap-0.5 rounded-full border border-dashed px-2 py-0.5 text-[11px] text-muted-foreground hover:text-primary">
@@ -549,6 +564,18 @@ export function BuilderPage() {
                   );
                 })}
               </div>
+              <div className="mb-1 mt-3 text-[10px] font-semibold uppercase text-muted-foreground">
+                Attendance
+              </div>
+              <button
+                onClick={() => toggleOptional()}
+                className={`rounded-full border px-2 py-0.5 text-[10px] ${ctx.is_optional ? "border-yellow-300 bg-yellow-100 text-yellow-800 dark:bg-yellow-500/15 dark:text-yellow-300" : "border-border text-muted-foreground hover:text-foreground"}`}
+              >
+                Optional
+              </button>
+              <p className="mt-1.5 text-[10px] leading-snug text-muted-foreground">
+                Optional sessions don't count as missed feedback.
+              </p>
             </PopoverContent>
           </Popover>
         </div>

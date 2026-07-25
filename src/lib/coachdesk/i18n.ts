@@ -27,7 +27,8 @@ const en = {
   "discipline.Running": "Running",
   "discipline.Swimming": "Swimming",
   "discipline.Cycling": "Cycling",
-  "discipline.Sport-Specific": "Sport-Specific",
+  "discipline.Football": "Football",
+  "discipline.Padel": "Padel",
   "discipline.Mobility": "Mobility",
 
   // Target modes

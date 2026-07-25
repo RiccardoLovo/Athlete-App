@@ -5,7 +5,8 @@ export type Discipline =
   | "Running"
   | "Swimming"
   | "Cycling"
-  | "Sport-Specific"
+  | "Football"
+  | "Padel"
   | "Mobility";
 
 export const DISCIPLINES: Discipline[] = [
@@ -13,7 +14,8 @@ export const DISCIPLINES: Discipline[] = [
   "Running",
   "Swimming",
   "Cycling",
-  "Sport-Specific",
+  "Football",
+  "Padel",
   "Mobility",
 ];
 
@@ -22,7 +24,8 @@ export const DISCIPLINE_ICON: Record<Discipline, string> = {
   Running: "🏃",
   Swimming: "🏊",
   Cycling: "🚴",
-  "Sport-Specific": "🎾",
+  Football: "⚽",
+  Padel: "🎾",
   Mobility: "🧘",
 };
 
@@ -35,8 +38,10 @@ export const DISCIPLINE_BADGE: Record<Discipline, string> = {
     "border-sky-300 bg-sky-100 text-sky-800 dark:bg-sky-500/15 dark:text-sky-300",
   Cycling:
     "border-amber-300 bg-amber-100 text-amber-800 dark:bg-amber-500/15 dark:text-amber-300",
-  "Sport-Specific":
+  Football:
     "border-violet-300 bg-violet-100 text-violet-800 dark:bg-violet-500/15 dark:text-violet-300",
+  Padel:
+    "border-fuchsia-300 bg-fuchsia-100 text-fuchsia-800 dark:bg-fuchsia-500/15 dark:text-fuchsia-300",
   Mobility:
     "border-teal-300 bg-teal-100 text-teal-800 dark:bg-teal-500/15 dark:text-teal-300",
 };
@@ -94,7 +99,8 @@ export function defaultForDiscipline(d: Discipline): Partial<Prescription> {
       return { target_mode: "Distance" };
     case "Cycling":
       return { target_mode: "Distance" };
-    case "Sport-Specific":
+    case "Football":
+    case "Padel":
       return { target_mode: "Time" };
     case "Mobility":
       return { target_mode: "Hold" };
@@ -192,7 +198,8 @@ export function summarizePrescription(
       if (p.rpe != null) parts.push(`RPE: ${p.rpe}`);
       break;
     }
-    case "Sport-Specific": {
+    case "Football":
+    case "Padel": {
       if (p.target_mode === "Time" && p.duration_min != null)
         parts.push(`${p.duration_min} min`);
       else if (p.target_mode === "Reps" && p.reps) parts.push(`${p.reps} reps`);
