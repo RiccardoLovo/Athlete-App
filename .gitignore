@@ -6,6 +6,9 @@ dist/
 .vinxi/
 .vercel/
 
+# supabase CLI local state (contains pooler connection info)
+supabase/.temp/
+
 # env
 .env
 .env.*
