@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -11,6 +11,7 @@ import {
   Check,
   Dumbbell,
   LineChart,
+  Bell,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -37,6 +38,11 @@ import { toast } from "sonner";
 import { SPORTS } from "@/lib/coachdesk/constants";
 import { OneRmDialog } from "@/components/coachdesk/OneRmDialog";
 import { useRole } from "@/hooks/use-role";
+import {
+  addDays,
+  parseISODate,
+  toISODate,
+} from "@/lib/coachdesk/periodization";
 
 export const Route = createFileRoute("/_authenticated/clients/")({
   component: ClientsPage,
@@ -53,9 +59,125 @@ type Client = {
   coach_id: string;
 };
 type Coach = { id: string; name: string };
+type ClientTrainingStatus = {
+  missing: number;
+  pendingCount: number;
+  pendingId: string | null;
+};
+type BlockRow = { id: string; position: number; weeks: number };
+type PlanRow = {
+  athlete_id: string;
+  start_date: string;
+  training_blocks: BlockRow[] | null;
+};
+type SessionRow = {
+  id: string;
+  day_of_week: number;
+  week_number: number;
+  block_id: string;
+};
+type LogRow = {
+  id: string;
+  client_id: string;
+  session_id: string;
+  status: string;
+};
+
+// A client is "on track" when every active session on or before today (that
+// actually has exercises assigned) has a matching workout_log. The bell
+// separately flags feedback the coach hasn't reviewed yet (status="pending").
+function useClientsTrainingStatus(clientIds: string[]) {
+  return useQuery({
+    queryKey: ["clients-training-status", clientIds],
+    enabled: clientIds.length > 0,
+    queryFn: async () => {
+      const { data: plans } = await supabase
+        .from("training_plans")
+        .select("athlete_id, start_date, training_blocks(id, position, weeks)")
+        .in("athlete_id", clientIds);
+      const planRows = (plans ?? []) as unknown as PlanRow[];
+      const blockIds = planRows.flatMap((p) =>
+        (p.training_blocks ?? []).map((b) => b.id),
+      );
+
+      const { data: sessRows } = blockIds.length
+        ? await supabase
+            .from("sessions")
+            .select("id, day_of_week, week_number, block_id")
+            .in("block_id", blockIds)
+            .eq("status", "active")
+        : { data: [] as SessionRow[] };
+      const sessions = (sessRows ?? []) as SessionRow[];
+      const sessionIds = sessions.map((s) => s.id);
+
+      const [{ data: exRows }, { data: logRows }] = await Promise.all([
+        sessionIds.length
+          ? supabase
+              .from("session_exercises")
+              .select("session_id")
+              .in("session_id", sessionIds)
+          : Promise.resolve({ data: [] as { session_id: string }[] }),
+        supabase
+          .from("workout_logs")
+          .select("id, client_id, session_id, status")
+          .in("client_id", clientIds),
+      ]);
+      const hasExercises = new Set((exRows ?? []).map((e) => e.session_id));
+      const loggedKeys = new Set<string>();
+      const result = new Map<string, ClientTrainingStatus>(
+        clientIds.map((id) => [
+          id,
+          { missing: 0, pendingCount: 0, pendingId: null },
+        ]),
+      );
+      for (const l of (logRows ?? []) as LogRow[]) {
+        loggedKeys.add(`${l.client_id}:${l.session_id}`);
+        if (l.status === "pending") {
+          const s = result.get(l.client_id);
+          if (s) {
+            s.pendingCount += 1;
+            s.pendingId = l.id;
+          }
+        }
+      }
+
+      const todayISO = toISODate(new Date());
+      for (const plan of planRows) {
+        const clientId = plan.athlete_id;
+        const status = result.get(clientId);
+        if (!status) continue;
+        const blocks = (plan.training_blocks ?? [])
+          .slice()
+          .sort((a, b) => a.position - b.position);
+        if (!blocks.length) continue;
+        const offsets = new Map<string, number>();
+        let cum = 0;
+        for (const b of blocks) {
+          offsets.set(b.id, cum);
+          cum += b.weeks * 7;
+        }
+        const blockIdSet = new Set(blocks.map((b) => b.id));
+        for (const s of sessions) {
+          if (!blockIdSet.has(s.block_id) || !hasExercises.has(s.id)) continue;
+          const off =
+            (offsets.get(s.block_id) ?? 0) +
+            (s.week_number - 1) * 7 +
+            (s.day_of_week - 1);
+          const planned = toISODate(
+            addDays(parseISODate(plan.start_date), off),
+          );
+          if (planned > todayISO) continue;
+          if (!loggedKeys.has(`${clientId}:${s.id}`)) status.missing += 1;
+        }
+      }
+      return result;
+    },
+  });
+}
 
 function ClientsPage() {
   const qc = useQueryClient();
+  const navigate = useNavigate();
   const { data: role } = useRole();
   const isAdmin = !!role?.isAdmin;
   const [editing, setEditing] = useState<Client | null>(null);
@@ -88,6 +210,9 @@ function ClientsPage() {
   });
 
   const coachNameById = new Map(coaches.map((c) => [c.id, c.name]));
+  const { data: trainingStatus } = useClientsTrainingStatus(
+    clients.map((c) => c.id),
+  );
 
   async function deleteOne(id: string) {
     if (!confirm("Delete this client and all their training data?")) return;
@@ -198,13 +323,47 @@ function ClientsPage() {
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
                   </div>
-                  <h3 className="text-lg font-semibold">{c.name}</h3>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-lg font-semibold">{c.name}</h3>
+                    {!!trainingStatus?.get(c.id)?.pendingCount && (
+                      <button
+                        type="button"
+                        title={`${trainingStatus.get(c.id)!.pendingCount} feedback awaiting review`}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          navigate({
+                            to: "/feedback",
+                            search: { clientId: c.id },
+                          });
+                        }}
+                        className="relative inline-flex items-center justify-center rounded-full p-1 text-amber-600 hover:bg-amber-100"
+                      >
+                        <Bell className="h-4 w-4" />
+                        <span className="absolute -right-0.5 -top-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-red-600 text-[9px] font-bold text-white">
+                          {trainingStatus.get(c.id)!.pendingCount}
+                        </span>
+                      </button>
+                    )}
+                  </div>
                   {isAdmin && (
                     <p className="text-xs text-muted-foreground">
                       Coach: {coachNameById.get(c.coach_id) ?? "—"}
                     </p>
                   )}
                   <div className="mt-1 flex flex-wrap gap-1">
+                    {(() => {
+                      const missing = trainingStatus?.get(c.id)?.missing ?? 0;
+                      return missing > 0 ? (
+                        <Badge className="bg-red-600 text-white hover:bg-red-600">
+                          Behind — {missing} session{missing === 1 ? "" : "s"}
+                        </Badge>
+                      ) : (
+                        <Badge className="bg-emerald-600 text-white hover:bg-emerald-600">
+                          On track
+                        </Badge>
+                      );
+                    })()}
                     {c.sport && <Badge variant="secondary">{c.sport}</Badge>}
                     {c.goal && <Badge variant="outline">{c.goal}</Badge>}
                   </div>

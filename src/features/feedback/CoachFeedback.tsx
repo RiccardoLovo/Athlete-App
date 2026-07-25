@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Clock, Check, MessageSquare } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,26 +9,48 @@ import { borgColor } from "@/lib/coachdesk/constants";
 import { FeedbackDetail } from "./FeedbackDetail";
 import type { WorkoutLog } from "./feedback.types";
 
-export function CoachFeedback({ embedded }: { embedded?: boolean } = {}) {
+export function CoachFeedback({
+  embedded,
+  focusClientId,
+}: {
+  embedded?: boolean;
+  focusClientId?: string;
+} = {}) {
   const qc = useQueryClient();
   const [filter, setFilter] = useState<"pending" | "reviewed" | "all">(
     "pending",
   );
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [consumedFocus, setConsumedFocus] = useState<string | null>(null);
 
   const { data: logs = [] } = useQuery({
     queryKey: ["workout-logs", filter],
     queryFn: async () => {
       let q = supabase
         .from("workout_logs")
-        .select("*, clients(name), sessions(day_of_week, week_number, name)")
+        .select(
+          "*, clients(id, name), sessions(day_of_week, week_number, name)",
+        )
         .order("submitted_at", { ascending: false });
       if (filter !== "all") q = q.eq("status", filter);
       const { data, error } = await q;
       if (error) throw error;
-      return (data ?? []) as unknown as WorkoutLog[];
+      return (data ?? []) as unknown as (WorkoutLog & {
+        clients: { id: string; name: string };
+      })[];
     },
   });
+
+  // Deep-linked from the clients list bell: jump straight to that client's
+  // most recent pending feedback the first time it becomes available.
+  useEffect(() => {
+    if (!focusClientId || focusClientId === consumedFocus) return;
+    const match = logs.find((l) => l.clients.id === focusClientId);
+    if (match) {
+      setSelectedId(match.id);
+      setConsumedFocus(focusClientId);
+    }
+  }, [focusClientId, consumedFocus, logs]);
 
   const pendingCount = logs.filter((l) => l.status === "pending").length;
 

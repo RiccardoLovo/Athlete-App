@@ -4,7 +4,12 @@ import { useRole } from "@/hooks/use-role";
 import { CoachFeedback } from "@/features/feedback/CoachFeedback";
 import { MyFeedback } from "@/features/feedback/MyFeedback";
 
+type FeedbackSearch = { clientId?: string };
+
 export const Route = createFileRoute("/_authenticated/feedback")({
+  validateSearch: (search: Record<string, unknown>): FeedbackSearch => ({
+    clientId: typeof search.clientId === "string" ? search.clientId : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "CoachDesk Feedback — Log training sessions" },
@@ -31,6 +36,7 @@ export const Route = createFileRoute("/_authenticated/feedback")({
 
 function FeedbackRoute() {
   const { data: role, isLoading } = useRole();
+  const { clientId } = Route.useSearch();
   if (isLoading) {
     return (
       <div className="flex h-[calc(100vh-3.5rem)] items-center justify-center text-muted-foreground">
@@ -44,7 +50,7 @@ function FeedbackRoute() {
     return (
       <div className="h-[calc(100vh-3.5rem)] overflow-auto">
         <div className="mx-auto max-w-[1000px] p-6">
-          <Tabs defaultValue="mine">
+          <Tabs defaultValue={clientId ? "clients" : "mine"}>
             <TabsList className="mb-4">
               <TabsTrigger value="mine">My Feedback</TabsTrigger>
               <TabsTrigger value="clients">Client Feedback</TabsTrigger>
@@ -53,7 +59,7 @@ function FeedbackRoute() {
               <MyFeedback />
             </TabsContent>
             <TabsContent value="clients">
-              <CoachFeedback embedded />
+              <CoachFeedback embedded focusClientId={clientId} />
             </TabsContent>
           </Tabs>
         </div>
@@ -61,5 +67,5 @@ function FeedbackRoute() {
     );
   }
   if (hasClient) return <MyFeedback wrap />;
-  return <CoachFeedback />;
+  return <CoachFeedback focusClientId={clientId} />;
 }

@@ -93,7 +93,7 @@ export function Navbar() {
     <header className="border-b bg-card">
       <div className="mx-auto flex h-14 max-w-[1400px] items-center gap-2 px-4">
         <Link
-          to={isAthlete ? "/dashboard" : "/exercises"}
+          to={isAthlete ? "/dashboard" : "/clients"}
           className="mr-4 text-lg font-bold text-primary"
         >
           CoachDesk

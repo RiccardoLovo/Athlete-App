@@ -55,7 +55,7 @@ function AuthPage() {
     setLoading(false);
     const role = await fetchMyRole();
     navigate({
-      to: role?.isAthlete ? "/dashboard" : "/exercises",
+      to: role?.isAthlete ? "/dashboard" : "/clients",
       replace: true,
     });
   }
@@ -88,7 +88,7 @@ function AuthPage() {
     );
     const role = await fetchMyRole();
     navigate({
-      to: role?.isAthlete ? "/dashboard" : "/exercises",
+      to: role?.isAthlete ? "/dashboard" : "/clients",
       replace: true,
     });
   }
