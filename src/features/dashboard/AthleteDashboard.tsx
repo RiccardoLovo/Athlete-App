@@ -1,7 +1,8 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Check, Dumbbell, Download } from "lucide-react";
+import { ArrowLeft, Check, Dumbbell, Download, UserCircle } from "lucide-react";
+import { ClientProfileDialog } from "@/components/coachdesk/ClientProfileDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -118,6 +119,7 @@ function SessionList({
   const totalWeeks = blocks.reduce((s: number, b: any) => s + b.weeks, 0);
   const [weekOffset, setWeekOffset] = useState(0); // 0..totalWeeks-1 across whole plan
   const [downloading, setDownloading] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
 
   // Resolve current week info
   const weekInfo = (() => {
@@ -207,12 +209,29 @@ function SessionList({
   return (
     <div className="h-[calc(100vh-3.5rem)] overflow-auto">
       <div className="mx-auto max-w-2xl space-y-4 p-6">
-        <div>
-          <h1 className="text-2xl font-bold">Hi, {client.name} 👋</h1>
-          <p className="text-sm text-muted-foreground">
-            Your training for this week
-          </p>
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h1 className="text-2xl font-bold">Hi, {client.name} 👋</h1>
+            <p className="text-sm text-muted-foreground">
+              Your training for this week
+            </p>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowProfile(true)}
+          >
+            <UserCircle className="mr-1 h-4 w-4" /> My Profile
+          </Button>
         </div>
+        {showProfile && (
+          <ClientProfileDialog
+            clientId={client.id}
+            coachId={client.coach_id}
+            clientName={client.name}
+            onClose={() => setShowProfile(false)}
+          />
+        )}
         <div className="space-y-2">
           {blockSections.map(({ block, startOffset }: any, idx: number) => {
             const isCurrentBlock = weekInfo?.block?.id === block.id;

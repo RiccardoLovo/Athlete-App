@@ -14,6 +14,50 @@ export type Database = {
   };
   public: {
     Tables: {
+      client_attachments: {
+        Row: {
+          client_id: string;
+          coach_id: string;
+          created_at: string;
+          file_name: string;
+          file_size: number;
+          id: string;
+          mime_type: string;
+          storage_path: string;
+          uploaded_by: string;
+        };
+        Insert: {
+          client_id: string;
+          coach_id: string;
+          created_at?: string;
+          file_name: string;
+          file_size: number;
+          id?: string;
+          mime_type: string;
+          storage_path: string;
+          uploaded_by: string;
+        };
+        Update: {
+          client_id?: string;
+          coach_id?: string;
+          created_at?: string;
+          file_name?: string;
+          file_size?: number;
+          id?: string;
+          mime_type?: string;
+          storage_path?: string;
+          uploaded_by?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "client_attachments_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "clients";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       client_exercise_1rm: {
         Row: {
           client_id: string;
@@ -104,12 +148,49 @@ export type Database = {
           },
         ];
       };
+      client_weight_logs: {
+        Row: {
+          client_id: string;
+          coach_id: string;
+          created_at: string;
+          id: string;
+          logged_at: string;
+          value_kg: number;
+        };
+        Insert: {
+          client_id: string;
+          coach_id: string;
+          created_at?: string;
+          id?: string;
+          logged_at?: string;
+          value_kg: number;
+        };
+        Update: {
+          client_id?: string;
+          coach_id?: string;
+          created_at?: string;
+          id?: string;
+          logged_at?: string;
+          value_kg?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "client_weight_logs_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "clients";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       clients: {
         Row: {
+          avatar_path: string | null;
           coach_id: string;
           created_at: string;
           email: string;
           goal: string;
+          height_cm: number | null;
           id: string;
           name: string;
           notes: string;
@@ -119,10 +200,12 @@ export type Database = {
           user_id: string | null;
         };
         Insert: {
+          avatar_path?: string | null;
           coach_id: string;
           created_at?: string;
           email?: string;
           goal?: string;
+          height_cm?: number | null;
           id?: string;
           name: string;
           notes?: string;
@@ -132,10 +215,12 @@ export type Database = {
           user_id?: string | null;
         };
         Update: {
+          avatar_path?: string | null;
           coach_id?: string;
           created_at?: string;
           email?: string;
           goal?: string;
+          height_cm?: number | null;
           id?: string;
           name?: string;
           notes?: string;
