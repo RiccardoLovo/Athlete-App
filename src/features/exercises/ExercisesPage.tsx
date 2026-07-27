@@ -58,7 +58,8 @@ export const DISCIPLINES = [
   "Running",
   "Swimming",
   "Cycling",
-  "Sport-Specific",
+  "Football",
+  "Padel",
   "Mobility",
 ] as const;
 export type Discipline = (typeof DISCIPLINES)[number];
@@ -89,7 +90,9 @@ export const STROKES = [
 ] as const;
 
 export function needsBodyRegion(d: Discipline): boolean {
-  return d === "Strength" || d === "Sport-Specific" || d === "Mobility";
+  return (
+    d === "Strength" || d === "Football" || d === "Padel" || d === "Mobility"
+  );
 }
 
 const DISCIPLINE_COLOR: Record<Discipline, string> = {
@@ -101,8 +104,10 @@ const DISCIPLINE_COLOR: Record<Discipline, string> = {
     "bg-sky-100 text-sky-700 border-sky-200 dark:bg-sky-500/15 dark:text-sky-300 dark:border-sky-500/30",
   Cycling:
     "bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-500/15 dark:text-amber-300 dark:border-amber-500/30",
-  "Sport-Specific":
+  Football:
     "bg-violet-100 text-violet-700 border-violet-200 dark:bg-violet-500/15 dark:text-violet-300 dark:border-violet-500/30",
+  Padel:
+    "bg-fuchsia-100 text-fuchsia-700 border-fuchsia-200 dark:bg-fuchsia-500/15 dark:text-fuchsia-300 dark:border-fuchsia-500/30",
   Mobility:
     "bg-teal-100 text-teal-700 border-teal-200 dark:bg-teal-500/15 dark:text-teal-300 dark:border-teal-500/30",
 };
@@ -182,7 +187,8 @@ export function ExercisesPage() {
 
   const showRegionFilter =
     discipline === "Strength" ||
-    discipline === "Sport-Specific" ||
+    discipline === "Football" ||
+    discipline === "Padel" ||
     discipline === "Mobility";
 
   async function deleteOne(e: Exercise) {
@@ -321,11 +327,6 @@ export function ExercisesPage() {
                       {e.stroke_default}
                     </span>
                   )}
-                  {e.discipline === "Sport-Specific" && e.sport_tag && (
-                    <span className="rounded-full border border-border bg-background px-2 py-0.5 text-[11px] text-muted-foreground">
-                      {e.sport_tag}
-                    </span>
-                  )}
                   {e.is_global && (
                     <span className="inline-flex items-center gap-1 rounded-full border border-border bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">
                       <Lock className="h-3 w-3" /> Built-in
@@ -442,7 +443,6 @@ function ExerciseFormModal({
     body_region: (initial?.body_region ?? "Lower Body") as BodyRegion,
     muscle_group: initial?.muscle_group ?? "",
     stroke_default: initial?.stroke_default ?? "Freestyle",
-    sport_tag: initial?.sport_tag ?? "",
     description_en: initial?.description_en ?? "",
     description_it: initial?.description_it ?? "",
     video_url: initial?.video_url ?? "",
@@ -465,8 +465,9 @@ function ExerciseFormModal({
       muscle_group:
         discipline === "Strength" ? form.muscle_group.trim() || null : null,
       stroke_default: discipline === "Swimming" ? form.stroke_default : null,
-      sport_tag:
-        discipline === "Sport-Specific" ? form.sport_tag.trim() || null : null,
+      // Superseded by first-class Football/Padel disciplines; column retained
+      // for historical rows only.
+      sport_tag: null,
       description_en: form.description_en.trim() || null,
       description_it: form.description_it.trim() || null,
       video_url: form.video_url.trim() || null,
@@ -707,18 +708,6 @@ function ExerciseFormModal({
                   ))}
                 </SelectContent>
               </Select>
-            </div>
-          )}
-          {discipline === "Sport-Specific" && (
-            <div className="space-y-2">
-              <Label>Sport Tag</Label>
-              <Input
-                placeholder="e.g. Padel, Football"
-                value={form.sport_tag}
-                onChange={(e) =>
-                  setForm({ ...form, sport_tag: e.target.value })
-                }
-              />
             </div>
           )}
           <div className="col-span-2 space-y-2">

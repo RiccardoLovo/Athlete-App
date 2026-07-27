@@ -294,7 +294,8 @@ export function PrescriptionForm({
         return <SwimmingForm form={form} patch={patch} patchJson={patchJson} />;
       case "Cycling":
         return <CyclingForm form={form} patch={patch} patchJson={patchJson} />;
-      case "Sport-Specific":
+      case "Football":
+      case "Padel":
         return <SportForm form={form} patch={patch} />;
       case "Mobility":
         return <MobilityForm form={form} patch={patch} patchJson={patchJson} />;
