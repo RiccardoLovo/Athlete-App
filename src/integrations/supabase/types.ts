@@ -666,7 +666,12 @@ export type Database = {
       };
       can_view_session_exercise: { Args: { _se_id: string }; Returns: boolean };
       copy_week: {
-        Args: { _block_id: string; _source_week: number; _target_week: number };
+        Args: {
+          _source_block_id: string;
+          _source_week: number;
+          _target_block_id: string;
+          _target_week: number;
+        };
         Returns: undefined;
       };
       get_invite_info: {

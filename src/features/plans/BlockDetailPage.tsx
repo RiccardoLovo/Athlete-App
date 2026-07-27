@@ -21,9 +21,9 @@ import {
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
+import { CopyWeekDialog } from "@/components/coachdesk/CopyWeekDialog";
 import {
   blockStart,
   weekRange,
@@ -308,32 +308,7 @@ export function BlockDetailPage() {
     await addExerciseToDay(week, day, exerciseId);
   }
 
-  async function copyWeek(target: number | "all") {
-    if (target === "all") {
-      for (let w = 1; w <= totalWeeks; w++) {
-        if (w === activeWeek) continue;
-        const { error } = await supabase.rpc("copy_week", {
-          _block_id: blockId,
-          _source_week: activeWeek,
-          _target_week: w,
-        });
-        if (error) {
-          toast.error(error.message);
-          return;
-        }
-      }
-      toast.success(`Week ${activeWeek} copied to all other weeks`);
-    } else {
-      const { error } = await supabase.rpc("copy_week", {
-        _block_id: blockId,
-        _source_week: activeWeek,
-        _target_week: target,
-      });
-      if (error) return toast.error(error.message);
-      toast.success(`Week ${activeWeek} copied to Week ${target}`);
-    }
-    invalidate();
-  }
+  const [showCopyDialog, setShowCopyDialog] = useState(false);
 
   async function toggleRest(s: Session) {
     const newStatus = s.status === "rest" ? "active" : "rest";
@@ -393,28 +368,9 @@ export function BlockDetailPage() {
               {formatShort(activeWeekRange.end)}
             </div>
           </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline">
-                <Copy className="mr-1 h-4 w-4" /> Copy Week
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {Array.from({ length: totalWeeks }, (_, i) => i + 1)
-                .filter((w) => w !== activeWeek)
-                .map((w) => (
-                  <DropdownMenuItem key={w} onClick={() => copyWeek(w)}>
-                    Copy to Week {w}
-                  </DropdownMenuItem>
-                ))}
-              {totalWeeks > 2 && <DropdownMenuSeparator />}
-              {totalWeeks > 1 && (
-                <DropdownMenuItem onClick={() => copyWeek("all")}>
-                  Copy to all remaining weeks
-                </DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <Button variant="outline" onClick={() => setShowCopyDialog(true)}>
+            <Copy className="mr-1 h-4 w-4" /> Copy Week
+          </Button>
         </div>
         <div className="mt-3 flex flex-wrap gap-1">
           {Array.from({ length: totalWeeks }, (_, i) => i + 1).map((w) => {
@@ -610,6 +566,15 @@ export function BlockDetailPage() {
           </div>
         </div>
       </div>
+      {showCopyDialog && (
+        <CopyWeekDialog
+          planId={planId_}
+          currentBlockId={blockId}
+          currentWeek={activeWeek}
+          onClose={() => setShowCopyDialog(false)}
+          onCopied={invalidate}
+        />
+      )}
     </div>
   );
 }
