@@ -1,7 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Plus } from "lucide-react";
+import { ArrowLeft, Plus, UserCircle } from "lucide-react";
+import { ClientProfileDialog } from "@/components/coachdesk/ClientProfileDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -50,6 +51,7 @@ function ClientDetailPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const [showForm, setShowForm] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
 
   const { data: client } = useQuery({
     queryKey: ["client", clientId],
@@ -105,6 +107,9 @@ function ClientDetailPage() {
               {client?.goal && <Badge variant="outline">{client.goal}</Badge>}
             </div>
           </div>
+          <Button variant="outline" onClick={() => setShowProfile(true)}>
+            <UserCircle className="mr-1 h-4 w-4" /> Profile
+          </Button>
         </div>
 
         <section>
@@ -160,6 +165,15 @@ function ClientDetailPage() {
           )}
         </section>
       </div>
+
+      {showProfile && client && (
+        <ClientProfileDialog
+          clientId={clientId}
+          coachId={client.coach_id}
+          clientName={client.name}
+          onClose={() => setShowProfile(false)}
+        />
+      )}
 
       {showForm && client && (
         <PlanFormModal
