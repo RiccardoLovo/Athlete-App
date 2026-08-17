@@ -37,6 +37,12 @@ import {
 } from "@/components/coachdesk/ExerciseBank";
 import { SessionExercises } from "@/components/coachdesk/SessionExercises";
 import { usePlanRealtime } from "@/hooks/use-plan-realtime";
+import { rowToPrescription } from "@/components/coachdesk/PrescriptionForm";
+import {
+  DISCIPLINE_ICON,
+  summarizePrescription,
+  type Discipline,
+} from "@/lib/coachdesk/prescription";
 
 type Session = {
   id: string;
@@ -46,6 +52,7 @@ type Session = {
   status: string;
   created_at: string;
   updated_at: string;
+  is_client_added: boolean;
 };
 
 export function BlockDetailPage() {
@@ -124,7 +131,7 @@ export function BlockDetailPage() {
       const { data } = await supabase
         .from("sessions")
         .select(
-          "id, name, day_of_week, week_number, status, created_at, updated_at",
+          "id, name, day_of_week, week_number, status, created_at, updated_at, is_client_added",
         )
         .eq("block_id", blockId)
         .order("week_number")
@@ -499,44 +506,57 @@ export function BlockDetailPage() {
                                 <span className="truncate text-xs font-semibold">
                                   {s.name || label}
                                 </span>
+                                {s.is_client_added && (
+                                  <span className="shrink-0 rounded-full bg-sky-100 px-1.5 py-0.5 text-[9px] font-semibold uppercase text-sky-700 dark:bg-sky-500/15 dark:text-sky-300">
+                                    Added by athlete
+                                  </span>
+                                )}
                               </button>
                             )}
-                            <Link
-                              to="/builder/$sessionId"
-                              params={{ sessionId: s.id }}
-                              className="text-[10px] text-muted-foreground hover:text-primary"
-                              title="Open full editor"
-                            >
-                              Open
-                            </Link>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-5 w-5"
-                              onClick={() => toggleRest(s)}
-                              title="Toggle rest"
-                            >
-                              <Moon
-                                className={`h-3 w-3 ${s.status === "rest" ? "fill-blue-400 text-blue-500" : "text-muted-foreground"}`}
-                              />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-5 w-5"
-                              onClick={() => deleteSession(s.id)}
-                            >
-                              <Trash2 className="h-3 w-3 text-destructive" />
-                            </Button>
+                            {!s.is_client_added && (
+                              <>
+                                <Link
+                                  to="/builder/$sessionId"
+                                  params={{ sessionId: s.id }}
+                                  className="text-[10px] text-muted-foreground hover:text-primary"
+                                  title="Open full editor"
+                                >
+                                  Open
+                                </Link>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-5 w-5"
+                                  onClick={() => toggleRest(s)}
+                                  title="Toggle rest"
+                                >
+                                  <Moon
+                                    className={`h-3 w-3 ${s.status === "rest" ? "fill-blue-400 text-blue-500" : "text-muted-foreground"}`}
+                                  />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-5 w-5"
+                                  onClick={() => deleteSession(s.id)}
+                                >
+                                  <Trash2 className="h-3 w-3 text-destructive" />
+                                </Button>
+                              </>
+                            )}
                           </div>
                           {s.status !== "rest" &&
                             (isExpanded ? (
                               <div className="mt-2">
-                                <SessionExercises
-                                  sessionId={s.id}
-                                  clientId={clientId}
-                                  compact
-                                />
+                                {s.is_client_added ? (
+                                  <ReadOnlySessionExercises sessionId={s.id} />
+                                ) : (
+                                  <SessionExercises
+                                    sessionId={s.id}
+                                    clientId={clientId}
+                                    compact
+                                  />
+                                )}
                               </div>
                             ) : (
                               <button
@@ -575,6 +595,62 @@ export function BlockDetailPage() {
           onCopied={invalidate}
         />
       )}
+    </div>
+  );
+}
+
+// Athlete-added sessions are visible but not editable by the coach — RLS
+// already blocks the writes, so this renders a plain summary instead of the
+// interactive SessionExercises/PrescriptionForm editor.
+type ReadOnlyExerciseRow = Record<string, unknown> & {
+  id: string;
+  exercises: {
+    name_en: string;
+    discipline: string;
+    stroke_default: string | null;
+  } | null;
+};
+
+function ReadOnlySessionExercises({ sessionId }: { sessionId: string }) {
+  const { data: exs = [] } = useQuery({
+    queryKey: ["session-exs-readonly", sessionId],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("session_exercises")
+        .select("*, exercises(name_en, discipline, stroke_default)")
+        .eq("session_id", sessionId)
+        .order("order_index");
+      return (data ?? []) as unknown as ReadOnlyExerciseRow[];
+    },
+  });
+
+  if (exs.length === 0) {
+    return (
+      <p className="text-xs text-muted-foreground">No exercises logged.</p>
+    );
+  }
+
+  return (
+    <div className="space-y-1">
+      {exs.map((e) => {
+        const discipline = (e.exercises?.discipline ??
+          "Strength") as Discipline;
+        const prescription = rowToPrescription(e as Record<string, unknown>);
+        const summary = summarizePrescription(discipline, prescription);
+        return (
+          <div key={e.id} className="rounded border bg-muted/40 p-2 text-xs">
+            <div className="flex items-center gap-1.5 font-semibold">
+              <span>{DISCIPLINE_ICON[discipline]}</span>
+              <span>{e.exercises?.name_en}</span>
+            </div>
+            {summary && (
+              <div className="mt-0.5 text-[11px] text-muted-foreground">
+                {summary}
+              </div>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }
