@@ -1,8 +1,21 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Check, Dumbbell, Download, UserCircle } from "lucide-react";
+import {
+  ArrowLeft,
+  Check,
+  Dumbbell,
+  Download,
+  UserCircle,
+  Plus,
+  X,
+} from "lucide-react";
 import { ClientProfileDialog } from "@/components/coachdesk/ClientProfileDialog";
+import {
+  ExerciseBank,
+  insertExerciseIntoSession,
+} from "@/components/coachdesk/ExerciseBank";
+import { SessionExercises } from "@/components/coachdesk/SessionExercises";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -120,6 +133,7 @@ function SessionList({
   const [weekOffset, setWeekOffset] = useState(0); // 0..totalWeeks-1 across whole plan
   const [downloading, setDownloading] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
+  const [addingExtra, setAddingExtra] = useState(false);
 
   // Resolve current week info
   const weekInfo = (() => {
@@ -216,14 +230,37 @@ function SessionList({
               Your training for this week
             </p>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowProfile(true)}
-          >
-            <UserCircle className="mr-1 h-4 w-4" /> My Profile
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowProfile(true)}
+            >
+              <UserCircle className="mr-1 h-4 w-4" /> My Profile
+            </Button>
+            {weekInfo && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setAddingExtra(true)}
+              >
+                <Plus className="mr-1 h-4 w-4" /> Log Extra Session
+              </Button>
+            )}
+          </div>
         </div>
+        {addingExtra && weekInfo && (
+          <LogExtraSession
+            client={client}
+            blockId={weekInfo.block.id}
+            weekNumber={weekInfo.weekInBlock}
+            onDone={(session) => {
+              setAddingExtra(false);
+              onPick(session);
+            }}
+            onCancel={() => setAddingExtra(false)}
+          />
+        )}
         {showProfile && (
           <ClientProfileDialog
             clientId={client.id}
@@ -387,6 +424,139 @@ function SessionList({
         )}
       </div>
     </div>
+  );
+}
+
+const EXTRA_SESSION_DAY_LABELS = [
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday",
+];
+
+function LogExtraSession({
+  client,
+  blockId,
+  weekNumber,
+  onDone,
+  onCancel,
+}: {
+  client: Client;
+  blockId: string;
+  weekNumber: number;
+  onDone: (session: { id: string; day_label: string }) => void;
+  onCancel: () => void;
+}) {
+  const [day, setDay] = useState<number | null>(null);
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [exerciseCount, setExerciseCount] = useState(0);
+  const [selectedExercise, setSelectedExercise] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
+  const [creating, setCreating] = useState(false);
+  const qc = useQueryClient();
+
+  async function pickDay(d: number) {
+    setCreating(true);
+    const { data, error } = await supabase
+      .from("sessions")
+      .insert({
+        block_id: blockId,
+        week_number: weekNumber,
+        day_of_week: d,
+        status: "active",
+        is_client_added: true,
+      })
+      .select("id")
+      .single();
+    setCreating(false);
+    if (error || !data) {
+      toast.error(error?.message ?? "Couldn't start this session");
+      return;
+    }
+    setDay(d);
+    setSessionId(data.id);
+  }
+
+  async function cancel() {
+    if (sessionId) await supabase.from("sessions").delete().eq("id", sessionId);
+    onCancel();
+  }
+
+  async function addExercise(exerciseId: string) {
+    const { error } = await insertExerciseIntoSession(sessionId!, exerciseId);
+    if (error) return toast.error(`Add failed: ${error.message}`);
+    setExerciseCount((c) => c + 1);
+    setSelectedExercise(null);
+    qc.invalidateQueries({ queryKey: ["session-exs", sessionId] });
+  }
+
+  return (
+    <Card className="p-4">
+      <div className="flex items-center justify-between">
+        <h2 className="font-semibold">Log an extra session</h2>
+        <Button variant="ghost" size="icon" onClick={cancel}>
+          <X className="h-4 w-4" />
+        </Button>
+      </div>
+      {day === null ? (
+        <div className="mt-3">
+          <p className="mb-2 text-xs text-muted-foreground">
+            Which day did you train?
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            {EXTRA_SESSION_DAY_LABELS.map((label, idx) => (
+              <Button
+                key={label}
+                variant="outline"
+                size="sm"
+                disabled={creating}
+                onClick={() => pickDay(idx + 1)}
+              >
+                {label}
+              </Button>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div className="mt-3 space-y-3">
+          <p className="text-xs text-muted-foreground">
+            {EXTRA_SESSION_DAY_LABELS[day - 1]} — add what you did below, then
+            log it like any other workout.
+          </p>
+          <div className="max-h-64 overflow-auto rounded border">
+            <ExerciseBank
+              selectedExerciseId={selectedExercise?.id ?? null}
+              onSelectExercise={(e) => {
+                setSelectedExercise(e);
+                addExercise(e.id);
+              }}
+            />
+          </div>
+          <SessionExercises
+            sessionId={sessionId!}
+            clientId={client.id}
+            compact
+          />
+          <Button
+            className="w-full"
+            disabled={exerciseCount === 0}
+            onClick={() =>
+              onDone({
+                id: sessionId!,
+                day_label: EXTRA_SESSION_DAY_LABELS[day - 1],
+              })
+            }
+          >
+            Continue to log feedback
+          </Button>
+        </div>
+      )}
+    </Card>
   );
 }
 

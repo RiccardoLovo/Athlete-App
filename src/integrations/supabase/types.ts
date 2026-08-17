@@ -536,6 +536,7 @@ export type Database = {
           created_at: string;
           day_of_week: number;
           id: string;
+          is_client_added: boolean;
           is_optional: boolean;
           name: string | null;
           notes: string;
@@ -550,6 +551,7 @@ export type Database = {
           created_at?: string;
           day_of_week: number;
           id?: string;
+          is_client_added?: boolean;
           is_optional?: boolean;
           name?: string | null;
           notes?: string;
@@ -564,6 +566,7 @@ export type Database = {
           created_at?: string;
           day_of_week?: number;
           id?: string;
+          is_client_added?: boolean;
           is_optional?: boolean;
           name?: string | null;
           notes?: string;
@@ -759,6 +762,9 @@ export type Database = {
         };
         Returns: undefined;
       };
+      dearmor: { Args: { "": string }; Returns: string };
+      gen_random_uuid: { Args: never; Returns: string };
+      gen_salt: { Args: { "": string }; Returns: string };
       get_invite_info: {
         Args: { _token: string };
         Returns: {
@@ -774,6 +780,10 @@ export type Database = {
           _user_id: string;
         };
         Returns: boolean;
+      };
+      pgp_armor_headers: {
+        Args: { "": string };
+        Returns: Record<string, unknown>[];
       };
       plan_end_date: { Args: { _plan_id: string }; Returns: string };
     };
