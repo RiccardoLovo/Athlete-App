@@ -43,6 +43,7 @@ import {
   parseISODate,
   toISODate,
 } from "@/lib/coachdesk/periodization";
+import { clientWithPlansQuery } from "@/lib/coachdesk/client-queries";
 
 export const Route = createFileRoute("/_authenticated/clients/")({
   component: ClientsPage,
@@ -217,6 +218,15 @@ function ClientsPage() {
     clients.map((c) => c.id),
   );
 
+  // Prefetch the merged client+plans query on hover/focus so the detail
+  // page is often already warm by the time the click lands — each request
+  // has a fixed ~700-900ms floor, so this is the difference between a
+  // visible freeze and an instant navigation for anyone who doesn't
+  // double-click.
+  function prefetchClient(id: string) {
+    qc.prefetchQuery(clientWithPlansQuery(id));
+  }
+
   async function deleteOne(id: string) {
     if (!confirm("Delete this client and all their training data?")) return;
     const { error } = await supabase.from("clients").delete().eq("id", id);
@@ -262,6 +272,9 @@ function ClientsPage() {
                 key={c.id}
                 to="/clients/$clientId"
                 params={{ clientId: c.id }}
+                onMouseEnter={() => prefetchClient(c.id)}
+                onFocus={() => prefetchClient(c.id)}
+                onTouchStart={() => prefetchClient(c.id)}
               >
                 <Card className="group relative p-5 transition-shadow hover:shadow-md">
                   <div className="absolute right-3 top-3 flex gap-1 opacity-0 group-hover:opacity-100">

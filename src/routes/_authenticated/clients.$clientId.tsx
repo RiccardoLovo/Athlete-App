@@ -32,19 +32,17 @@ import {
   parseISODate,
   isBetween,
 } from "@/lib/coachdesk/periodization";
+import {
+  clientWithPlansQuery,
+  type ClientPlan,
+} from "@/lib/coachdesk/client-queries";
 
 export const Route = createFileRoute("/_authenticated/clients/$clientId")({
   component: ClientDetailPage,
 });
 
 type PlanStatus = "draft" | "active" | "completed";
-type Plan = {
-  id: string;
-  name: string;
-  start_date: string;
-  status: PlanStatus;
-  training_blocks: { weeks: number; position: number }[];
-};
+type Plan = ClientPlan;
 
 function ClientDetailPage() {
   const { clientId } = Route.useParams();
@@ -53,37 +51,9 @@ function ClientDetailPage() {
   const [showForm, setShowForm] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
 
-  const { data: client } = useQuery({
-    queryKey: ["client", clientId],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("clients")
-        .select("id, name, sport, goal, coach_id")
-        .eq("id", clientId)
-        .single();
-      return data as {
-        id: string;
-        name: string;
-        sport: string;
-        goal: string;
-        coach_id: string;
-      };
-    },
-  });
-
-  const { data: plans = [] } = useQuery({
-    queryKey: ["plans", clientId],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("training_plans")
-        .select(
-          "id, name, start_date, status, training_blocks(weeks, position)",
-        )
-        .eq("athlete_id", clientId)
-        .order("start_date", { ascending: false });
-      return (data ?? []) as unknown as Plan[];
-    },
-  });
+  const { data: clientWithPlans } = useQuery(clientWithPlansQuery(clientId));
+  const client = clientWithPlans;
+  const plans = clientWithPlans?.training_plans ?? [];
 
   const today = new Date();
 
@@ -183,7 +153,7 @@ function ClientDetailPage() {
           onClose={() => setShowForm(false)}
           onSaved={() => {
             setShowForm(false);
-            qc.invalidateQueries({ queryKey: ["plans", clientId] });
+            qc.invalidateQueries({ queryKey: ["client-with-plans", clientId] });
           }}
         />
       )}
