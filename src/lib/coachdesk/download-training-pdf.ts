@@ -46,7 +46,7 @@ export async function downloadTrainingPdf(opts: {
   const { data: exs } = sessionIds.length
     ? await supabase
         .from("session_exercises")
-        .select("*, exercises(name_en, discipline, structure_type)")
+        .select("*, exercises(name_en, discipline, structure_type, video_url)")
         .in("session_id", sessionIds)
     : { data: [] as any[] };
 
@@ -116,6 +116,7 @@ export async function downloadTrainingPdf(opts: {
       tempo: e.tempo ?? "",
       rpe: e.rpe ?? null,
       notes: e.notes ?? "",
+      video_url: e.exercises?.video_url ?? null,
       summary: summarizePrescription(discipline, e as any, oneRm),
       intervals: intervalsBySE.get(e.id),
       structure_type: structure,

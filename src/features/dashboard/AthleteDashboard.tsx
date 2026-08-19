@@ -9,6 +9,7 @@ import {
   UserCircle,
   Plus,
   X,
+  PlayCircle,
 } from "lucide-react";
 import { ClientProfileDialog } from "@/components/coachdesk/ClientProfileDialog";
 import {
@@ -33,6 +34,13 @@ import {
   parseISODate,
   toISODate,
 } from "@/lib/coachdesk/periodization";
+import { getEmbedUrl } from "@/lib/coachdesk/video";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -627,7 +635,9 @@ function LogWorkout({
     queryFn: async () => {
       const { data } = await supabase
         .from("session_exercises")
-        .select("id, sets, reps, load_value, load_mode, exercises(name_en)")
+        .select(
+          "id, sets, reps, load_value, load_mode, exercises(name_en, video_url)",
+        )
         .eq("session_id", session.id)
         .order("order_index");
       return (data ?? []) as any[];
@@ -662,6 +672,13 @@ function LogWorkout({
   const hydratedRef = useRef(false);
   const skipNextAutoSaveRef = useRef(false);
   const logIdRef = useRef<string | null>(null);
+  const [watchUrl, setWatchUrl] = useState<string | null>(null);
+
+  function watchVideo(url: string) {
+    const embed = getEmbedUrl(url);
+    if (embed) setWatchUrl(embed);
+    else window.open(url, "_blank", "noopener,noreferrer");
+  }
 
   // Hydrate once: wait for exercises + the existing log (if any) + its
   // per-set data to all resolve, then seed all form state from them.
@@ -902,9 +919,20 @@ function LogWorkout({
                 : "kg";
           return (
             <Card key={e.id} className="p-4">
-              <div className="flex items-start justify-between">
-                <div className="font-semibold">
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex items-center gap-1.5 font-semibold">
                   {i + 1}. {e.exercises?.name_en}
+                  {e.exercises?.video_url && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 text-primary"
+                      title="Watch demo"
+                      onClick={() => watchVideo(e.exercises.video_url)}
+                    >
+                      <PlayCircle className="h-4 w-4" />
+                    </Button>
+                  )}
                 </div>
                 <div className="text-right text-xs text-muted-foreground">
                   {e.sets ?? "-"}×{e.reps || "-"}
@@ -1015,6 +1043,24 @@ function LogWorkout({
           </Button>
         )}
       </div>
+
+      <Dialog open={!!watchUrl} onOpenChange={(o) => !o && setWatchUrl(null)}>
+        <DialogContent className="max-w-2xl p-2">
+          <DialogHeader className="px-2 pt-1">
+            <DialogTitle>Exercise demo</DialogTitle>
+          </DialogHeader>
+          {watchUrl && (
+            <div className="aspect-video w-full overflow-hidden rounded-md">
+              <iframe
+                src={watchUrl}
+                className="h-full w-full"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

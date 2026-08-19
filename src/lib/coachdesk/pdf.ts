@@ -20,6 +20,7 @@ export interface PdfExercise {
   tempo: string;
   rpe: number | null;
   notes: string;
+  video_url: string | null;
   // Used for non-strength disciplines.
   summary: string;
   // Optional interval rows (intervals/template structure types).
@@ -223,6 +224,14 @@ export function exportTrainingPdf(opts: {
     cursorY += 18;
   };
 
+  // Small clickable "▶ WATCH" link placed right after an exercise name.
+  const drawVideoLink = (url: string, afterX: number, y: number) => {
+    setText(doc, C.accent);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(7);
+    doc.textWithLink("▶ WATCH", afterX, y, { url });
+  };
+
   const drawStrengthExercise = (e: PdfExercise, isLast: boolean) => {
     // Heights: name row (16) + grid row (28) + notes (variable) + spacing
     const innerLeft = M + 4;
@@ -240,6 +249,13 @@ export function exportTrainingPdf(opts: {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
     doc.text(e.name, innerLeft, cursorY + 11);
+    if (e.video_url) {
+      drawVideoLink(
+        e.video_url,
+        innerLeft + doc.getTextWidth(e.name) + 8,
+        cursorY + 11,
+      );
+    }
     if (e.rpe != null) {
       setText(doc, C.text400);
       doc.setFont("courier", "normal");
@@ -322,6 +338,13 @@ export function exportTrainingPdf(opts: {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
     doc.text(e.name, innerLeft, cursorY + 11);
+    if (e.video_url) {
+      drawVideoLink(
+        e.video_url,
+        innerLeft + doc.getTextWidth(e.name) + 8,
+        cursorY + 11,
+      );
+    }
     // discipline pill on the right
     setText(doc, C.accent);
     doc.setFont("helvetica", "bold");
@@ -385,6 +408,13 @@ export function exportTrainingPdf(opts: {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
     doc.text(e.name, innerLeft, cursorY + 11);
+    if (e.video_url) {
+      drawVideoLink(
+        e.video_url,
+        innerLeft + doc.getTextWidth(e.name) + 8,
+        cursorY + 11,
+      );
+    }
     setText(doc, C.accent);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(7);
