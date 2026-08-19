@@ -143,6 +143,7 @@ export function AnalyticsPage() {
         `,
         )
         .eq("client_id", clientId)
+        .neq("status", "draft") // athlete hasn't finished the workout yet
         .order("submitted_at", { ascending: true });
       if (error) throw error;
       const out: Row[] = [];

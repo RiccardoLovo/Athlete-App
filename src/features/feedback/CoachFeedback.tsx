@@ -31,6 +31,7 @@ export function CoachFeedback({
         .select(
           "*, clients(id, name), sessions(day_of_week, week_number, name)",
         )
+        .neq("status", "draft") // athlete hasn't finished the workout yet
         .order("submitted_at", { ascending: false });
       if (filter !== "all") q = q.eq("status", filter);
       const { data, error } = await q;

@@ -1,5 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ArrowLeft,
@@ -28,6 +28,11 @@ import { toast } from "sonner";
 import { BORG_LABELS, borgColor } from "@/lib/coachdesk/constants";
 import { useRole } from "@/hooks/use-role";
 import { downloadTrainingPdf } from "@/lib/coachdesk/download-training-pdf";
+import {
+  addDays,
+  parseISODate,
+  toISODate,
+} from "@/lib/coachdesk/periodization";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -179,11 +184,28 @@ function SessionList({
     },
   });
 
+  // Start-of-week offset (days) for the currently selected week, used to
+  // resolve each session's real calendar date for the logging screen.
+  const weekStartOffsetDays = weekOffset * 7;
+
   const sessionsWithExs = (data?.sessions ?? [])
-    .map((s: any) => ({
-      ...s,
-      exs: data!.exs.filter((e: any) => e.session_id === s.id),
-    }))
+    .map((s: any) => {
+      const dayLabel = DAY_LABELS_LOCAL[(s.day_of_week ?? 1) - 1];
+      const plannedDate = plan
+        ? toISODate(
+            addDays(
+              parseISODate(plan.start_date),
+              weekStartOffsetDays + ((s.day_of_week ?? 1) - 1),
+            ),
+          )
+        : toISODate(new Date());
+      return {
+        ...s,
+        exs: data!.exs.filter((e: any) => e.session_id === s.id),
+        day_label: dayLabel,
+        planned_date: plannedDate,
+      };
+    })
     .filter((s) => s.exs.length > 0);
 
   async function handleDownload(
@@ -352,19 +374,18 @@ function SessionList({
           <div className="space-y-2">
             {sessionsWithExs.map((s: any) => {
               const done = data!.logged.has(s.id);
-              const dayLabel = DAY_LABELS_LOCAL[(s.day_of_week ?? 1) - 1];
               return (
                 <Card
                   key={s.id}
-                  className={`p-4 ${done ? "cursor-not-allowed border-emerald-300 bg-emerald-50/50" : "cursor-pointer hover:shadow"}`}
+                  className={`p-4 cursor-pointer hover:shadow ${done ? "border-emerald-300 bg-emerald-50/50" : ""}`}
                 >
                   <div
                     className="flex items-center gap-2"
-                    onClick={() =>
-                      !done && onPick({ id: s.id, day_label: dayLabel })
-                    }
+                    onClick={() => onPick(s)}
                   >
-                    <span className="font-semibold">{s.name || dayLabel}</span>
+                    <span className="font-semibold">
+                      {s.name || s.day_label}
+                    </span>
                     {s.is_optional && (
                       <Badge className="bg-yellow-100 text-yellow-800">
                         Optional
@@ -394,17 +415,13 @@ function SessionList({
                   </div>
                   <div
                     className="mt-1 text-xs text-muted-foreground"
-                    onClick={() =>
-                      !done && onPick({ id: s.id, day_label: dayLabel })
-                    }
+                    onClick={() => onPick(s)}
                   >
                     {s.exs.length} exercises
                   </div>
                   <div
                     className="mt-2 flex flex-wrap gap-1"
-                    onClick={() =>
-                      !done && onPick({ id: s.id, day_label: dayLabel })
-                    }
+                    onClick={() => onPick(s)}
                   >
                     {s.exs.slice(0, 4).map((e: any, i: number) => (
                       <Badge key={i} variant="outline" className="text-[10px]">
@@ -447,7 +464,14 @@ function LogExtraSession({
   client: Client;
   blockId: string;
   weekNumber: number;
-  onDone: (session: { id: string; day_label: string }) => void;
+  onDone: (session: {
+    id: string;
+    day_label: string;
+    name: string | null;
+    day_of_week: number;
+    week_number: number;
+    planned_date: string;
+  }) => void;
   onCancel: () => void;
 }) {
   const [day, setDay] = useState<number | null>(null);
@@ -549,6 +573,10 @@ function LogExtraSession({
               onDone({
                 id: sessionId!,
                 day_label: EXTRA_SESSION_DAY_LABELS[day - 1],
+                name: null,
+                day_of_week: day,
+                week_number: weekNumber,
+                planned_date: toISODate(new Date()),
               })
             }
           >
@@ -560,6 +588,16 @@ function LogExtraSession({
   );
 }
 
+type SetEntry = { weight: string; reps: string };
+type ExForm = { sets: SetEntry[]; notes: string };
+
+const AUTOSAVE_DELAY_MS = 900;
+
+// Single logging screen used whether the athlete opens it before, during,
+// or after training: every field auto-saves (draft status) so closing the
+// app mid-set never loses progress, and "Finish Workout" just flips the
+// log's status to "pending" so it enters the coach's review queue. There is
+// no separate live/post-hoc mode — same screen, same data, any time.
 function LogWorkout({
   client,
   session,
@@ -570,91 +608,270 @@ function LogWorkout({
   onBack: () => void;
 }) {
   const qc = useQueryClient();
-  const [borg, setBorg] = useState(5);
-  const [overall, setOverall] = useState("");
-  const [submitted, setSubmitted] = useState(false);
+
+  const { data: existingLog } = useQuery({
+    queryKey: ["my-workout-log", session.id, client.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("workout_logs")
+        .select("id, borg_scale, overall_notes, performed_at, status")
+        .eq("session_id", session.id)
+        .eq("client_id", client.id)
+        .maybeSingle();
+      return data as any;
+    },
+  });
 
   const { data: exsData } = useQuery({
     queryKey: ["my-session-exs", session.id],
     queryFn: async () => {
       const { data } = await supabase
         .from("session_exercises")
-        .select("*, exercises(name_en)")
+        .select("id, sets, reps, load_value, load_mode, exercises(name_en)")
         .eq("session_id", session.id)
         .order("order_index");
-      return data ?? [];
+      return (data ?? []) as any[];
     },
   });
   const exs = exsData ?? EMPTY_EXS;
 
-  const [forms, setForms] = useState<
-    Record<string, { weight: string; reps: string; notes: string }>
-  >({});
+  const { data: existingExLogsData } = useQuery({
+    queryKey: ["my-fb-ex-logs", existingLog?.id],
+    enabled: !!existingLog?.id,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("exercise_logs")
+        .select(
+          "id, session_exercise_id, weight_done, reps_done, notes, sets_json",
+        )
+        .eq("workout_log_id", existingLog!.id);
+      return (data ?? []) as any[];
+    },
+  });
+  const existingExLogs = existingExLogsData ?? EMPTY_EXS;
+
+  const [borg, setBorg] = useState(5);
+  const [overall, setOverall] = useState("");
+  const [performedAt, setPerformedAt] = useState<string>(session.planned_date);
+  const [forms, setForms] = useState<Record<string, ExForm>>({});
+  const [finished, setFinished] = useState(false);
+  const [saveState, setSaveState] = useState<"idle" | "saving" | "saved">(
+    "idle",
+  );
+
+  const hydratedRef = useRef(false);
+  const skipNextAutoSaveRef = useRef(false);
+  const logIdRef = useRef<string | null>(null);
+
+  // Hydrate once: wait for exercises + the existing log (if any) + its
+  // per-set data to all resolve, then seed all form state from them.
   useEffect(() => {
-    const init: typeof forms = {};
-    for (const e of exs as any[]) {
-      const w = e.load_value != null ? String(e.load_value) : "";
-      init[e.id] = { weight: w, reps: e.reps ?? "", notes: "" };
+    if (hydratedRef.current) return;
+    if (!exsData) return;
+    if (existingLog === undefined) return;
+    if (existingLog?.id && existingExLogsData === undefined) return;
+    hydratedRef.current = true;
+    logIdRef.current = existingLog?.id ?? null;
+    setBorg(existingLog?.borg_scale ?? 5);
+    setOverall(existingLog?.overall_notes ?? "");
+    setPerformedAt(existingLog?.performed_at ?? session.planned_date);
+    setFinished(!!existingLog && existingLog.status !== "draft");
+
+    const init: Record<string, ExForm> = {};
+    const byId = new Map<string, any>();
+    for (const el of existingExLogs) byId.set(el.session_exercise_id, el);
+    for (const e of exs) {
+      const el = byId.get(e.id);
+      const setCount = Math.max(1, Number(e.sets) || 1);
+      const defaultWeight =
+        e.load_mode === "bodyweight"
+          ? "0"
+          : e.load_value != null
+            ? String(e.load_value)
+            : "";
+      const defaultReps = e.reps != null ? String(e.reps) : "";
+      let sets: SetEntry[] = [];
+      const stored = Array.isArray(el?.sets_json) ? el!.sets_json : null;
+      if (stored && stored.length > 0) {
+        sets = stored.map((s: any) => ({
+          weight: s?.weight ?? "",
+          reps: s?.reps ?? "",
+        }));
+      } else if (el && (el.weight_done || el.reps_done)) {
+        sets = Array.from({ length: setCount }, () => ({
+          weight: el.weight_done ?? defaultWeight,
+          reps: el.reps_done ?? defaultReps,
+        }));
+      } else {
+        sets = Array.from({ length: setCount }, () => ({
+          weight: defaultWeight,
+          reps: defaultReps,
+        }));
+      }
+      init[e.id] = { sets, notes: el?.notes ?? "" };
     }
     setForms(init);
-  }, [exsData]);
+    // The state updates above will re-trigger the autosave effect once —
+    // that run is hydration settling, not a real edit, so skip it.
+    skipNextAutoSaveRef.current = true;
+  }, [
+    exsData,
+    existingLog,
+    existingExLogsData,
+    exs,
+    existingExLogs,
+    session.planned_date,
+  ]);
 
-  async function submit() {
-    const { data: log, error } = await supabase
-      .from("workout_logs")
-      .insert({
-        session_id: session.id,
-        client_id: client.id,
-        coach_id: client.coach_id,
-        borg_scale: borg,
-        overall_notes: overall,
-        status: "pending",
-      })
-      .select()
-      .single();
-    if (error || !log) return toast.error(error?.message ?? "Failed");
-    const rows = (exs as any[]).map((e) => ({
-      workout_log_id: log.id,
-      session_exercise_id: e.id,
-      weight_done: forms[e.id]?.weight ?? "",
-      reps_done: forms[e.id]?.reps ?? "",
-      notes: forms[e.id]?.notes ?? "",
-    }));
-    if (rows.length) await supabase.from("exercise_logs").insert(rows);
-    qc.invalidateQueries({ queryKey: ["my-week"] });
-    setSubmitted(true);
+  async function save(opts?: { finish?: boolean; silent?: boolean }) {
+    if (!hydratedRef.current) return;
+    setSaveState("saving");
+    try {
+      let logId = logIdRef.current;
+      const nextStatus = opts?.finish
+        ? "pending"
+        : finished
+          ? "pending"
+          : "draft";
+      if (logId) {
+        const { error } = await supabase
+          .from("workout_logs")
+          .update({
+            borg_scale: borg,
+            overall_notes: overall,
+            performed_at: performedAt,
+            status: nextStatus,
+          })
+          .eq("id", logId);
+        if (error) throw error;
+      } else {
+        const { data: log, error } = await supabase
+          .from("workout_logs")
+          .insert({
+            session_id: session.id,
+            client_id: client.id,
+            coach_id: client.coach_id,
+            borg_scale: borg,
+            overall_notes: overall,
+            performed_at: performedAt,
+            status: nextStatus,
+          })
+          .select()
+          .single();
+        if (error || !log) throw error ?? new Error("Failed to save");
+        logId = log.id;
+        logIdRef.current = logId;
+      }
+      await supabase
+        .from("exercise_logs")
+        .delete()
+        .eq("workout_log_id", logId!);
+      const rows = exs.map((e: any) => {
+        const f = forms[e.id] ?? { sets: [], notes: "" };
+        return {
+          workout_log_id: logId!,
+          session_exercise_id: e.id,
+          weight_done: f.sets.map((s) => s.weight).join(" / "),
+          reps_done: f.sets.map((s) => s.reps).join(" / "),
+          notes: f.notes ?? "",
+          sets_json: f.sets,
+        };
+      });
+      if (rows.length) {
+        const { error } = await supabase.from("exercise_logs").insert(rows);
+        if (error) throw error;
+      }
+      setSaveState("saved");
+      qc.invalidateQueries({ queryKey: ["athlete-week"] });
+      if (opts?.finish) {
+        setFinished(true);
+        toast.success("Workout finished — nice work 💪");
+        qc.invalidateQueries({ queryKey: ["my-past-sessions"] });
+        qc.invalidateQueries({ queryKey: ["workout-logs"] });
+        qc.invalidateQueries({ queryKey: ["pending-feedback-count"] });
+        qc.invalidateQueries({ queryKey: ["clients-training-status"] });
+      }
+    } catch (err: any) {
+      setSaveState("idle");
+      if (!opts?.silent) toast.error(err?.message ?? "Failed to save");
+    }
   }
 
-  if (submitted) {
-    return (
-      <div className="flex h-[calc(100vh-3.5rem)] items-center justify-center px-4">
-        <Card className="max-w-md p-8 text-center">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100">
-            <Check className="h-8 w-8 text-emerald-600" />
-          </div>
-          <h2 className="mt-4 text-xl font-bold">Workout Logged! 💪</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Your coach will be notified.
-          </p>
-          <Button className="mt-6 w-full" onClick={onBack}>
-            Back to Training
-          </Button>
-        </Card>
-      </div>
-    );
+  // Debounced auto-save: fires on any change to borg/notes/date/sets once
+  // hydrated, skipping the one run that fires right after hydration itself.
+  useEffect(() => {
+    if (!hydratedRef.current) return;
+    if (skipNextAutoSaveRef.current) {
+      skipNextAutoSaveRef.current = false;
+      return;
+    }
+    const t = setTimeout(() => void save({ silent: true }), AUTOSAVE_DELAY_MS);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [borg, overall, performedAt, JSON.stringify(forms)]);
+
+  function updateSet(exId: string, idx: number, patch: Partial<SetEntry>) {
+    setForms((f) => {
+      const cur = f[exId] ?? { sets: [], notes: "" };
+      const nextSets = cur.sets.map((s, i) =>
+        i === idx ? { ...s, ...patch } : s,
+      );
+      return { ...f, [exId]: { ...cur, sets: nextSets } };
+    });
+  }
+  function addSet(exId: string) {
+    setForms((f) => {
+      const cur = f[exId] ?? { sets: [], notes: "" };
+      const last = cur.sets[cur.sets.length - 1] ?? { weight: "", reps: "" };
+      return { ...f, [exId]: { ...cur, sets: [...cur.sets, { ...last }] } };
+    });
+  }
+  function removeSet(exId: string, idx: number) {
+    setForms((f) => {
+      const cur = f[exId] ?? { sets: [], notes: "" };
+      if (cur.sets.length <= 1) return f;
+      return {
+        ...f,
+        [exId]: { ...cur, sets: cur.sets.filter((_, i) => i !== idx) },
+      };
+    });
   }
 
   return (
     <div className="h-[calc(100vh-3.5rem)] overflow-auto">
-      <div className="mx-auto max-w-2xl space-y-4 p-6">
+      <div className="mx-auto max-w-2xl space-y-4 p-4 sm:p-6">
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="icon" onClick={onBack}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
-          <h1 className="text-xl font-bold">
-            {session.day_label} — Log Workout
+          <h1 className="flex-1 text-xl font-bold">
+            {session.name || session.day_label}
           </h1>
+          <span className="text-xs text-muted-foreground">
+            {saveState === "saving"
+              ? "Saving…"
+              : saveState === "saved"
+                ? "Saved"
+                : ""}
+          </span>
+          {finished && (
+            <Badge className="bg-emerald-100 text-emerald-800">Finished</Badge>
+          )}
         </div>
+
+        <Card className="p-4">
+          <Label className="text-sm font-semibold">Date performed</Label>
+          <div className="mt-2 flex items-center gap-2">
+            <Input
+              type="date"
+              value={performedAt}
+              max={toISODate(new Date())}
+              onChange={(e) => setPerformedAt(e.target.value)}
+              className="h-11 w-auto text-base"
+            />
+          </div>
+        </Card>
+
         <Card className="p-4">
           <Label className="text-sm font-semibold">
             Overall Effort (Borg Scale)
@@ -674,59 +891,104 @@ function LogWorkout({
             {BORG_LABELS[borg]}
           </p>
         </Card>
-        {(exs as any[]).map((e, i) => (
-          <Card key={e.id} className="p-4">
-            <div className="flex items-start justify-between">
-              <div className="font-semibold">
-                {i + 1}. {e.exercises?.name_en}
+
+        {exs.map((e: any, i: number) => {
+          const f = forms[e.id] ?? { sets: [], notes: "" };
+          const weightSuffix =
+            e.load_mode === "%1RM"
+              ? "% 1RM"
+              : e.load_mode === "bodyweight"
+                ? ""
+                : "kg";
+          return (
+            <Card key={e.id} className="p-4">
+              <div className="flex items-start justify-between">
+                <div className="font-semibold">
+                  {i + 1}. {e.exercises?.name_en}
+                </div>
+                <div className="text-right text-xs text-muted-foreground">
+                  {e.sets ?? "-"}×{e.reps || "-"}
+                  {e.load_value != null && ` @ ${e.load_value}${weightSuffix}`}
+                  {e.load_mode === "bodyweight" && " · bodyweight"}
+                </div>
               </div>
-              <div className="text-right text-xs text-muted-foreground">
-                {e.sets ?? "-"}×{e.reps || "-"}
-                {e.load_value != null &&
-                  ` @ ${e.load_value}${e.load_mode === "%1RM" ? "% 1RM" : e.load_mode === "bodyweight" ? "" : "kg"}`}
+
+              <div className="mt-3 space-y-2">
+                <div className="grid grid-cols-[auto_1fr_1fr_auto] items-center gap-2 text-xs text-muted-foreground">
+                  <span className="w-8">Set</span>
+                  <span>
+                    Weight{weightSuffix ? ` (${weightSuffix.trim()})` : ""}
+                  </span>
+                  <span>Reps</span>
+                  <span className="w-9" />
+                </div>
+                {f.sets.map((s, idx) => (
+                  <div
+                    key={idx}
+                    className="grid grid-cols-[auto_1fr_1fr_auto] items-center gap-2"
+                  >
+                    <span className="w-8 text-sm font-medium text-muted-foreground">
+                      #{idx + 1}
+                    </span>
+                    <Input
+                      inputMode="decimal"
+                      className="h-11 text-base"
+                      value={s.weight}
+                      onChange={(ev) =>
+                        updateSet(e.id, idx, { weight: ev.target.value })
+                      }
+                    />
+                    <Input
+                      inputMode="numeric"
+                      className="h-11 text-base"
+                      value={s.reps}
+                      onChange={(ev) =>
+                        updateSet(e.id, idx, { reps: ev.target.value })
+                      }
+                    />
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-9 w-9"
+                      onClick={() => removeSet(e.id, idx)}
+                      disabled={f.sets.length <= 1}
+                      aria-label="Remove set"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-9"
+                  onClick={() => addSet(e.id)}
+                >
+                  <Plus className="mr-1 h-4 w-4" /> Add set
+                </Button>
               </div>
-            </div>
-            <div className="mt-2 grid grid-cols-2 gap-2">
-              <div>
-                <Label className="text-xs">Weight Done</Label>
+
+              <div className="mt-3">
+                <Label className="text-xs">Notes</Label>
                 <Input
-                  value={forms[e.id]?.weight ?? ""}
+                  placeholder="How did it feel?"
+                  className="h-11 text-base"
+                  value={f.notes}
                   onChange={(ev) =>
-                    setForms({
-                      ...forms,
-                      [e.id]: { ...forms[e.id], weight: ev.target.value },
-                    })
+                    setForms((prev) => ({
+                      ...prev,
+                      [e.id]: {
+                        ...(prev[e.id] ?? { sets: [], notes: "" }),
+                        notes: ev.target.value,
+                      },
+                    }))
                   }
                 />
               </div>
-              <div>
-                <Label className="text-xs">Reps Done</Label>
-                <Input
-                  value={forms[e.id]?.reps ?? ""}
-                  onChange={(ev) =>
-                    setForms({
-                      ...forms,
-                      [e.id]: { ...forms[e.id], reps: ev.target.value },
-                    })
-                  }
-                />
-              </div>
-            </div>
-            <div className="mt-2">
-              <Label className="text-xs">Notes</Label>
-              <Input
-                placeholder="How did it feel?"
-                value={forms[e.id]?.notes ?? ""}
-                onChange={(ev) =>
-                  setForms({
-                    ...forms,
-                    [e.id]: { ...forms[e.id], notes: ev.target.value },
-                  })
-                }
-              />
-            </div>
-          </Card>
-        ))}
+            </Card>
+          );
+        })}
+
         <Card className="p-4">
           <Label className="text-sm font-semibold">Overall Notes</Label>
           <Textarea
@@ -737,9 +999,21 @@ function LogWorkout({
             onChange={(e) => setOverall(e.target.value)}
           />
         </Card>
-        <Button className="w-full" size="lg" onClick={submit}>
-          Submit Workout Log
-        </Button>
+
+        {finished ? (
+          <p className="text-center text-xs text-muted-foreground">
+            Workout finished — you can still edit anything above, changes save
+            automatically.
+          </p>
+        ) : (
+          <Button
+            className="h-12 w-full text-base"
+            size="lg"
+            onClick={() => save({ finish: true })}
+          >
+            Finish Workout
+          </Button>
+        )}
       </div>
     </div>
   );
