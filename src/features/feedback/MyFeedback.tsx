@@ -4,7 +4,7 @@ import { MessageSquare, CalendarIcon, Pencil } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { borgColor } from "@/lib/coachdesk/constants";
+import { borgColor, formatDistance } from "@/lib/coachdesk/constants";
 import {
   addDays,
   parseISODate,
@@ -50,7 +50,9 @@ export function MyFeedback({ wrap }: { wrap?: boolean } = {}) {
         const blockIds = blocks.map((b: any) => b.id);
         const { data: sess } = await supabase
           .from("sessions")
-          .select("id, name, day_of_week, week_number, block_id, status")
+          .select(
+            "id, name, day_of_week, week_number, block_id, status, is_client_added, discipline, intensity, duration_minutes, distance_meters",
+          )
           .in("block_id", blockIds)
           .eq("status", "active");
         const sList = (sess ?? []) as any[];
@@ -95,7 +97,7 @@ export function MyFeedback({ wrap }: { wrap?: boolean } = {}) {
 
         for (const s of sList) {
           const c = counts.get(s.id) ?? 0;
-          if (c === 0) continue;
+          if (c === 0 && !s.is_client_added) continue;
           const blk = blocks.find((b: any) => b.id === s.block_id);
           if (!blk) continue;
           const off =
@@ -121,6 +123,11 @@ export function MyFeedback({ wrap }: { wrap?: boolean } = {}) {
             planned_date: planned,
             ex_count: c,
             types,
+            is_client_added: s.is_client_added,
+            discipline: s.discipline,
+            intensity: s.intensity,
+            duration_minutes: s.duration_minutes,
+            distance_meters: s.distance_meters,
             log: logMap.get(s.id),
           });
         }
@@ -187,6 +194,7 @@ export function MyFeedback({ wrap }: { wrap?: boolean } = {}) {
               const logged = !!s.log;
               const label =
                 s.name ||
+                (s.is_client_added && s.discipline) ||
                 `Training Day ${s.day_of_week} - Week ${s.week_number}`;
               const performed = s.log?.performed_at ?? null;
               const dateDisplay = formatLong(
@@ -209,7 +217,9 @@ export function MyFeedback({ wrap }: { wrap?: boolean } = {}) {
                             </Badge>
                           ))
                         ) : (
-                          <Badge variant="secondary">Training</Badge>
+                          <Badge variant="secondary">
+                            {s.is_client_added ? "Extra session" : "Training"}
+                          </Badge>
                         )}
                         <span className="text-xs text-muted-foreground inline-flex items-center gap-1">
                           <CalendarIcon className="h-3 w-3" />
@@ -223,7 +233,20 @@ export function MyFeedback({ wrap }: { wrap?: boolean } = {}) {
                         </span>
                       </div>
                       <p className="mt-1 text-xs text-muted-foreground">
-                        {s.ex_count} exercise{s.ex_count === 1 ? "" : "s"}
+                        {s.is_client_added
+                          ? [
+                              s.duration_minutes
+                                ? `${s.duration_minutes} min`
+                                : null,
+                              formatDistance(s.distance_meters, s.discipline),
+                              s.intensity
+                                ? s.intensity[0].toUpperCase() +
+                                  s.intensity.slice(1)
+                                : null,
+                            ]
+                              .filter(Boolean)
+                              .join(" · ") || "Extra session"
+                          : `${s.ex_count} exercise${s.ex_count === 1 ? "" : "s"}`}
                       </p>
                       {s.log?.overall_notes && (
                         <p className="mt-1 line-clamp-1 text-sm text-muted-foreground">

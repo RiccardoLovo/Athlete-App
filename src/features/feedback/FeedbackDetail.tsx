@@ -4,7 +4,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { borgColor, BORG_LABELS } from "@/lib/coachdesk/constants";
+import {
+  borgColor,
+  BORG_LABELS,
+  formatDistance,
+  intensityLabel,
+} from "@/lib/coachdesk/constants";
 import { toast } from "sonner";
 
 export function FeedbackDetail({
@@ -19,7 +24,9 @@ export function FeedbackDetail({
     queryFn: async () => {
       const { data: log } = await supabase
         .from("workout_logs")
-        .select("*, clients(name), sessions(day_of_week, week_number, name)")
+        .select(
+          "*, clients(name), sessions(day_of_week, week_number, name, discipline, duration_minutes, distance_meters, intensity)",
+        )
         .eq("id", id)
         .single();
       const { data: exs } = await supabase
@@ -68,6 +75,37 @@ export function FeedbackDetail({
             )}
           </div>
         </div>
+
+        {log.sessions?.discipline && (
+          <Card className="p-5">
+            <div className="text-sm text-muted-foreground">Extra session</div>
+            <div className="mt-2 flex flex-wrap items-center gap-3 text-sm">
+              <Badge variant="outline">{log.sessions.discipline}</Badge>
+              {log.sessions.intensity && (
+                <span>
+                  {intensityLabel(
+                    log.sessions.intensity,
+                    log.sessions.discipline,
+                  )}
+                </span>
+              )}
+              {log.sessions.duration_minutes && (
+                <span>{log.sessions.duration_minutes} min</span>
+              )}
+              {formatDistance(
+                log.sessions.distance_meters,
+                log.sessions.discipline,
+              ) && (
+                <span>
+                  {formatDistance(
+                    log.sessions.distance_meters,
+                    log.sessions.discipline,
+                  )}
+                </span>
+              )}
+            </div>
+          </Card>
+        )}
 
         <Card className="p-5">
           <div className="text-sm text-muted-foreground">Overall Effort</div>

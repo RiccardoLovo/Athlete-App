@@ -7,7 +7,15 @@ export type WorkoutLog = {
   submitted_at: string;
   status: string;
   clients: { name: string };
-  sessions: { day_of_week: number; week_number: number; name: string | null };
+  sessions: {
+    day_of_week: number;
+    week_number: number;
+    name: string | null;
+    discipline: string | null;
+    duration_minutes: number | null;
+    distance_meters: number | null;
+    intensity: string | null;
+  };
 };
 
 export type PlanSession = {
@@ -21,6 +29,11 @@ export type PlanSession = {
   planned_date: string; // yyyy-mm-dd
   ex_count: number;
   types: string[];
+  is_client_added: boolean;
+  discipline: string | null;
+  intensity: string | null;
+  duration_minutes: number | null;
+  distance_meters: number | null;
   log?: {
     id: string;
     borg_scale: number;

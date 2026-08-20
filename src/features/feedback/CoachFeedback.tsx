@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { borgColor } from "@/lib/coachdesk/constants";
+import { borgColor, formatDistance } from "@/lib/coachdesk/constants";
 import { FeedbackDetail } from "./FeedbackDetail";
 import type { WorkoutLog } from "./feedback.types";
 
@@ -29,7 +29,7 @@ export function CoachFeedback({
       let q = supabase
         .from("workout_logs")
         .select(
-          "*, clients(id, name), sessions(day_of_week, week_number, name)",
+          "*, clients(id, name), sessions(day_of_week, week_number, name, discipline, duration_minutes, distance_meters, intensity)",
         )
         .neq("status", "draft") // athlete hasn't finished the workout yet
         .order("submitted_at", { ascending: false });
@@ -127,6 +127,22 @@ export function CoachFeedback({
                     <Badge variant="secondary">
                       W{l.sessions?.week_number}
                     </Badge>
+                    {l.sessions?.discipline && (
+                      <Badge variant="outline">
+                        {[
+                          l.sessions.discipline,
+                          l.sessions.duration_minutes
+                            ? `${l.sessions.duration_minutes} min`
+                            : null,
+                          formatDistance(
+                            l.sessions.distance_meters,
+                            l.sessions.discipline,
+                          ),
+                        ]
+                          .filter(Boolean)
+                          .join(" · ")}
+                      </Badge>
+                    )}
                   </div>
                   {l.overall_notes && (
                     <p className="mt-1 line-clamp-1 text-sm text-muted-foreground">

@@ -140,3 +140,22 @@ export function weekIndexForDate(
   const diff = Math.floor((d.getTime() - start.getTime()) / 86_400_000);
   return Math.floor(diff / 7) + 1;
 }
+
+// Locate which block/week/day-of-week a calendar date falls into, for
+// logging an extra session against an absolute date rather than a
+// currently-viewed week. Returns null if the date falls outside every block.
+export function resolveDateToBlockWeekDay(
+  planStart: string,
+  blocks: BlockLike[],
+  d: Date,
+): { blockPosition: number; weekInBlock: number; dayOfWeek: number } | null {
+  const sorted = [...blocks].sort((a, b) => a.position - b.position);
+  for (const b of sorted) {
+    const start = blockStart(planStart, sorted, b.position);
+    const weekInBlock = weekIndexForDate(start, b.weeks, d);
+    if (weekInBlock == null) continue;
+    const dayOfWeek = ((d.getDay() + 6) % 7) + 1; // 1=Mon .. 7=Sun
+    return { blockPosition: b.position, weekInBlock, dayOfWeek };
+  }
+  return null;
+}

@@ -535,7 +535,11 @@ export type Database = {
           body_region: string | null;
           created_at: string;
           day_of_week: number;
+          discipline: string | null;
+          distance_meters: number | null;
+          duration_minutes: number | null;
           id: string;
+          intensity: string | null;
           is_client_added: boolean;
           is_optional: boolean;
           name: string | null;
@@ -550,7 +554,11 @@ export type Database = {
           body_region?: string | null;
           created_at?: string;
           day_of_week: number;
+          discipline?: string | null;
+          distance_meters?: number | null;
+          duration_minutes?: number | null;
           id?: string;
+          intensity?: string | null;
           is_client_added?: boolean;
           is_optional?: boolean;
           name?: string | null;
@@ -565,7 +573,11 @@ export type Database = {
           body_region?: string | null;
           created_at?: string;
           day_of_week?: number;
+          discipline?: string | null;
+          distance_meters?: number | null;
+          duration_minutes?: number | null;
           id?: string;
+          intensity?: string | null;
           is_client_added?: boolean;
           is_optional?: boolean;
           name?: string | null;

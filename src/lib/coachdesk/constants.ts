@@ -1,5 +1,72 @@
 export const SPORTS = ["General", "Paddle", "Triathlon", "Running"] as const;
 
+// Per-session discipline, used when an athlete logs an extra session —
+// distinct from the client's profile-level SPORTS (a goal, which can span
+// several disciplines, e.g. Triathlon).
+export const DISCIPLINES = [
+  "Strength training",
+  "Running",
+  "Swimming",
+  "Cycling",
+  "Padel",
+  "Football",
+] as const;
+export type Discipline = (typeof DISCIPLINES)[number];
+
+// Endurance disciplines get zone-based intensity labels and an optional
+// distance field; everything else (strength/field sports) gets plain
+// low/medium/high and no distance.
+const ZONE_DISCIPLINES = new Set<string>(["Running", "Swimming", "Cycling"]);
+
+// Distance is entered in this unit at the UI layer, then stored in meters.
+// null means the discipline doesn't take a distance at all.
+export function distanceUnitFor(discipline: string | null): "km" | "m" | null {
+  if (discipline === "Swimming") return "m";
+  if (discipline === "Running" || discipline === "Cycling") return "km";
+  return null;
+}
+
+export function distanceToMeters(
+  value: number,
+  discipline: string | null,
+): number {
+  return distanceUnitFor(discipline) === "km" ? value * 1000 : value;
+}
+
+export function metersToDistance(
+  meters: number,
+  discipline: string | null,
+): number {
+  return distanceUnitFor(discipline) === "km" ? meters / 1000 : meters;
+}
+
+export function formatDistance(
+  meters: number | null,
+  discipline: string | null,
+): string | null {
+  const unit = distanceUnitFor(discipline);
+  if (meters == null || !unit) return null;
+  const value = metersToDistance(meters, discipline);
+  return `${unit === "km" ? value.toFixed(1).replace(/\.0$/, "") : value} ${unit}`;
+}
+
+export const INTENSITY_LEVELS = ["low", "medium", "high"] as const;
+export type IntensityLevel = (typeof INTENSITY_LEVELS)[number];
+
+export function intensityLabel(
+  level: IntensityLevel,
+  discipline: string | null,
+): string {
+  if (!discipline || !ZONE_DISCIPLINES.has(discipline)) {
+    return { low: "Low", medium: "Medium", high: "High" }[level];
+  }
+  return {
+    low: "Low (Z1–Z2)",
+    medium: "Medium (Z3–Z4)",
+    high: "High (Z5+)",
+  }[level];
+}
+
 export const MOVEMENT_PATTERNS = [
   "Squat",
   "Hinge",

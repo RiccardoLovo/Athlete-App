@@ -12,11 +12,6 @@ import {
   PlayCircle,
 } from "lucide-react";
 import { ClientProfileDialog } from "@/components/coachdesk/ClientProfileDialog";
-import {
-  ExerciseBank,
-  insertExerciseIntoSession,
-} from "@/components/coachdesk/ExerciseBank";
-import { SessionExercises } from "@/components/coachdesk/SessionExercises";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,12 +21,24 @@ import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { toast } from "sonner";
-import { BORG_LABELS, borgColor } from "@/lib/coachdesk/constants";
+import {
+  BORG_LABELS,
+  borgColor,
+  DISCIPLINES,
+  distanceToMeters,
+  distanceUnitFor,
+  INTENSITY_LEVELS,
+  intensityLabel,
+  type Discipline,
+  type IntensityLevel,
+} from "@/lib/coachdesk/constants";
 import { useRole } from "@/hooks/use-role";
 import { downloadTrainingPdf } from "@/lib/coachdesk/download-training-pdf";
 import {
   addDays,
+  formatLong,
   parseISODate,
+  resolveDateToBlockWeekDay,
   toISODate,
 } from "@/lib/coachdesk/periodization";
 import { getEmbedUrl } from "@/lib/coachdesk/video";
@@ -125,20 +132,19 @@ function SessionList({
     "Saturday",
     "Sunday",
   ];
-  const { data: plan } = useQuery({
-    queryKey: ["athlete-active-plan", client.id],
+  const { data: allPlans } = useQuery({
+    queryKey: ["athlete-all-plans", client.id],
     queryFn: async () => {
       const { data } = await supabase
         .from("training_plans")
         .select(
           "id, name, start_date, status, training_blocks(id, name, position, weeks)",
         )
-        .eq("athlete_id", client.id)
-        .eq("status", "active")
-        .maybeSingle();
-      return data as any;
+        .eq("athlete_id", client.id);
+      return (data ?? []) as any[];
     },
   });
+  const plan = allPlans?.find((p) => p.status === "active") ?? null;
   const blocks = (plan?.training_blocks ?? [])
     .slice()
     .sort((a: any, b: any) => a.position - b.position);
@@ -268,7 +274,7 @@ function SessionList({
             >
               <UserCircle className="mr-1 h-4 w-4" /> My Profile
             </Button>
-            {weekInfo && (
+            {allPlans && allPlans.length > 0 && (
               <Button
                 variant="outline"
                 size="sm"
@@ -279,15 +285,11 @@ function SessionList({
             )}
           </div>
         </div>
-        {addingExtra && weekInfo && (
+        {addingExtra && allPlans && allPlans.length > 0 && (
           <LogExtraSession
             client={client}
-            blockId={weekInfo.block.id}
-            weekNumber={weekInfo.weekInBlock}
-            onDone={(session) => {
-              setAddingExtra(false);
-              onPick(session);
-            }}
+            plans={allPlans}
+            onDone={() => setAddingExtra(false)}
             onCancel={() => setAddingExtra(false)}
           />
         )}
@@ -452,144 +454,283 @@ function SessionList({
   );
 }
 
-const EXTRA_SESSION_DAY_LABELS = [
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-  "Sunday",
-];
+// Extra sessions are simple metadata entries (no exercises): pick the day,
+// then the discipline, then intensity/effort/duration/notes — inserting the
+// session and its workout_log together so it lands straight in the coach's
+// review queue, same as any finished workout.
+type ExtraSessionStep = "date" | "discipline" | "details";
+
+type PlanWithBlocks = {
+  id: string;
+  start_date: string;
+  training_blocks: { id: string; position: number; weeks: number }[];
+};
+
+// Find which plan/block/week/day a calendar date falls into, searching
+// every plan the athlete has ever had (not just the currently active one) —
+// most-recently-started plan first, so an overlap resolves to the newer one.
+function findBlockForDate(plans: PlanWithBlocks[], date: Date) {
+  const sorted = [...plans].sort((a, b) =>
+    b.start_date.localeCompare(a.start_date),
+  );
+  for (const p of sorted) {
+    const blocks = p.training_blocks ?? [];
+    if (!blocks.length) continue;
+    const resolved = resolveDateToBlockWeekDay(p.start_date, blocks, date);
+    if (!resolved) continue;
+    const block = blocks.find((b) => b.position === resolved.blockPosition);
+    if (block)
+      return {
+        block,
+        weekInBlock: resolved.weekInBlock,
+        dayOfWeek: resolved.dayOfWeek,
+      };
+  }
+  return null;
+}
 
 function LogExtraSession({
   client,
-  blockId,
-  weekNumber,
+  plans,
   onDone,
   onCancel,
 }: {
   client: Client;
-  blockId: string;
-  weekNumber: number;
-  onDone: (session: {
-    id: string;
-    day_label: string;
-    name: string | null;
-    day_of_week: number;
-    week_number: number;
-    planned_date: string;
-  }) => void;
+  plans: PlanWithBlocks[];
+  onDone: () => void;
   onCancel: () => void;
 }) {
-  const [day, setDay] = useState<number | null>(null);
-  const [sessionId, setSessionId] = useState<string | null>(null);
-  const [exerciseCount, setExerciseCount] = useState(0);
-  const [selectedExercise, setSelectedExercise] = useState<{
-    id: string;
-    name: string;
-  } | null>(null);
-  const [creating, setCreating] = useState(false);
+  const [step, setStep] = useState<ExtraSessionStep>("date");
+  const [date, setDate] = useState(toISODate(new Date()));
+  const [discipline, setDiscipline] = useState<Discipline | null>(null);
+  const [intensity, setIntensity] = useState<IntensityLevel | null>(null);
+  const [borg, setBorg] = useState(5);
+  const [duration, setDuration] = useState("");
+  const [distance, setDistance] = useState("");
+  const [notes, setNotes] = useState("");
+  const [saving, setSaving] = useState(false);
   const qc = useQueryClient();
 
-  async function pickDay(d: number) {
-    setCreating(true);
-    const { data, error } = await supabase
-      .from("sessions")
-      .insert({
-        block_id: blockId,
-        week_number: weekNumber,
-        day_of_week: d,
-        status: "active",
-        is_client_added: true,
-      })
-      .select("id")
-      .single();
-    setCreating(false);
-    if (error || !data) {
-      toast.error(error?.message ?? "Couldn't start this session");
-      return;
+  const distanceUnit = distanceUnitFor(discipline);
+  const canSubmit = !!intensity;
+
+  async function submit() {
+    if (!discipline || !canSubmit) return;
+    setSaving(true);
+    try {
+      const match = findBlockForDate(plans, parseISODate(date));
+      if (!match) {
+        toast.error("That date isn't inside any of your training plans.");
+        return;
+      }
+
+      const durationMinutes = duration.trim() !== "" ? Number(duration) : null;
+      const distanceMeters =
+        distanceUnit && distance.trim() !== ""
+          ? distanceToMeters(Number(distance), discipline)
+          : null;
+
+      const { data: session, error: sessErr } = await supabase
+        .from("sessions")
+        .insert({
+          block_id: match.block.id,
+          week_number: match.weekInBlock,
+          day_of_week: match.dayOfWeek,
+          status: "active",
+          is_client_added: true,
+          discipline,
+          intensity,
+          duration_minutes: durationMinutes,
+          distance_meters: distanceMeters,
+        })
+        .select("id")
+        .single();
+      if (sessErr || !session)
+        throw sessErr ?? new Error("Couldn't create session");
+
+      const { error: logErr } = await supabase.from("workout_logs").insert({
+        session_id: session.id,
+        client_id: client.id,
+        coach_id: client.coach_id,
+        borg_scale: borg,
+        overall_notes: notes,
+        status: "pending",
+        performed_at: date,
+      });
+      if (logErr) throw logErr;
+
+      toast.success("Session logged!");
+      qc.invalidateQueries({ queryKey: ["athlete-week"] });
+      qc.invalidateQueries({ queryKey: ["my-past-sessions"] });
+      qc.invalidateQueries({ queryKey: ["workout-logs"] });
+      qc.invalidateQueries({ queryKey: ["pending-feedback-count"] });
+      qc.invalidateQueries({ queryKey: ["clients-training-status"] });
+      onDone();
+    } catch (err: any) {
+      toast.error(err?.message ?? "Failed to log session");
+    } finally {
+      setSaving(false);
     }
-    setDay(d);
-    setSessionId(data.id);
-  }
-
-  async function cancel() {
-    if (sessionId) await supabase.from("sessions").delete().eq("id", sessionId);
-    onCancel();
-  }
-
-  async function addExercise(exerciseId: string) {
-    const { error } = await insertExerciseIntoSession(sessionId!, exerciseId);
-    if (error) return toast.error(`Add failed: ${error.message}`);
-    setExerciseCount((c) => c + 1);
-    setSelectedExercise(null);
-    qc.invalidateQueries({ queryKey: ["session-exs", sessionId] });
   }
 
   return (
     <Card className="p-4">
       <div className="flex items-center justify-between">
         <h2 className="font-semibold">Log an extra session</h2>
-        <Button variant="ghost" size="icon" onClick={cancel}>
+        <Button variant="ghost" size="icon" onClick={onCancel}>
           <X className="h-4 w-4" />
         </Button>
       </div>
-      {day === null ? (
-        <div className="mt-3">
-          <p className="mb-2 text-xs text-muted-foreground">
+
+      {step === "date" && (
+        <div className="mt-3 space-y-3">
+          <p className="text-xs text-muted-foreground">
             Which day did you train?
           </p>
+          <Input
+            type="date"
+            value={date}
+            max={toISODate(new Date())}
+            onChange={(e) => setDate(e.target.value)}
+            className="h-11 w-auto text-base"
+          />
+          <Button className="w-full" onClick={() => setStep("discipline")}>
+            Continue
+          </Button>
+        </div>
+      )}
+
+      {step === "discipline" && (
+        <div className="mt-3 space-y-3">
+          <p className="text-xs text-muted-foreground">What did you do?</p>
           <div className="flex flex-wrap gap-1.5">
-            {EXTRA_SESSION_DAY_LABELS.map((label, idx) => (
+            {DISCIPLINES.map((d) => (
               <Button
-                key={label}
-                variant="outline"
+                key={d}
+                variant={discipline === d ? "default" : "outline"}
                 size="sm"
-                disabled={creating}
-                onClick={() => pickDay(idx + 1)}
+                onClick={() => {
+                  setDiscipline(d);
+                  setIntensity(null);
+                  setDistance("");
+                  setStep("details");
+                }}
               >
-                {label}
+                {d}
               </Button>
             ))}
           </div>
+          <Button variant="ghost" size="sm" onClick={() => setStep("date")}>
+            Back
+          </Button>
         </div>
-      ) : (
-        <div className="mt-3 space-y-3">
+      )}
+
+      {step === "details" && discipline && (
+        <div className="mt-3 space-y-4">
           <p className="text-xs text-muted-foreground">
-            {EXTRA_SESSION_DAY_LABELS[day - 1]} — add what you did below, then
-            log it like any other workout.
+            {formatLong(parseISODate(date))} · {discipline}
           </p>
-          <div className="max-h-64 overflow-auto rounded border">
-            <ExerciseBank
-              selectedExerciseId={selectedExercise?.id ?? null}
-              onSelectExercise={(e) => {
-                setSelectedExercise(e);
-                addExercise(e.id);
-              }}
+
+          <div>
+            <Label className="text-sm font-semibold">Intensity</Label>
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {INTENSITY_LEVELS.map((lvl) => (
+                <Button
+                  key={lvl}
+                  variant={intensity === lvl ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setIntensity(lvl)}
+                >
+                  {intensityLabel(lvl, discipline)}
+                </Button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <Label className="text-sm font-semibold">
+              Overall Effort (Borg Scale)
+            </Label>
+            <div className="mt-3 flex items-center gap-4">
+              <Slider
+                value={[borg]}
+                min={1}
+                max={10}
+                step={1}
+                onValueChange={(v) => setBorg(v[0])}
+                className="flex-1"
+              />
+              <Badge className={`${borgColor(borg)} text-base`}>
+                {borg}/10
+              </Badge>
+            </div>
+            <p className="mt-2 text-xs text-muted-foreground">
+              {BORG_LABELS[borg]}
+            </p>
+          </div>
+
+          <div className="flex gap-4">
+            <div>
+              <Label className="text-sm font-semibold">
+                Duration (minutes, optional)
+              </Label>
+              <Input
+                type="number"
+                inputMode="numeric"
+                min={1}
+                value={duration}
+                onChange={(e) => setDuration(e.target.value)}
+                className="mt-2 h-11 w-32 text-base"
+                placeholder="45"
+              />
+            </div>
+            {distanceUnit && (
+              <div>
+                <Label className="text-sm font-semibold">
+                  Distance ({distanceUnit}, optional)
+                </Label>
+                <Input
+                  type="number"
+                  inputMode="decimal"
+                  min={0}
+                  value={distance}
+                  onChange={(e) => setDistance(e.target.value)}
+                  className="mt-2 h-11 w-32 text-base"
+                  placeholder={distanceUnit === "km" ? "10" : "1500"}
+                />
+              </div>
+            )}
+          </div>
+
+          <div>
+            <Label className="text-sm font-semibold">Notes (optional)</Label>
+            <Textarea
+              className="mt-2"
+              rows={2}
+              placeholder="How did it feel?"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
             />
           </div>
-          <SessionExercises
-            sessionId={sessionId!}
-            clientId={client.id}
-            compact
-          />
-          <Button
-            className="w-full"
-            disabled={exerciseCount === 0}
-            onClick={() =>
-              onDone({
-                id: sessionId!,
-                day_label: EXTRA_SESSION_DAY_LABELS[day - 1],
-                name: null,
-                day_of_week: day,
-                week_number: weekNumber,
-                planned_date: toISODate(new Date()),
-              })
-            }
-          >
-            Continue to log feedback
-          </Button>
+
+          <div className="flex gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setStep("discipline")}
+              disabled={saving}
+            >
+              Back
+            </Button>
+            <Button
+              className="flex-1"
+              disabled={!canSubmit || saving}
+              onClick={submit}
+            >
+              {saving ? "Saving…" : "Log session"}
+            </Button>
+          </div>
         </div>
       )}
     </Card>
