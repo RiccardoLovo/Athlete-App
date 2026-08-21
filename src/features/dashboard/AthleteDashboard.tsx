@@ -58,6 +58,43 @@ import {
 type Client = { id: string; name: string; sport: string; coach_id: string };
 
 const EMPTY_EXS: any[] = [];
+export const EMPTY_LAST_WEIGHTS: Record<string, string> = {};
+
+// For exercises with no coach-prescribed weight, fall back to the athlete's
+// most recent logged weight for that same exercise (across any past
+// session) so the field isn't just left blank.
+export async function fetchLastLoggedWeights(
+  clientId: string,
+  sessionExercises: { exercise_id: string | null }[],
+): Promise<Record<string, string>> {
+  const exerciseIds = Array.from(
+    new Set(
+      sessionExercises
+        .map((e) => e.exercise_id)
+        .filter((id): id is string => !!id),
+    ),
+  );
+  if (!exerciseIds.length) return {};
+  const { data } = await supabase
+    .from("exercise_logs")
+    .select(
+      "weight_done, sets_json, session_exercises!inner(exercise_id), workout_logs!inner(client_id, performed_at)",
+    )
+    .eq("workout_logs.client_id", clientId)
+    .in("session_exercises.exercise_id", exerciseIds)
+    .order("performed_at", { foreignTable: "workout_logs", ascending: false });
+  const result: Record<string, string> = {};
+  for (const row of (data ?? []) as any[]) {
+    const exId = row.session_exercises?.exercise_id;
+    if (!exId || result[exId]) continue;
+    const sets = Array.isArray(row.sets_json) ? row.sets_json : null;
+    const w = sets?.length
+      ? sets[sets.length - 1]?.weight
+      : (row.weight_done?.split(" / ").pop() ?? null);
+    if (w) result[exId] = w;
+  }
+  return result;
+}
 
 export function AthleteDashboard() {
   const navigate = useNavigate();
@@ -774,19 +811,22 @@ function LogWorkout({
   });
 
   const { data: exsData } = useQuery({
-    queryKey: ["my-session-exs", session.id],
+    queryKey: ["my-session-exs", session.id, client.id],
     queryFn: async () => {
       const { data } = await supabase
         .from("session_exercises")
         .select(
-          "id, sets, reps, load_value, load_mode, exercises(name_en, video_url)",
+          "id, exercise_id, sets, reps, load_value, load_mode, exercises(name_en, video_url)",
         )
         .eq("session_id", session.id)
         .order("order_index");
-      return (data ?? []) as any[];
+      const list = (data ?? []) as any[];
+      const lastWeights = await fetchLastLoggedWeights(client.id, list);
+      return { list, lastWeights };
     },
   });
-  const exs = exsData ?? EMPTY_EXS;
+  const exs = exsData?.list ?? EMPTY_EXS;
+  const lastWeights = exsData?.lastWeights ?? EMPTY_LAST_WEIGHTS;
 
   const { data: existingExLogsData } = useQuery({
     queryKey: ["my-fb-ex-logs", existingLog?.id],
@@ -843,12 +883,14 @@ function LogWorkout({
     for (const e of exs) {
       const el = byId.get(e.id);
       const setCount = Math.max(1, Number(e.sets) || 1);
-      const defaultWeight =
+      const prescribedWeight =
         e.load_mode === "bodyweight"
           ? "0"
           : e.load_value != null
             ? String(e.load_value)
             : "";
+      const defaultWeight =
+        prescribedWeight || lastWeights[e.exercise_id] || "";
       const defaultReps = e.reps != null ? String(e.reps) : "";
       let sets: SetEntry[] = [];
       const stored = Array.isArray(el?.sets_json) ? el!.sets_json : null;
@@ -1062,9 +1104,15 @@ function LogWorkout({
                 : "kg";
           return (
             <Card key={e.id} className="p-4">
-              <div className="flex items-start justify-between gap-2">
-                <div className="flex items-center gap-1.5 font-semibold">
-                  {i + 1}. {e.exercises?.name_en}
+              <div className="flex items-start gap-2">
+                <div className="flex flex-wrap items-center gap-1.5 font-semibold">
+                  {i + 1}. {e.exercises?.name_en ?? "Exercise removed"}
+                  <span className="text-xs font-normal text-muted-foreground">
+                    ({e.sets ?? "-"}×{e.reps || "-"}
+                    {e.load_value != null &&
+                      ` @ ${e.load_value}${weightSuffix}`}
+                    {e.load_mode === "bodyweight" && " · bodyweight"})
+                  </span>
                   {e.exercises?.video_url && (
                     <Button
                       variant="ghost"
@@ -1076,11 +1124,6 @@ function LogWorkout({
                       <PlayCircle className="h-4 w-4" />
                     </Button>
                   )}
-                </div>
-                <div className="text-right text-xs text-muted-foreground">
-                  {e.sets ?? "-"}×{e.reps || "-"}
-                  {e.load_value != null && ` @ ${e.load_value}${weightSuffix}`}
-                  {e.load_mode === "bodyweight" && " · bodyweight"}
                 </div>
               </div>
 

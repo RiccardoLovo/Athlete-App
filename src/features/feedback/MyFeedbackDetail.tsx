@@ -16,6 +16,10 @@ import {
   formatLong,
 } from "@/lib/coachdesk/periodization";
 import { toast } from "sonner";
+import {
+  EMPTY_LAST_WEIGHTS,
+  fetchLastLoggedWeights,
+} from "@/features/dashboard/AthleteDashboard";
 import type { PlanSession } from "./feedback.types";
 
 const EMPTY_FEEDBACK_ROWS: any[] = [];
@@ -39,17 +43,22 @@ export function MyFeedbackDetail({
   const [saving, setSaving] = useState(false);
 
   const { data: exsData } = useQuery({
-    queryKey: ["my-fb-exs", session.id],
+    queryKey: ["my-fb-exs", session.id, client.id],
     queryFn: async () => {
       const { data } = await supabase
         .from("session_exercises")
-        .select("id, sets, reps, load_value, load_mode, exercises(name_en)")
+        .select(
+          "id, exercise_id, sets, reps, load_value, load_mode, exercises(name_en)",
+        )
         .eq("session_id", session.id)
         .order("order_index");
-      return (data ?? []) as any[];
+      const list = (data ?? []) as any[];
+      const lastWeights = await fetchLastLoggedWeights(client.id, list);
+      return { list, lastWeights };
     },
   });
-  const exs = exsData ?? EMPTY_FEEDBACK_ROWS;
+  const exs = exsData?.list ?? EMPTY_FEEDBACK_ROWS;
+  const lastWeights = exsData?.lastWeights ?? EMPTY_LAST_WEIGHTS;
 
   const { data: existingExLogsData } = useQuery({
     queryKey: ["my-fb-ex-logs", existing?.id],
@@ -76,12 +85,14 @@ export function MyFeedbackDetail({
     for (const e of exs) {
       const el = byId.get(e.id);
       const setCount = Math.max(1, Number(e.sets) || 1);
-      const defaultWeight =
+      const prescribedWeight =
         e.load_mode === "bodyweight"
           ? "0"
           : e.load_value != null
             ? String(e.load_value)
             : "";
+      const defaultWeight =
+        prescribedWeight || lastWeights[e.exercise_id] || "";
       const defaultReps = e.reps != null ? String(e.reps) : "";
       let sets: SetEntry[] = [];
       const stored = Array.isArray(el?.sets_json) ? el!.sets_json : null;
