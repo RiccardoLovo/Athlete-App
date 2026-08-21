@@ -258,15 +258,15 @@ function SessionList({
 
   return (
     <div className="h-[calc(100vh-3.5rem)] overflow-auto">
-      <div className="mx-auto max-w-2xl space-y-4 p-6">
-        <div className="flex items-center justify-between gap-3">
+      <div className="mx-auto max-w-2xl space-y-4 p-4 sm:p-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-2xl font-bold">Hi, {client.name} 👋</h1>
             <p className="text-sm text-muted-foreground">
               Your training for this week
             </p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button
               variant="outline"
               size="sm"
@@ -309,19 +309,21 @@ function SessionList({
                 key={block.id}
                 className={`p-3 ${isCurrentBlock ? "border-primary/60 bg-primary/5" : ""}`}
               >
-                <div className="mb-2 flex items-center gap-2">
-                  <Badge
-                    variant={isCurrentBlock ? "default" : "secondary"}
-                    className="text-[10px]"
-                  >
-                    Block {idx + 1}
-                  </Badge>
-                  <span className="truncate text-sm font-semibold">
-                    {block.name}
-                  </span>
-                  <span className="text-xs text-muted-foreground">
-                    · {block.weeks}w
-                  </span>
+                <div className="mb-2 flex flex-wrap items-center gap-2">
+                  <div className="flex min-w-0 flex-1 items-center gap-2">
+                    <Badge
+                      variant={isCurrentBlock ? "default" : "secondary"}
+                      className="shrink-0 text-[10px]"
+                    >
+                      Block {idx + 1}
+                    </Badge>
+                    <span className="min-w-0 truncate text-sm font-semibold">
+                      {block.name}
+                    </span>
+                    <span className="shrink-0 text-xs text-muted-foreground">
+                      · {block.weeks}w
+                    </span>
+                  </div>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button
@@ -393,21 +395,21 @@ function SessionList({
                     className="flex items-center gap-2"
                     onClick={() => onPick(s)}
                   >
-                    <span className="font-semibold">
+                    <span className="min-w-0 flex-1 truncate font-semibold">
                       {s.name || s.day_label}
                     </span>
                     {s.is_optional && (
-                      <Badge className="bg-yellow-100 text-yellow-800">
+                      <Badge className="shrink-0 bg-yellow-100 text-yellow-800">
                         Optional
                       </Badge>
                     )}
                     {done && (
-                      <Check className="ml-auto h-5 w-5 text-emerald-600" />
+                      <Check className="h-5 w-5 shrink-0 text-emerald-600" />
                     )}
                     <Button
                       size="icon"
                       variant="ghost"
-                      className={done ? "ml-2" : "ml-auto"}
+                      className="shrink-0"
                       title="Download this day as PDF"
                       disabled={downloading}
                       onClick={(e) => {

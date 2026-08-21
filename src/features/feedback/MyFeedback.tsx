@@ -278,7 +278,7 @@ export function MyFeedback({ wrap }: { wrap?: boolean } = {}) {
   if (wrap) {
     return (
       <div className="h-[calc(100vh-3.5rem)] overflow-auto">
-        <div className="mx-auto max-w-[1000px] p-6">{content}</div>
+        <div className="mx-auto max-w-[1000px] p-4 sm:p-6">{content}</div>
       </div>
     );
   }
