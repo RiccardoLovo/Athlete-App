@@ -303,7 +303,7 @@ export function PlanDetailPage() {
                           type="date"
                           defaultValue={toISODate(bs)}
                           onBlur={(e) => updateBlockStart(b, e.target.value)}
-                          className="h-8 w-[140px]"
+                          className="h-8 w-[165px] min-w-0"
                         />
                       </div>
                       <div className="flex items-center gap-1 text-xs">
@@ -313,7 +313,7 @@ export function PlanDetailPage() {
                           type="date"
                           defaultValue={toISODate(be)}
                           onBlur={(e) => updateBlockEnd(b, e.target.value)}
-                          className="h-8 w-[140px]"
+                          className="h-8 w-[165px] min-w-0"
                         />
                       </div>
                       <div className="ml-auto flex items-center gap-1">
