@@ -1,33 +1,32 @@
+// Monochrome: every training-category tag shares the same neutral
+// treatment now — the label carries the meaning, not the color.
+const NEUTRAL_TAG = "bg-secondary text-secondary-foreground border-border";
+
 export const TRAINING_CATEGORIES = [
   {
     key: "forza",
     label: "Strength",
-    className:
-      "bg-rose-100 text-rose-700 border-rose-200 dark:bg-rose-500/15 dark:text-rose-300 dark:border-rose-500/30",
+    className: NEUTRAL_TAG,
   },
   {
     key: "potenza",
     label: "Power",
-    className:
-      "bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-500/15 dark:text-amber-300 dark:border-amber-500/30",
+    className: NEUTRAL_TAG,
   },
   {
     key: "aerobica",
     label: "Aerobic Capacity",
-    className:
-      "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-500/30",
+    className: NEUTRAL_TAG,
   },
   {
     key: "anaerobica",
     label: "Anaerobic",
-    className:
-      "bg-violet-100 text-violet-700 border-violet-200 dark:bg-violet-500/15 dark:text-violet-300 dark:border-violet-500/30",
+    className: NEUTRAL_TAG,
   },
   {
     key: "rsa",
     label: "RSA",
-    className:
-      "bg-sky-100 text-sky-700 border-sky-200 dark:bg-sky-500/15 dark:text-sky-300 dark:border-sky-500/30",
+    className: NEUTRAL_TAG,
   },
 ] as const;
 
@@ -42,7 +41,7 @@ export const BODY_REGIONS = [
 export type BodyRegionKey = (typeof BODY_REGIONS)[number]["key"];
 
 export const BODY_REGION_BADGE =
-  "bg-slate-900 text-slate-50 border-slate-900 dark:bg-slate-100 dark:text-slate-900 dark:border-slate-100";
+  "bg-foreground text-background border-foreground";
 
 export function trainingCategoryMeta(key: string) {
   return TRAINING_CATEGORIES.find((t) => t.key === key);

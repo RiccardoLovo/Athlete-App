@@ -263,8 +263,11 @@ export type Database = {
       exercise_logs: {
         Row: {
           created_at: string;
+          distance_km: number | null;
+          duration_min: number | null;
           id: string;
           notes: string;
+          pace: string | null;
           reps_done: string;
           session_exercise_id: string;
           sets_json: Json | null;
@@ -273,8 +276,11 @@ export type Database = {
         };
         Insert: {
           created_at?: string;
+          distance_km?: number | null;
+          duration_min?: number | null;
           id?: string;
           notes?: string;
+          pace?: string | null;
           reps_done?: string;
           session_exercise_id: string;
           sets_json?: Json | null;
@@ -283,8 +289,11 @@ export type Database = {
         };
         Update: {
           created_at?: string;
+          distance_km?: number | null;
+          duration_min?: number | null;
           id?: string;
           notes?: string;
+          pace?: string | null;
           reps_done?: string;
           session_exercise_id?: string;
           sets_json?: Json | null;

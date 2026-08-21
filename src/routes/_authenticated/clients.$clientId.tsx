@@ -164,10 +164,10 @@ function ClientDetailPage() {
 function StatusBadge({ status }: { status: PlanStatus }) {
   const cls =
     status === "active"
-      ? "bg-emerald-100 text-emerald-800"
+      ? "bg-foreground text-background"
       : status === "completed"
-        ? "bg-slate-200 text-slate-700"
-        : "bg-amber-100 text-amber-800";
+        ? "bg-secondary text-secondary-foreground"
+        : "bg-muted text-muted-foreground";
   return (
     <Badge className={cls}>
       {status.charAt(0).toUpperCase() + status.slice(1)}

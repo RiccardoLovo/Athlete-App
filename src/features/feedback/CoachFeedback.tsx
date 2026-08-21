@@ -159,7 +159,7 @@ export function CoachFeedback({
                 {l.status === "pending" ? (
                   <Clock className="h-5 w-5 text-yellow-600" />
                 ) : (
-                  <Check className="h-5 w-5 text-emerald-600" />
+                  <Check className="h-5 w-5 text-foreground" />
                 )}
               </div>
             </Card>

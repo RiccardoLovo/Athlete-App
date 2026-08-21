@@ -89,7 +89,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           content: "Training programme management for coaches and athletes.",
         },
         { property: "og:type", content: "website" },
-        { name: "theme-color", content: "#1f5a42" },
+        { name: "theme-color", content: "#111111" },
         { name: "mobile-web-app-capable", content: "yes" },
         { name: "apple-mobile-web-app-capable", content: "yes" },
         { name: "apple-mobile-web-app-status-bar-style", content: "default" },

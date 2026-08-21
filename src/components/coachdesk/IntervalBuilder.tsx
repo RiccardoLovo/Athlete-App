@@ -583,8 +583,7 @@ function SaveDot({
   if (status === "idle") return <span className="w-3" />;
   if (status === "saving")
     return <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />;
-  if (status === "saved")
-    return <Check className="h-3 w-3 text-emerald-600 dark:text-emerald-400" />;
+  if (status === "saved") return <Check className="h-3 w-3 text-foreground" />;
   return <span className="h-2 w-2 rounded-full bg-destructive" />;
 }
 

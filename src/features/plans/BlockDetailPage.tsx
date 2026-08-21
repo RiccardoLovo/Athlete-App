@@ -507,7 +507,7 @@ export function BlockDetailPage() {
                                   {s.name || label}
                                 </span>
                                 {s.is_client_added && (
-                                  <span className="shrink-0 rounded-full bg-sky-100 px-1.5 py-0.5 text-[9px] font-semibold uppercase text-sky-700 dark:bg-sky-500/15 dark:text-sky-300">
+                                  <span className="shrink-0 rounded-full bg-secondary px-1.5 py-0.5 text-[9px] font-semibold uppercase text-secondary-foreground">
                                     Added by athlete
                                   </span>
                                 )}
@@ -531,7 +531,7 @@ export function BlockDetailPage() {
                                   title="Toggle rest"
                                 >
                                   <Moon
-                                    className={`h-3 w-3 ${s.status === "rest" ? "fill-blue-400 text-blue-500" : "text-muted-foreground"}`}
+                                    className={`h-3 w-3 ${s.status === "rest" ? "fill-foreground text-foreground" : "text-muted-foreground"}`}
                                   />
                                 </Button>
                                 <Button

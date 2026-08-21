@@ -432,12 +432,14 @@ function WeightTab({ rows }: { rows: Row[] }) {
   }, [exerciseId, exerciseOptions]);
 
   const { chartData, palette } = useMemo(() => {
+    // These are oklch tokens (see styles.css), not raw HSL components, so
+    // they're referenced directly rather than wrapped in hsl(var(...)).
     const palette = [
-      "hsl(var(--primary))",
-      "hsl(var(--chart-2, 220 70% 50%))",
-      "hsl(var(--chart-3, 25 90% 55%))",
-      "hsl(var(--chart-4, 280 65% 60%))",
-      "hsl(var(--chart-5, 340 75% 55%))",
+      "var(--primary)",
+      "var(--chart-2)",
+      "var(--chart-3)",
+      "var(--chart-4)",
+      "var(--chart-5)",
     ];
     const dataByDate = new Map<string, any>();
     for (const r of catFiltered) {

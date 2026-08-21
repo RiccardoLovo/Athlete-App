@@ -130,11 +130,12 @@ export const BORG_LABELS: Record<number, string> = {
   10: "Maximum effort",
 };
 
+// Monochrome: effort intensity reads through darkness, not hue.
 export function borgColor(v: number): string {
-  if (v <= 3) return "bg-emerald-500 text-white";
-  if (v <= 5) return "bg-yellow-400 text-yellow-950";
-  if (v <= 8) return "bg-orange-500 text-white";
-  return "bg-red-600 text-white";
+  if (v <= 3) return "bg-neutral-300 text-neutral-900";
+  if (v <= 5) return "bg-neutral-500 text-white";
+  if (v <= 8) return "bg-neutral-700 text-white";
+  return "bg-neutral-950 text-white";
 }
 
 export const SEED_EXERCISES: Array<{

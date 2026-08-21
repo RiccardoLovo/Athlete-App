@@ -21,15 +21,15 @@ import {
 
 type Block = { id: string; name: string; position: number; weeks: number };
 
+// Grayscale ramp — blocks are told apart by lightness, not hue. Kept dark
+// enough throughout that the white timeline-segment labels stay readable.
 const BLOCK_COLORS = [
-  "bg-blue-500",
-  "bg-emerald-500",
-  "bg-amber-500",
-  "bg-violet-500",
-  "bg-rose-500",
-  "bg-cyan-500",
-  "bg-orange-500",
-  "bg-teal-500",
+  "bg-neutral-900",
+  "bg-neutral-700",
+  "bg-neutral-500",
+  "bg-neutral-800",
+  "bg-neutral-600",
+  "bg-neutral-950",
 ];
 
 export function PlanDetailPage() {
@@ -242,7 +242,7 @@ export function PlanDetailPage() {
               </div>
               {todayPct != null && (
                 <div
-                  className="pointer-events-none absolute top-0 h-full w-0.5 bg-red-600"
+                  className="pointer-events-none absolute top-0 h-full w-0.5 bg-white"
                   style={{ left: `${Math.min(100, Math.max(0, todayPct))}%` }}
                   title="Today"
                 />

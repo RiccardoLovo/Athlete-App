@@ -375,7 +375,7 @@ function ClientsPage() {
                           Behind — {missing} session{missing === 1 ? "" : "s"}
                         </Badge>
                       ) : (
-                        <Badge className="bg-emerald-600 text-white hover:bg-emerald-600">
+                        <Badge className="bg-foreground text-background hover:bg-foreground">
                           On track
                         </Badge>
                       );
@@ -482,7 +482,7 @@ function InviteModal({
                 <Input readOnly value={url} className="font-mono text-xs" />
                 <Button variant="outline" size="icon" onClick={copy}>
                   {copied ? (
-                    <Check className="h-4 w-4 text-emerald-600" />
+                    <Check className="h-4 w-4 text-foreground" />
                   ) : (
                     <Copy className="h-4 w-4" />
                   )}

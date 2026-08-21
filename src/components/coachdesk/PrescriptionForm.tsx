@@ -17,6 +17,7 @@ import {
   type Discipline,
   type Prescription,
   emptyPrescription,
+  rowToPrescription,
   summarizePrescription,
 } from "@/lib/coachdesk/prescription";
 import { t } from "@/lib/coachdesk/i18n";
@@ -324,7 +325,7 @@ function SaveIndicator({
         </span>
       )}
       {status === "saved" && (
-        <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
+        <span className="flex items-center gap-1 text-foreground">
           <Check className="h-3 w-3" /> Saved
         </span>
       )}
@@ -1046,27 +1047,4 @@ function MobilityForm({ form, patch, patchJson }: FormProps) {
   );
 }
 
-// Build a Prescription object from a raw DB row (lossy fields default to empty).
-export function rowToPrescription(row: Record<string, unknown>): Prescription {
-  const get = <T,>(k: string): T | null =>
-    (row[k] as T | null | undefined) ?? null;
-  return {
-    ...emptyPrescription(),
-    sets: get<number>("sets"),
-    reps: get<string>("reps") ?? "",
-    target_mode: get<string>("target_mode"),
-    rpe: get<number>("rpe"),
-    load_mode: get<string>("load_mode"),
-    load_value: get<number>("load_value"),
-    rest_sec: get<number>("rest_sec"),
-    distance_km: get<number>("distance_km"),
-    duration_min: get<number>("duration_min"),
-    pace: get<string>("pace") ?? "",
-    hr_zone: get<number>("hr_zone"),
-    tempo: get<string>("tempo") ?? "",
-    notes: get<string>("notes") ?? "",
-    prescription: get<Record<string, unknown>>("prescription") ?? {},
-  };
-}
-
-export { summarizePrescription };
+export { rowToPrescription, summarizePrescription };

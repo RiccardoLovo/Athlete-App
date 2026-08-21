@@ -95,34 +95,26 @@ export function needsBodyRegion(d: Discipline): boolean {
   );
 }
 
+// Monochrome badges: every discipline/category/structure tag shares the
+// same neutral treatment — the label carries the meaning, not the color.
+const NEUTRAL_BADGE = "bg-secondary text-secondary-foreground border-border";
+
 const DISCIPLINE_COLOR: Record<Discipline, string> = {
-  Strength:
-    "bg-rose-100 text-rose-700 border-rose-200 dark:bg-rose-500/15 dark:text-rose-300 dark:border-rose-500/30",
-  Running:
-    "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-500/30",
-  Swimming:
-    "bg-sky-100 text-sky-700 border-sky-200 dark:bg-sky-500/15 dark:text-sky-300 dark:border-sky-500/30",
-  Cycling:
-    "bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-500/15 dark:text-amber-300 dark:border-amber-500/30",
-  Football:
-    "bg-violet-100 text-violet-700 border-violet-200 dark:bg-violet-500/15 dark:text-violet-300 dark:border-violet-500/30",
-  Padel:
-    "bg-fuchsia-100 text-fuchsia-700 border-fuchsia-200 dark:bg-fuchsia-500/15 dark:text-fuchsia-300 dark:border-fuchsia-500/30",
-  Mobility:
-    "bg-teal-100 text-teal-700 border-teal-200 dark:bg-teal-500/15 dark:text-teal-300 dark:border-teal-500/30",
+  Strength: NEUTRAL_BADGE,
+  Running: NEUTRAL_BADGE,
+  Swimming: NEUTRAL_BADGE,
+  Cycling: NEUTRAL_BADGE,
+  Football: NEUTRAL_BADGE,
+  Padel: NEUTRAL_BADGE,
+  Mobility: NEUTRAL_BADGE,
 };
 
 const CATEGORY_COLOR: Record<Category, string> = {
-  Resistance:
-    "bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-500/15 dark:text-slate-300 dark:border-slate-500/30",
-  Cardio:
-    "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-500/15 dark:text-blue-300 dark:border-blue-500/30",
-  Mobility:
-    "bg-teal-100 text-teal-700 border-teal-200 dark:bg-teal-500/15 dark:text-teal-300 dark:border-teal-500/30",
-  Plyometric:
-    "bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-500/15 dark:text-orange-300 dark:border-orange-500/30",
-  Activation:
-    "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-500/15 dark:text-yellow-300 dark:border-yellow-500/30",
+  Resistance: NEUTRAL_BADGE,
+  Cardio: NEUTRAL_BADGE,
+  Mobility: NEUTRAL_BADGE,
+  Plyometric: NEUTRAL_BADGE,
+  Activation: NEUTRAL_BADGE,
 };
 
 type Exercise = {
@@ -313,7 +305,7 @@ export function ExercisesPage() {
                     {e.category}
                   </span>
                   {e.body_region && (
-                    <span className="rounded-full border bg-slate-900 px-2 py-0.5 text-[11px] font-medium text-slate-50 dark:bg-slate-100 dark:text-slate-900">
+                    <span className="rounded-full border bg-foreground px-2 py-0.5 text-[11px] font-medium text-background">
                       {e.body_region}
                     </span>
                   )}
@@ -333,12 +325,12 @@ export function ExercisesPage() {
                     </span>
                   )}
                   {e.structure_type === "intervals" && (
-                    <span className="rounded-full border border-indigo-300 bg-indigo-100 px-2 py-0.5 text-[10px] font-medium text-indigo-700 dark:bg-indigo-500/15 dark:text-indigo-300 dark:border-indigo-500/30">
+                    <span className="rounded-full border border-border bg-secondary px-2 py-0.5 text-[10px] font-medium text-secondary-foreground">
                       Intervals
                     </span>
                   )}
                   {e.structure_type === "template" && (
-                    <span className="rounded-full border border-fuchsia-300 bg-fuchsia-100 px-2 py-0.5 text-[10px] font-medium text-fuchsia-700 dark:bg-fuchsia-500/15 dark:text-fuchsia-300 dark:border-fuchsia-500/30">
+                    <span className="rounded-full border border-border bg-secondary px-2 py-0.5 text-[10px] font-medium text-secondary-foreground">
                       {e.template_type === "rsa"
                         ? "RSA template"
                         : "Pyramid template"}

@@ -3,25 +3,21 @@ import { DAY_LABELS } from "./constants";
 import type { Discipline } from "./prescription";
 
 // ─────────────────────────────────────────────────────────────────────
-// CoachDesk training PDF — dark "charcoal grid" design.
-// Landscape A4. Single-column day rails, multiple sessions per day,
-// structured strength columns, single-line endurance summary.
+// CoachDesk training PDF. Landscape A4, dark theme — the exact palette
+// and card language the app itself uses (rounded-card exercises, thin
+// hairlines, one clean summary line per exercise instead of a data
+// grid). Strength and endurance exercises share the same card layout;
+// only interval-structured exercises get a round-by-round table.
 // ─────────────────────────────────────────────────────────────────────
 
 export interface PdfExercise {
   name: string;
   discipline: Discipline;
   order_index: number;
-  // Resolved strength fields (load_kg is already converted from %1RM if needed).
-  sets: number | null;
-  reps: string;
-  load_label: string; // "140kg" | "82% (115kg)" | "BW" | ""
-  rest_sec: number | null;
-  tempo: string;
-  rpe: number | null;
   notes: string;
   video_url: string | null;
-  // Used for non-strength disciplines.
+  // One-line prescription summary (summarizePrescription output) — used
+  // verbatim for strength and endurance exercises alike.
   summary: string;
   // Optional interval rows (intervals/template structure types).
   intervals?: PdfInterval[];
@@ -59,21 +55,18 @@ export interface PdfWeek {
 
 export type TrainingPdfScope = "day" | "week" | "block";
 
-// RGB color palette (dark / charcoal grid).
+// RGB palette — converted 1:1 from the app's monochrome dark-theme oklch
+// tokens in src/styles.css, so the export matches the product exactly
+// rather than approximating it. Pure grayscale by design.
 const C = {
-  bg: [10, 10, 12] as [number, number, number],
-  headerBg: [18, 18, 21] as [number, number, number],
-  card: [22, 22, 26] as [number, number, number],
-  cardSoft: [18, 18, 22] as [number, number, number],
-  cellBg: [14, 14, 17] as [number, number, number],
-  border: [40, 40, 46] as [number, number, number],
-  borderLo: [30, 30, 34] as [number, number, number],
-  text100: [244, 244, 245] as [number, number, number],
-  text200: [220, 220, 224] as [number, number, number],
-  text400: [161, 161, 170] as [number, number, number],
-  text500: [113, 113, 122] as [number, number, number],
-  text600: [82, 82, 91] as [number, number, number],
-  accent: [70, 120, 90] as [number, number, number],
+  bg: [10, 10, 10] as [number, number, number], // --background
+  card: [22, 22, 22] as [number, number, number], // --card
+  border: [39, 39, 39] as [number, number, number], // --border (12% white on bg)
+  borderLo: [25, 25, 25] as [number, number, number], // faint hairline (6% white on bg)
+  text: [242, 242, 242] as [number, number, number], // --foreground
+  textMuted: [164, 164, 164] as [number, number, number], // --muted-foreground
+  textDim: [102, 102, 102] as [number, number, number], // dimmer still, for kickers
+  primary: [228, 228, 228] as [number, number, number], // --primary
 };
 
 function setFill(doc: jsPDF, c: [number, number, number]) {
@@ -86,6 +79,13 @@ function setDraw(doc: jsPDF, c: [number, number, number]) {
   doc.setDrawColor(c[0], c[1], c[2]);
 }
 
+// Cosmetic only: summarizePrescription joins segments with " | " for
+// compactness in-app; the export has room to breathe, so give it a
+// lighter separator.
+function prettySummary(s: string): string {
+  return s.replace(/ \| /g, "    ·    ");
+}
+
 export function exportTrainingPdf(opts: {
   scope: TrainingPdfScope;
   clientName: string;
@@ -96,9 +96,10 @@ export function exportTrainingPdf(opts: {
   const doc = new jsPDF({ orientation: "landscape", unit: "pt", format: "a4" });
   const W = doc.internal.pageSize.getWidth(); // ~842
   const H = doc.internal.pageSize.getHeight(); // ~595
-  const M = 36; // page margin
-  const HEADER_H = 56;
-  const FOOTER_H = 28;
+  const M = 40; // page margin
+  const HEADER_H = 58;
+  const FOOTER_H = 30;
+  const RADIUS = 6;
 
   const scopeLabel =
     opts.scope === "day"
@@ -118,56 +119,49 @@ export function exportTrainingPdf(opts: {
   };
 
   const drawHeader = (subtitle: string) => {
-    setFill(doc, C.headerBg);
+    setFill(doc, C.card);
     doc.rect(0, 0, W, HEADER_H, "F");
     setDraw(doc, C.border);
-    doc.setLineWidth(0.5);
+    doc.setLineWidth(0.75);
     doc.line(0, HEADER_H, W, HEADER_H);
 
-    setText(doc, C.text500);
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(7);
-    doc.text("TRAINING EXPORT", M, 20);
-
-    setText(doc, C.text100);
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(15);
-    const title = opts.clientName.toUpperCase();
-    doc.text(title, M, 40);
-
-    // right side
-    const meta = [opts.sport, opts.blockName].filter(Boolean).join(" · ");
-    setText(doc, C.text500);
+    setText(doc, C.textDim);
     doc.setFont("helvetica", "normal");
     doc.setFontSize(8);
-    if (meta) doc.text(meta.toUpperCase(), W - M, 20, { align: "right" });
+    doc.text("CoachDesk · Training Export", M, 22);
 
-    setText(doc, C.accent);
+    setText(doc, C.text);
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(11);
-    doc.text(subtitle.toUpperCase(), W - M, 40, { align: "right" });
+    doc.setFontSize(16);
+    doc.text(opts.clientName, M, 43);
+
+    // Right side
+    const meta = [opts.sport, opts.blockName].filter(Boolean).join("  ·  ");
+    setText(doc, C.textMuted);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    if (meta) doc.text(meta, W - M, 22, { align: "right" });
+
+    setText(doc, C.primary);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.text(subtitle, W - M, 43, { align: "right" });
   };
 
   const drawFooter = (pageNum: number, pageTotal: number) => {
     setDraw(doc, C.borderLo);
     doc.setLineWidth(0.5);
-    doc.line(M, H - FOOTER_H + 8, W - M, H - FOOTER_H + 8);
-    setText(doc, C.text600);
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(7);
-    doc.text("COACHDESK · PERFORMANCE EXPORT", M, H - 12);
+    doc.line(M, H - FOOTER_H, W - M, H - FOOTER_H);
+    setText(doc, C.textDim);
     doc.setFont("helvetica", "normal");
-    doc.text(
-      `PAGE ${String(pageNum).padStart(2, "0")} / ${String(pageTotal).padStart(2, "0")}`,
-      W - M,
-      H - 12,
-      { align: "right" },
-    );
+    doc.setFontSize(8);
+    doc.text("CoachDesk", M, H - 13);
+    doc.text(`${pageNum} / ${pageTotal}`, W - M, H - 13, { align: "right" });
   };
 
   let cursorY = 0;
-  const contentTop = HEADER_H + 20;
-  const contentBottom = H - FOOTER_H - 8;
+  const contentTop = HEADER_H + 22;
+  const contentBottom = H - FOOTER_H - 6;
 
   const newPage = (subtitle: string) => {
     if (cursorY !== 0) doc.addPage();
@@ -184,20 +178,15 @@ export function exportTrainingPdf(opts: {
   // ── Drawing primitives ────────────────────────────────────────────
 
   const drawDayHeader = (dayNumber: number) => {
-    ensureSpace(28);
+    ensureSpace(34);
     const label = DAY_LABELS[dayNumber] ?? `Day ${dayNumber + 1}`;
-    // accent rail
-    setFill(doc, C.accent);
-    doc.rect(M, cursorY + 2, 3, 20, "F");
-    setText(doc, C.text100);
+    setFill(doc, C.primary);
+    doc.roundedRect(M, cursorY + 3, 3, 18, 1.5, 1.5, "F");
+    setText(doc, C.text);
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(16);
-    doc.text(label.slice(0, 3).toUpperCase(), M + 12, cursorY + 18);
-    setText(doc, C.text500);
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(8);
-    doc.text(label.toUpperCase(), M + 56, cursorY + 18);
-    cursorY += 30;
+    doc.setFontSize(13);
+    doc.text(label, M + 12, cursorY + 16);
+    cursorY += 32;
   };
 
   const drawSessionHeader = (
@@ -206,283 +195,183 @@ export function exportTrainingPdf(opts: {
     name: string | null,
     mix: string,
   ) => {
-    ensureSpace(20);
-    const tag =
+    ensureSpace(22);
+    const label =
       totalSessions > 1
-        ? `SESSION ${String(sessionIdx + 1).padStart(2, "0")} / ${(name ?? mix).toUpperCase()}`
-        : name
-          ? `${name.toUpperCase()} / ${mix.toUpperCase()}`
-          : mix.toUpperCase();
-    setText(doc, C.accent);
+        ? `Session ${sessionIdx + 1} — ${name ?? mix}`
+        : (name ?? mix);
+    setText(doc, C.textMuted);
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(8);
-    doc.text(tag, M + 4, cursorY + 10);
+    doc.setFontSize(9);
+    doc.text(label.toUpperCase(), M, cursorY + 9);
     setDraw(doc, C.borderLo);
     doc.setLineWidth(0.5);
-    const tagWidth = doc.getTextWidth(tag);
-    doc.line(M + 4 + tagWidth + 8, cursorY + 8, W - M, cursorY + 8);
-    cursorY += 18;
+    doc.line(M, cursorY + 14, W - M, cursorY + 14);
+    cursorY += 22;
   };
 
-  // Small clickable "▶ WATCH" link placed right after an exercise name.
-  const drawVideoLink = (url: string, afterX: number, y: number) => {
-    setText(doc, C.accent);
+  // jsPDF's built-in fonts only cover WinAnsi — glyphs like ▶ silently
+  // render as garbage, so the video link is a plain (legible) text label.
+  const drawVideoMark = (url: string, afterX: number, y: number) => {
+    setText(doc, C.primary);
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(7);
-    doc.textWithLink("▶ WATCH", afterX, y, { url });
+    doc.setFontSize(7.5);
+    doc.textWithLink("WATCH", afterX, y, { url });
   };
 
-  const drawStrengthExercise = (e: PdfExercise, isLast: boolean) => {
-    // Heights: name row (16) + grid row (28) + notes (variable) + spacing
-    const innerLeft = M + 4;
-    const innerRight = W - M - 4;
+  // Strength and endurance exercises share this layout: a rounded card
+  // with the name on top and a single prescription summary line below —
+  // the same string the athlete sees in the app, just given room to
+  // breathe instead of a bordered data grid.
+  const drawSimpleExercise = (e: PdfExercise, isLast: boolean) => {
+    const innerLeft = M + 12;
+    const innerRight = W - M - 12;
     const innerW = innerRight - innerLeft;
-    const notesLines = e.notes
-      ? doc.splitTextToSize(`Notes: ${e.notes}`, innerW)
-      : [];
-    const notesH = notesLines.length ? notesLines.length * 9 + 6 : 0;
-    const blockH = 16 + 30 + notesH + (isLast ? 4 : 10);
-    ensureSpace(blockH);
+    const summary = prettySummary(e.summary) || "—";
+    const summaryLines = doc.splitTextToSize(summary, innerW);
+    const notesLines = e.notes ? doc.splitTextToSize(e.notes, innerW) : [];
+    const nameH = 20;
+    const summaryH = summaryLines.length * 12;
+    const notesH = notesLines.length ? notesLines.length * 10 + 6 : 0;
+    const padY = 10;
+    const cardH = padY + nameH + summaryH + notesH + padY - 2;
+    const gap = isLast ? 6 : 8;
+    ensureSpace(cardH + gap);
 
-    // Name row
-    setText(doc, C.text200);
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(10);
-    doc.text(e.name, innerLeft, cursorY + 11);
-    if (e.video_url) {
-      drawVideoLink(
-        e.video_url,
-        innerLeft + doc.getTextWidth(e.name) + 8,
-        cursorY + 11,
-      );
-    }
-    if (e.rpe != null) {
-      setText(doc, C.text400);
-      doc.setFont("courier", "normal");
-      doc.setFontSize(9);
-      doc.text(`RPE ${e.rpe}`, innerRight, cursorY + 11, { align: "right" });
-    }
-    cursorY += 16;
-
-    // 5-column grid
-    const cols: Array<{ label: string; value: string }> = [
-      { label: "SETS", value: e.sets != null ? String(e.sets) : "—" },
-      { label: "REPS", value: e.reps || "—" },
-      { label: "LOAD", value: e.load_label || "—" },
-      { label: "REST", value: e.rest_sec != null ? `${e.rest_sec}s` : "—" },
-      { label: "TEMPO", value: e.tempo || "—" },
-    ];
-    const gridH = 28;
-    const colW = innerW / cols.length;
-    // outer border
-    setFill(doc, C.cellBg);
-    doc.rect(innerLeft, cursorY, innerW, gridH, "F");
+    setFill(doc, C.card);
     setDraw(doc, C.border);
-    doc.setLineWidth(0.5);
-    doc.rect(innerLeft, cursorY, innerW, gridH);
-    for (let i = 0; i < cols.length; i++) {
-      const cx = innerLeft + i * colW;
-      if (i > 0) {
-        doc.line(cx, cursorY, cx, cursorY + gridH);
-      }
-      setText(doc, C.text500);
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(6);
-      doc.text(cols[i].label, cx + colW / 2, cursorY + 9, { align: "center" });
-      setText(doc, C.text100);
-      doc.setFont("courier", "normal");
-      doc.setFontSize(10);
-      doc.text(cols[i].value, cx + colW / 2, cursorY + 22, { align: "center" });
-    }
-    cursorY += gridH + 4;
+    doc.setLineWidth(0.75);
+    doc.roundedRect(M, cursorY, W - 2 * M, cardH, RADIUS, RADIUS, "FD");
 
-    // Notes
-    if (notesLines.length) {
-      setText(doc, C.text500);
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(8);
-      doc.text(notesLines, innerLeft, cursorY + 6);
-      cursorY += notesH;
-    }
-
-    // Divider between exercises within the same session
-    if (!isLast) {
-      cursorY += 4;
-      setDraw(doc, C.borderLo);
-      doc.setLineWidth(0.5);
-      doc.line(innerLeft, cursorY, innerRight, cursorY);
-      cursorY += 6;
-    } else {
-      cursorY += 4;
-    }
-  };
-
-  const drawEnduranceExercise = (e: PdfExercise, isLast: boolean) => {
-    const innerLeft = M + 4;
-    const innerRight = W - M - 4;
-    const innerW = innerRight - innerLeft;
-    const summaryLines = e.summary
-      ? doc.splitTextToSize(e.summary, innerW - 180)
-      : ["—"];
-    const notesLines = e.notes
-      ? doc.splitTextToSize(`Notes: ${e.notes}`, innerW)
-      : [];
-    const blockH =
-      20 +
-      summaryLines.length * 10 +
-      (notesLines.length ? notesLines.length * 9 + 6 : 0) +
-      (isLast ? 4 : 10);
-    ensureSpace(blockH);
-
-    setText(doc, C.text200);
+    let ty = cursorY + padY;
+    setText(doc, C.text);
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(10);
-    doc.text(e.name, innerLeft, cursorY + 11);
+    doc.setFontSize(10.5);
+    doc.text(e.name, innerLeft, ty + 9);
     if (e.video_url) {
-      drawVideoLink(
+      drawVideoMark(
         e.video_url,
         innerLeft + doc.getTextWidth(e.name) + 8,
-        cursorY + 11,
+        ty + 9,
       );
     }
-    // discipline pill on the right
-    setText(doc, C.accent);
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(7);
-    doc.text(e.discipline.toUpperCase(), innerRight, cursorY + 11, {
-      align: "right",
-    });
-    cursorY += 16;
+    ty += nameH;
 
-    setText(doc, C.text400);
-    doc.setFont("courier", "normal");
-    doc.setFontSize(9);
-    doc.text(summaryLines, innerLeft, cursorY + 8);
-    cursorY += summaryLines.length * 10 + 2;
+    setText(doc, C.text);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9.5);
+    doc.text(summaryLines, innerLeft, ty + 8);
+    ty += summaryH;
 
     if (notesLines.length) {
-      setText(doc, C.text500);
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(8);
-      doc.text(notesLines, innerLeft, cursorY + 6);
-      cursorY += notesH(notesLines);
+      setText(doc, C.textMuted);
+      doc.setFont("helvetica", "italic");
+      doc.setFontSize(8.5);
+      doc.text(notesLines, innerLeft, ty + 6);
     }
 
-    if (!isLast) {
-      cursorY += 4;
-      setDraw(doc, C.borderLo);
-      doc.setLineWidth(0.5);
-      doc.line(innerLeft, cursorY, innerRight, cursorY);
-      cursorY += 6;
-    } else {
-      cursorY += 4;
-    }
+    cursorY += cardH + gap;
   };
-
-  function notesH(lines: string[]) {
-    return lines.length * 9 + 6;
-  }
 
   const drawIntervalsExercise = (e: PdfExercise, isLast: boolean) => {
-    const innerLeft = M + 4;
-    const innerRight = W - M - 4;
+    const innerLeft = M + 12;
+    const innerRight = W - M - 12;
     const innerW = innerRight - innerLeft;
     const rows = e.intervals ?? [];
-    const headerH = 16;
-    const tableHeaderH = 14;
-    const rowH = 14;
-    const notesLines = e.notes
-      ? doc.splitTextToSize(`Notes: ${e.notes}`, innerW)
-      : [];
-    const notesHpx = notesLines.length ? notesLines.length * 9 + 6 : 0;
-    const blockH =
-      headerH +
+    const padY = 10;
+    const nameH = 20;
+    const tableHeaderH = 16;
+    const rowH = 15;
+    const notesLines = e.notes ? doc.splitTextToSize(e.notes, innerW) : [];
+    const notesH = notesLines.length ? notesLines.length * 10 + 6 : 0;
+    const cardH =
+      padY +
+      nameH +
       tableHeaderH +
       rowH * Math.max(rows.length, 1) +
-      notesHpx +
-      (isLast ? 4 : 10);
-    ensureSpace(blockH);
+      notesH +
+      padY -
+      2;
+    const gap = isLast ? 6 : 8;
+    ensureSpace(cardH + gap);
 
-    // Name row
-    setText(doc, C.text200);
+    setFill(doc, C.card);
+    setDraw(doc, C.border);
+    doc.setLineWidth(0.75);
+    doc.roundedRect(M, cursorY, W - 2 * M, cardH, RADIUS, RADIUS, "FD");
+
+    let ty = cursorY + padY;
+    setText(doc, C.text);
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(10);
-    doc.text(e.name, innerLeft, cursorY + 11);
+    doc.setFontSize(10.5);
+    doc.text(e.name, innerLeft, ty + 9);
     if (e.video_url) {
-      drawVideoLink(
+      drawVideoMark(
         e.video_url,
         innerLeft + doc.getTextWidth(e.name) + 8,
-        cursorY + 11,
+        ty + 9,
       );
     }
-    setText(doc, C.accent);
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(7);
+    setText(doc, C.textDim);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8);
     doc.text(
-      `${e.discipline.toUpperCase()} · INTERVALS`,
+      `${e.discipline} · ${rows.length || 0} rounds`,
       innerRight,
-      cursorY + 11,
+      ty + 9,
       { align: "right" },
     );
-    cursorY += headerH;
+    ty += nameH;
 
-    // Table header
-    const cols = [
-      { key: "n", label: "#", w: 18, align: "center" as const },
-      { key: "label", label: "LABEL", w: 90, align: "left" as const },
-      { key: "target", label: "TARGET", w: 80, align: "left" as const },
-      {
-        key: "spec",
-        label: "PACE / W / Z / STROKE",
-        w: 0,
-        align: "left" as const,
-      }, // flex
-      { key: "rest", label: "REST", w: 70, align: "left" as const },
-    ];
-    const fixed = cols.reduce((s, c) => s + c.w, 0);
-    const flexW = innerW - fixed;
-    const colWidths = cols.map((c) => (c.w === 0 ? flexW : c.w));
+    // Column layout: #, target, spec (pace/watts/zone/stroke/intensity), rest.
+    const colX = {
+      n: innerLeft,
+      target: innerLeft + 26,
+      label: innerLeft + 100,
+      spec: innerLeft + innerW * 0.58,
+      rest: innerRight - 90,
+    };
 
-    setFill(doc, C.headerBg);
-    doc.rect(innerLeft, cursorY, innerW, tableHeaderH, "F");
-    setDraw(doc, C.border);
-    doc.setLineWidth(0.5);
-    doc.rect(innerLeft, cursorY, innerW, tableHeaderH);
-    setText(doc, C.text500);
+    setText(doc, C.textDim);
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(6);
-    let cx = innerLeft;
-    for (let i = 0; i < cols.length; i++) {
-      const w = colWidths[i];
-      if (i > 0) doc.line(cx, cursorY, cx, cursorY + tableHeaderH);
-      const tx = cols[i].align === "center" ? cx + w / 2 : cx + 4;
-      doc.text(cols[i].label, tx, cursorY + 9, { align: cols[i].align });
-      cx += w;
-    }
-    cursorY += tableHeaderH;
+    doc.setFontSize(7);
+    doc.text("#", colX.n, ty + 9);
+    doc.text("TARGET", colX.target, ty + 9);
+    doc.text("LABEL", colX.label, ty + 9);
+    doc.text("DETAIL", colX.spec, ty + 9);
+    doc.text("REST", colX.rest, ty + 9);
+    setDraw(doc, C.borderLo);
+    doc.setLineWidth(0.5);
+    doc.line(innerLeft, ty + 13, innerRight, ty + 13);
+    ty += tableHeaderH;
 
     if (!rows.length) {
-      setFill(doc, C.cellBg);
-      doc.rect(innerLeft, cursorY, innerW, rowH, "F");
-      doc.rect(innerLeft, cursorY, innerW, rowH);
-      setText(doc, C.text500);
+      setText(doc, C.textMuted);
       doc.setFont("helvetica", "italic");
-      doc.setFontSize(8);
-      doc.text("No intervals configured", innerLeft + 6, cursorY + 9);
-      cursorY += rowH;
+      doc.setFontSize(8.5);
+      doc.text("No rounds configured", innerLeft, ty + 10);
+      ty += rowH;
     } else {
       rows.forEach((r, i) => {
-        setFill(doc, i % 2 === 0 ? C.cellBg : C.cardSoft);
-        doc.rect(innerLeft, cursorY, innerW, rowH, "F");
-        setDraw(doc, C.borderLo);
-        doc.rect(innerLeft, cursorY, innerW, rowH);
-        setText(doc, C.text200);
-        doc.setFont("courier", "normal");
-        doc.setFontSize(8);
+        if (i % 2 === 1) {
+          setFill(doc, C.borderLo);
+          doc.rect(innerLeft - 2, ty, innerW + 4, rowH, "F");
+        }
+        setText(doc, C.textMuted);
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(8.5);
+        doc.text(String(i + 1), colX.n, ty + 10.5);
+
+        setText(doc, C.text);
         const target =
           r.target_value != null
             ? `${r.target_value}${unitShort(r.target_unit)}`
             : "—";
+        doc.text(target, colX.target, ty + 10.5);
+
+        setText(doc, C.textMuted);
+        doc.text(r.label ?? "—", colX.label, ty + 10.5);
+
         const specParts: string[] = [];
         if (r.pace_per_km) specParts.push(r.pace_per_km);
         if (r.watts != null) specParts.push(`${r.watts}W`);
@@ -490,54 +379,25 @@ export function exportTrainingPdf(opts: {
         if (r.cadence != null) specParts.push(`${r.cadence}rpm`);
         if (r.stroke) specParts.push(r.stroke);
         if (r.intensity) specParts.push(r.intensity);
+        doc.text(specParts.join("  ·  ") || "—", colX.spec, ty + 10.5);
+
         const rest =
           r.rest_seconds != null
-            ? `${r.rest_seconds}s${r.rest_type === "active" ? " act" : ""}`
+            ? `${r.rest_seconds}s${r.rest_type === "active" ? " active" : ""}`
             : "—";
-        const vals = [
-          String(i + 1),
-          r.label ?? "—",
-          target,
-          specParts.join(" · ") || "—",
-          rest,
-        ];
-        let xx = innerLeft;
-        for (let c = 0; c < cols.length; c++) {
-          const w = colWidths[c];
-          const align = cols[c].align;
-          const tx = align === "center" ? xx + w / 2 : xx + 4;
-          doc.text(String(vals[c] ?? "—"), tx, cursorY + 9, { align });
-          xx += w;
-        }
-        cursorY += rowH;
+        doc.text(rest, colX.rest, ty + 10.5);
+        ty += rowH;
       });
     }
 
-    if (e.rpe != null) {
-      setText(doc, C.text400);
-      doc.setFont("courier", "normal");
-      doc.setFontSize(9);
-      doc.text(`RPE ${e.rpe}`, innerRight, cursorY + 10, { align: "right" });
-      cursorY += 12;
-    }
-
     if (notesLines.length) {
-      setText(doc, C.text500);
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(8);
-      doc.text(notesLines, innerLeft, cursorY + 6);
-      cursorY += notesHpx;
+      setText(doc, C.textMuted);
+      doc.setFont("helvetica", "italic");
+      doc.setFontSize(8.5);
+      doc.text(notesLines, innerLeft, ty + 6);
     }
 
-    if (!isLast) {
-      cursorY += 4;
-      setDraw(doc, C.borderLo);
-      doc.setLineWidth(0.5);
-      doc.line(innerLeft, cursorY, innerRight, cursorY);
-      cursorY += 6;
-    } else {
-      cursorY += 4;
-    }
+    cursorY += cardH + gap;
   };
 
   function unitShort(u: "meters" | "seconds" | "minutes"): string {
@@ -580,19 +440,17 @@ export function exportTrainingPdf(opts: {
             ex.structure_type === "template"
           )
             drawIntervalsExercise(ex, isLast);
-          else if (ex.discipline === "Strength")
-            drawStrengthExercise(ex, isLast);
-          else drawEnduranceExercise(ex, isLast);
+          else drawSimpleExercise(ex, isLast);
         });
         cursorY += 6;
       });
-      cursorY += 8;
+      cursorY += 6;
     }
   }
 
   if (!drewAnything) {
     newPage(scopeLabel);
-    setText(doc, C.text400);
+    setText(doc, C.textMuted);
     doc.setFont("helvetica", "normal");
     doc.setFontSize(11);
     doc.text("No exercises scheduled.", M, cursorY);

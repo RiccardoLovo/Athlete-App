@@ -71,7 +71,7 @@ export function FeedbackDetail({
                 <Check className="mr-1 h-4 w-4" /> Mark Reviewed
               </Button>
             ) : (
-              <Badge className="bg-emerald-600 text-white">Reviewed</Badge>
+              <Badge className="bg-foreground text-background">Reviewed</Badge>
             )}
           </div>
         </div>

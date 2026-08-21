@@ -9,7 +9,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Slider } from "@/components/ui/slider";
-import { BORG_LABELS, borgColor, DAY_LABELS } from "@/lib/coachdesk/constants";
+import {
+  BORG_LABELS,
+  borgColor,
+  DAY_LABELS,
+  distanceUnitFor,
+} from "@/lib/coachdesk/constants";
 import {
   parseISODate,
   toISODate,
@@ -20,9 +25,57 @@ import {
   EMPTY_LAST_WEIGHTS,
   fetchLastLoggedWeights,
 } from "@/features/dashboard/AthleteDashboard";
+import {
+  rowToPrescription,
+  summarizeIntervals,
+  summarizePrescription,
+  type Discipline as ExerciseDiscipline,
+} from "@/lib/coachdesk/prescription";
+import type { IntervalRowInput } from "@/lib/coachdesk/interval-templates";
 import type { PlanSession } from "./feedback.types";
 
 const EMPTY_FEEDBACK_ROWS: any[] = [];
+
+type SetEntry = { weight: string; reps: string };
+type ExForm = {
+  sets: SetEntry[];
+  notes: string;
+  distance: string;
+  duration: string;
+  pace: string;
+  intervalActuals: string[];
+};
+const EMPTY_EXFORM: ExForm = {
+  sets: [],
+  notes: "",
+  distance: "",
+  duration: "",
+  pace: "",
+  intervalActuals: [],
+};
+
+type IntervalRow = IntervalRowInput & {
+  id: string;
+  session_exercise_id: string;
+  order_index: number;
+};
+
+async function fetchIntervalRounds(
+  sessionExerciseIds: string[],
+): Promise<Record<string, IntervalRow[]>> {
+  if (!sessionExerciseIds.length) return {};
+  const { data } = await supabase
+    .from("prescription_intervals")
+    .select("*")
+    .in("session_exercise_id", sessionExerciseIds)
+    .order("order_index");
+  const map: Record<string, IntervalRow[]> = {};
+  for (const row of (data ?? []) as unknown as IntervalRow[]) {
+    (map[row.session_exercise_id] ??= []).push(row);
+  }
+  return map;
+}
+const EMPTY_INTERVAL_ROUNDS: Record<string, IntervalRow[]> = {};
 
 export function MyFeedbackDetail({
   client,
@@ -47,18 +100,22 @@ export function MyFeedbackDetail({
     queryFn: async () => {
       const { data } = await supabase
         .from("session_exercises")
-        .select(
-          "id, exercise_id, sets, reps, load_value, load_mode, exercises(name_en)",
-        )
+        .select("*, exercises(name_en, discipline, structure_type)")
         .eq("session_id", session.id)
         .order("order_index");
       const list = (data ?? []) as any[];
       const lastWeights = await fetchLastLoggedWeights(client.id, list);
-      return { list, lastWeights };
+      const intervalRounds = await fetchIntervalRounds(
+        list
+          .filter((e) => e.exercises?.structure_type === "intervals")
+          .map((e) => e.id),
+      );
+      return { list, lastWeights, intervalRounds };
     },
   });
   const exs = exsData?.list ?? EMPTY_FEEDBACK_ROWS;
   const lastWeights = exsData?.lastWeights ?? EMPTY_LAST_WEIGHTS;
+  const intervalRounds = exsData?.intervalRounds ?? EMPTY_INTERVAL_ROUNDS;
 
   const { data: existingExLogsData } = useQuery({
     queryKey: ["my-fb-ex-logs", existing?.id],
@@ -67,7 +124,7 @@ export function MyFeedbackDetail({
       const { data } = await supabase
         .from("exercise_logs")
         .select(
-          "id, session_exercise_id, weight_done, reps_done, notes, sets_json",
+          "id, session_exercise_id, weight_done, reps_done, notes, sets_json, distance_km, duration_min, pace",
         )
         .eq("workout_log_id", existing!.id);
       return (data ?? []) as any[];
@@ -75,8 +132,6 @@ export function MyFeedbackDetail({
   });
   const existingExLogs = existingExLogsData ?? EMPTY_FEEDBACK_ROWS;
 
-  type SetEntry = { weight: string; reps: string };
-  type ExForm = { sets: SetEntry[]; notes: string };
   const [forms, setForms] = useState<Record<string, ExForm>>({});
   useEffect(() => {
     const init: Record<string, ExForm> = {};
@@ -113,14 +168,56 @@ export function MyFeedbackDetail({
           reps: defaultReps,
         }));
       }
-      init[e.id] = { sets, notes: el?.notes ?? "" };
+      const discipline = (e.exercises?.discipline ??
+        "Strength") as ExerciseDiscipline;
+      const distanceUnit = distanceUnitFor(discipline);
+      const prescribedDistance =
+        e.distance_km != null
+          ? String(
+              distanceUnit === "m"
+                ? Math.round(e.distance_km * 1000)
+                : e.distance_km,
+            )
+          : "";
+      const distance =
+        el?.distance_km != null
+          ? String(
+              distanceUnit === "m"
+                ? Math.round(el.distance_km * 1000)
+                : el.distance_km,
+            )
+          : prescribedDistance;
+      const duration =
+        el?.duration_min != null
+          ? String(el.duration_min)
+          : e.duration_min != null
+            ? String(e.duration_min)
+            : "";
+      const pace = el?.pace || e.pace || "";
+
+      const rounds = intervalRounds[e.id] ?? [];
+      const storedActuals = Array.isArray(el?.sets_json) ? el!.sets_json : null;
+      const intervalActuals = rounds.map((round, idx) => {
+        const stored = storedActuals?.[idx]?.value;
+        if (stored != null && stored !== "") return String(stored);
+        return round.target_value != null ? String(round.target_value) : "";
+      });
+
+      init[e.id] = {
+        sets,
+        notes: el?.notes ?? "",
+        distance,
+        duration,
+        pace,
+        intervalActuals,
+      };
     }
     setForms(init);
   }, [exs, existingExLogs]);
 
   function updateSet(exId: string, idx: number, patch: Partial<SetEntry>) {
     setForms((f) => {
-      const cur = f[exId] ?? { sets: [], notes: "" };
+      const cur = f[exId] ?? EMPTY_EXFORM;
       const nextSets = cur.sets.map((s, i) =>
         i === idx ? { ...s, ...patch } : s,
       );
@@ -129,19 +226,27 @@ export function MyFeedbackDetail({
   }
   function addSet(exId: string) {
     setForms((f) => {
-      const cur = f[exId] ?? { sets: [], notes: "" };
+      const cur = f[exId] ?? EMPTY_EXFORM;
       const last = cur.sets[cur.sets.length - 1] ?? { weight: "", reps: "" };
       return { ...f, [exId]: { ...cur, sets: [...cur.sets, { ...last }] } };
     });
   }
   function removeSet(exId: string, idx: number) {
     setForms((f) => {
-      const cur = f[exId] ?? { sets: [], notes: "" };
+      const cur = f[exId] ?? EMPTY_EXFORM;
       if (cur.sets.length <= 1) return f;
       return {
         ...f,
         [exId]: { ...cur, sets: cur.sets.filter((_, i) => i !== idx) },
       };
+    });
+  }
+  function updateIntervalActual(exId: string, idx: number, value: string) {
+    setForms((f) => {
+      const cur = f[exId] ?? EMPTY_EXFORM;
+      const next = [...cur.intervalActuals];
+      next[idx] = value;
+      return { ...f, [exId]: { ...cur, intervalActuals: next } };
     });
   }
 
@@ -184,17 +289,32 @@ export function MyFeedbackDetail({
           .eq("workout_log_id", existing.id);
       }
       const rows = exs.map((e: any) => {
-        const f = forms[e.id] ?? { sets: [], notes: "" };
+        const f = forms[e.id] ?? EMPTY_EXFORM;
+        const isIntervals = e.exercises?.structure_type === "intervals";
         // Keep the summary text fields populated for legacy views:
         const weightSummary = f.sets.map((s) => s.weight).join(" / ");
         const repsSummary = f.sets.map((s) => s.reps).join(" / ");
+        const discipline = (e.exercises?.discipline ??
+          "Strength") as ExerciseDiscipline;
+        const distanceUnit = distanceUnitFor(discipline);
+        const distanceKm =
+          f.distance.trim() !== ""
+            ? distanceUnit === "m"
+              ? Number(f.distance) / 1000
+              : Number(f.distance)
+            : null;
         return {
           workout_log_id: logId!,
           session_exercise_id: e.id,
           weight_done: weightSummary,
           reps_done: repsSummary,
           notes: f.notes ?? "",
-          sets_json: f.sets,
+          sets_json: isIntervals
+            ? f.intervalActuals.map((value) => ({ value }))
+            : f.sets,
+          distance_km: distanceKm,
+          duration_min: f.duration.trim() !== "" ? Number(f.duration) : null,
+          pace: f.pace.trim() !== "" ? f.pace : null,
         };
       });
       if (rows.length) {
@@ -281,72 +401,188 @@ export function MyFeedbackDetail({
       </Card>
 
       {exs.map((e: any, i: number) => {
-        const f = forms[e.id] ?? { sets: [], notes: "" };
-        const weightSuffix =
-          e.load_mode === "%1RM"
-            ? "% 1RM"
-            : e.load_mode === "bodyweight"
-              ? ""
-              : "kg";
+        const f = forms[e.id] ?? EMPTY_EXFORM;
+        const discipline = (e.exercises?.discipline ??
+          "Strength") as ExerciseDiscipline;
+        const isStrength = discipline === "Strength";
+        const isIntervals = e.exercises?.structure_type === "intervals";
+        const rounds = intervalRounds[e.id] ?? [];
+        const distanceUnit = distanceUnitFor(discipline);
+        const showPace =
+          discipline === "Running" ||
+          discipline === "Swimming" ||
+          discipline === "Cycling";
+        const summary = isIntervals
+          ? summarizeIntervals(rounds)
+          : summarizePrescription(discipline, rowToPrescription(e));
         return (
           <Card key={e.id} className="p-4">
-            <div className="flex items-start justify-between">
-              <div className="font-semibold">
-                {i + 1}. {e.exercises?.name_en}
-              </div>
-              <div className="text-right text-xs text-muted-foreground">
-                {e.sets ?? "-"}×{e.reps || "-"}
-                {e.load_value != null && ` @ ${e.load_value}${weightSuffix}`}
-                {e.load_mode === "bodyweight" && " · bodyweight"}
-              </div>
+            <div className="font-semibold">
+              {i + 1}. {e.exercises?.name_en ?? "Exercise removed"}
             </div>
+            {summary && (
+              <p className="mt-0.5 text-xs text-muted-foreground">{summary}</p>
+            )}
 
-            <div className="mt-3 space-y-2">
-              <div className="grid grid-cols-[auto_1fr_1fr_auto] items-center gap-2 text-xs text-muted-foreground">
-                <span className="w-10">Set</span>
-                <span>
-                  Weight{weightSuffix ? ` (${weightSuffix.trim()})` : ""}
-                </span>
-                <span>Reps</span>
-                <span className="w-8" />
-              </div>
-              {f.sets.map((s, idx) => (
-                <div
-                  key={idx}
-                  className="grid grid-cols-[auto_1fr_1fr_auto] items-center gap-2"
-                >
-                  <span className="w-10 text-sm font-medium text-muted-foreground">
-                    #{idx + 1}
+            {isStrength ? (
+              <div className="mt-3 space-y-2">
+                <div className="grid grid-cols-[auto_1fr_1fr_auto] items-center gap-2 text-xs text-muted-foreground">
+                  <span className="w-10">Set</span>
+                  <span>
+                    Weight
+                    {e.load_mode === "%1RM"
+                      ? " (% 1RM)"
+                      : e.load_mode === "bodyweight"
+                        ? ""
+                        : " (kg)"}
                   </span>
-                  <Input
-                    inputMode="decimal"
-                    value={s.weight}
-                    onChange={(ev) =>
-                      updateSet(e.id, idx, { weight: ev.target.value })
-                    }
-                  />
-                  <Input
-                    inputMode="numeric"
-                    value={s.reps}
-                    onChange={(ev) =>
-                      updateSet(e.id, idx, { reps: ev.target.value })
-                    }
-                  />
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => removeSet(e.id, idx)}
-                    disabled={f.sets.length <= 1}
-                    aria-label="Remove set"
-                  >
-                    ✕
-                  </Button>
+                  <span>Reps</span>
+                  <span className="w-8" />
                 </div>
-              ))}
-              <Button variant="outline" size="sm" onClick={() => addSet(e.id)}>
-                + Add set
-              </Button>
-            </div>
+                {f.sets.map((s, idx) => (
+                  <div
+                    key={idx}
+                    className="grid grid-cols-[auto_1fr_1fr_auto] items-center gap-2"
+                  >
+                    <span className="w-10 text-sm font-medium text-muted-foreground">
+                      #{idx + 1}
+                    </span>
+                    <Input
+                      inputMode="decimal"
+                      value={s.weight}
+                      onChange={(ev) =>
+                        updateSet(e.id, idx, { weight: ev.target.value })
+                      }
+                    />
+                    <Input
+                      inputMode="numeric"
+                      value={s.reps}
+                      onChange={(ev) =>
+                        updateSet(e.id, idx, { reps: ev.target.value })
+                      }
+                    />
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removeSet(e.id, idx)}
+                      disabled={f.sets.length <= 1}
+                      aria-label="Remove set"
+                    >
+                      ✕
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => addSet(e.id)}
+                >
+                  + Add set
+                </Button>
+              </div>
+            ) : isIntervals ? (
+              <div className="mt-3 space-y-2">
+                <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2 text-xs text-muted-foreground">
+                  <span className="w-8">#</span>
+                  <span>Prescribed</span>
+                  <span className="w-24">Actual</span>
+                </div>
+                {rounds.map((round, idx) => {
+                  const unit =
+                    round.target_unit === "meters"
+                      ? "m"
+                      : round.target_unit === "minutes"
+                        ? "min"
+                        : "s";
+                  return (
+                    <div
+                      key={round.id}
+                      className="grid grid-cols-[auto_1fr_auto] items-center gap-2"
+                    >
+                      <span className="w-8 text-sm font-medium text-muted-foreground">
+                        #{idx + 1}
+                      </span>
+                      <span className="text-sm text-muted-foreground">
+                        {round.label ? `${round.label}: ` : ""}
+                        {round.target_value != null
+                          ? `${round.target_value}${unit}`
+                          : "—"}
+                        {round.rest_seconds != null &&
+                          ` · rest ${round.rest_seconds}s`}
+                      </span>
+                      <Input
+                        inputMode="decimal"
+                        className="w-24"
+                        value={f.intervalActuals[idx] ?? ""}
+                        onChange={(ev) =>
+                          updateIntervalActual(e.id, idx, ev.target.value)
+                        }
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="mt-3 flex flex-wrap gap-4">
+                <div>
+                  <Label className="text-xs">Duration (min)</Label>
+                  <Input
+                    type="number"
+                    inputMode="decimal"
+                    className="mt-1 w-28"
+                    value={f.duration}
+                    onChange={(ev) =>
+                      setForms((prev) => ({
+                        ...prev,
+                        [e.id]: {
+                          ...(prev[e.id] ?? EMPTY_EXFORM),
+                          duration: ev.target.value,
+                        },
+                      }))
+                    }
+                  />
+                </div>
+                {distanceUnit && (
+                  <div>
+                    <Label className="text-xs">Distance ({distanceUnit})</Label>
+                    <Input
+                      type="number"
+                      inputMode="decimal"
+                      className="mt-1 w-28"
+                      value={f.distance}
+                      onChange={(ev) =>
+                        setForms((prev) => ({
+                          ...prev,
+                          [e.id]: {
+                            ...(prev[e.id] ?? EMPTY_EXFORM),
+                            distance: ev.target.value,
+                          },
+                        }))
+                      }
+                    />
+                  </div>
+                )}
+                {showPace && (
+                  <div>
+                    <Label className="text-xs">Pace</Label>
+                    <Input
+                      placeholder={distanceUnit === "m" ? "/100m" : "/km"}
+                      className="mt-1 w-28"
+                      value={f.pace}
+                      onChange={(ev) =>
+                        setForms((prev) => ({
+                          ...prev,
+                          [e.id]: {
+                            ...(prev[e.id] ?? EMPTY_EXFORM),
+                            pace: ev.target.value,
+                          },
+                        }))
+                      }
+                    />
+                  </div>
+                )}
+              </div>
+            )}
 
             <div className="mt-3">
               <Label className="text-xs">Notes</Label>
@@ -357,7 +593,7 @@ export function MyFeedbackDetail({
                   setForms((prev) => ({
                     ...prev,
                     [e.id]: {
-                      ...(prev[e.id] ?? { sets: [], notes: "" }),
+                      ...(prev[e.id] ?? EMPTY_EXFORM),
                       notes: ev.target.value,
                     },
                   }))

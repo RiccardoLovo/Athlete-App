@@ -15,6 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRole } from "@/hooks/use-role";
 import { useTheme } from "@/lib/theme";
+import { useMyUnloggedCount } from "@/features/feedback/useMyPastSessions";
 
 function NavLink({
   to,
@@ -52,6 +53,11 @@ export function Navbar() {
   const hasClientProfile = !!role?.hasClientProfile;
   const showAthleteLinks = isAthlete || hasClientProfile;
   const showCoachLinks = !isAthlete; // admins/coaches keep coach links
+  // Mixed coach+athlete accounts already reach both feedback views via the
+  // coach "Feedback" link (it shows a My/Client tabs page) — a second nav
+  // entry there would just be a duplicate link to the same route.
+  const showAthleteFeedbackLink = showAthleteLinks && !showCoachLinks;
+  const unloggedCount = useMyUnloggedCount(showAthleteFeedbackLink);
   const { data: pendingCount = 0 } = useQuery({
     queryKey: ["pending-feedback-count"],
     queryFn: async () => {
@@ -100,7 +106,7 @@ export function Navbar() {
           CoachDesk
         </Link>
         {isAdmin && (
-          <Badge className="ml-1 hidden bg-amber-500 text-white hover:bg-amber-500 sm:inline-flex">
+          <Badge className="ml-1 hidden bg-foreground text-background hover:bg-foreground sm:inline-flex">
             Admin
           </Badge>
         )}
@@ -120,6 +126,14 @@ export function Navbar() {
           {showAthleteLinks && (
             <>
               <NavLink to="/dashboard" icon={Dumbbell} label="My Training" />
+              {showAthleteFeedbackLink && (
+                <NavLink
+                  to="/feedback"
+                  icon={MessageSquare}
+                  label="My Feedback"
+                  badge={unloggedCount}
+                />
+              )}
               <NavLink to="/my-1rm" icon={Activity} label="My 1RMs" />
             </>
           )}

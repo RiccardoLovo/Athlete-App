@@ -29,21 +29,18 @@ export const DISCIPLINE_ICON: Record<Discipline, string> = {
   Mobility: "🧘",
 };
 
+// Monochrome: the DISCIPLINE_ICON emoji carries the per-discipline
+// distinction now, so every badge shares the same neutral treatment.
+const NEUTRAL_DISCIPLINE_BADGE =
+  "border-border bg-secondary text-secondary-foreground";
 export const DISCIPLINE_BADGE: Record<Discipline, string> = {
-  Strength:
-    "border-orange-300 bg-orange-100 text-orange-800 dark:bg-orange-500/15 dark:text-orange-300",
-  Running:
-    "border-emerald-300 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-300",
-  Swimming:
-    "border-sky-300 bg-sky-100 text-sky-800 dark:bg-sky-500/15 dark:text-sky-300",
-  Cycling:
-    "border-amber-300 bg-amber-100 text-amber-800 dark:bg-amber-500/15 dark:text-amber-300",
-  Football:
-    "border-violet-300 bg-violet-100 text-violet-800 dark:bg-violet-500/15 dark:text-violet-300",
-  Padel:
-    "border-fuchsia-300 bg-fuchsia-100 text-fuchsia-800 dark:bg-fuchsia-500/15 dark:text-fuchsia-300",
-  Mobility:
-    "border-teal-300 bg-teal-100 text-teal-800 dark:bg-teal-500/15 dark:text-teal-300",
+  Strength: NEUTRAL_DISCIPLINE_BADGE,
+  Running: NEUTRAL_DISCIPLINE_BADGE,
+  Swimming: NEUTRAL_DISCIPLINE_BADGE,
+  Cycling: NEUTRAL_DISCIPLINE_BADGE,
+  Football: NEUTRAL_DISCIPLINE_BADGE,
+  Padel: NEUTRAL_DISCIPLINE_BADGE,
+  Mobility: NEUTRAL_DISCIPLINE_BADGE,
 };
 
 // All possible prescription fields, flat.
@@ -170,8 +167,9 @@ export function summarizePrescription(
         else parts.push(`${m}m`);
       } else if (p.target_mode === "Laps" && typeof laps === "number")
         parts.push(`${laps} laps`);
-      else if (p.target_mode === "Time" && p.duration_min != null)
+      else if (p.target_mode === "Time" && p.duration_min != null) {
         parts.push(`${p.duration_min} min`);
+      }
       if (typeof stroke === "string" && stroke) parts.push(stroke);
       if (p.pace) parts.push(`Pace: ${p.pace}/100m`);
       if (p.hr_zone != null) parts.push(`HR Z${p.hr_zone}`);
@@ -227,4 +225,80 @@ export function summarizePrescription(
 // Helper labels used by PDF and tooltips
 export function disciplineLabel(d: Discipline): string {
   return `${DISCIPLINE_ICON[d]} ${t(`discipline.${d}`)}`;
+}
+
+const INTERVAL_UNIT_ABBREV: Record<string, string> = {
+  meters: "m",
+  seconds: "s",
+  minutes: "min",
+};
+
+export interface IntervalRoundLike {
+  target_value: number | null;
+  target_unit: string;
+  rest_seconds: number | null;
+}
+
+// Collapses a round-by-round interval prescription into a compact human
+// summary, e.g. 10 identical 20s-on/20s-off rounds -> "10 × 20s (rest 20s)".
+// Runs of identical rounds collapse together; differing rounds stay listed
+// separately so a varied set (600m easy, 800m moderate, ...) stays readable.
+export function summarizeIntervals(rows: IntervalRoundLike[]): string {
+  if (!rows.length) return "";
+  type Group = {
+    value: number | null;
+    unit: string;
+    rest: number | null;
+    count: number;
+  };
+  const groups: Group[] = [];
+  for (const r of rows) {
+    const last = groups[groups.length - 1];
+    if (
+      last &&
+      last.value === r.target_value &&
+      last.unit === r.target_unit &&
+      last.rest === r.rest_seconds
+    ) {
+      last.count++;
+    } else {
+      groups.push({
+        value: r.target_value,
+        unit: r.target_unit,
+        rest: r.rest_seconds,
+        count: 1,
+      });
+    }
+  }
+  return groups
+    .map((g) => {
+      const unit = INTERVAL_UNIT_ABBREV[g.unit] ?? g.unit;
+      const value = g.value != null ? `${g.value}${unit}` : "?";
+      const base = g.count > 1 ? `${g.count} × ${value}` : value;
+      return g.rest != null ? `${base} (rest ${g.rest}s)` : base;
+    })
+    .join(" + ");
+}
+
+// Build a Prescription object from a raw DB row (lossy fields default to empty).
+export function rowToPrescription(row: Record<string, unknown>): Prescription {
+  const get = <T>(k: string): T | null =>
+    (row[k] as T | null | undefined) ?? null;
+  return {
+    ...emptyPrescription(),
+    sets: get<number>("sets"),
+    reps: get<string>("reps") ?? "",
+    target_mode: get<string>("target_mode"),
+    rpe: get<number>("rpe"),
+    load_mode: get<string>("load_mode"),
+    load_value: get<number>("load_value"),
+    rest_sec: get<number>("rest_sec"),
+    distance_km: get<number>("distance_km"),
+    duration_min: get<number>("duration_min"),
+    pace: get<string>("pace") ?? "",
+    hr_zone: get<number>("hr_zone"),
+    tempo: get<string>("tempo") ?? "",
+    notes: get<string>("notes") ?? "",
+    prescription: get<Record<string, unknown>>("prescription") ?? {},
+  };
 }

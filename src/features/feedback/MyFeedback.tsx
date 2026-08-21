@@ -1,151 +1,39 @@
 import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { MessageSquare, CalendarIcon, Pencil } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { borgColor, formatDistance } from "@/lib/coachdesk/constants";
 import {
-  addDays,
   parseISODate,
   toISODate,
   formatLong,
 } from "@/lib/coachdesk/periodization";
 import { MyFeedbackDetail } from "./MyFeedbackDetail";
-import type { PlanSession } from "./feedback.types";
+import { useMyClientForFeedback, useMyPastSessions } from "./useMyPastSessions";
 
 export function MyFeedback({ wrap }: { wrap?: boolean } = {}) {
   const [openId, setOpenId] = useState<string | null>(null);
+  const [filter, setFilter] = useState<"unlogged" | "all">("unlogged");
 
-  const { data: client } = useQuery({
-    queryKey: ["my-client-for-feedback"],
-    queryFn: async () => {
-      const { data: u } = await supabase.auth.getUser();
-      if (!u.user) return null;
-      const { data } = await supabase
-        .from("clients")
-        .select("id, name, coach_id")
-        .eq("user_id", u.user.id)
-        .maybeSingle();
-      return data as { id: string; name: string; coach_id: string } | null;
-    },
-  });
-
-  const { data: sessions = [], isLoading } = useQuery({
-    queryKey: ["my-past-sessions", client?.id],
-    enabled: !!client?.id,
-    queryFn: async (): Promise<PlanSession[]> => {
-      const { data: plans } = await supabase
-        .from("training_plans")
-        .select(
-          "id, start_date, status, training_blocks(id, name, position, weeks)",
-        )
-        .eq("athlete_id", client!.id);
-      const rows: PlanSession[] = [];
-      for (const plan of (plans ?? []) as any[]) {
-        const blocks = (plan.training_blocks ?? [])
-          .slice()
-          .sort((a: any, b: any) => a.position - b.position);
-        if (!blocks.length) continue;
-        const blockIds = blocks.map((b: any) => b.id);
-        const { data: sess } = await supabase
-          .from("sessions")
-          .select(
-            "id, name, day_of_week, week_number, block_id, status, is_client_added, discipline, intensity, duration_minutes, distance_meters",
-          )
-          .in("block_id", blockIds)
-          .eq("status", "active");
-        const sList = (sess ?? []) as any[];
-        if (!sList.length) continue;
-        const sIds = sList.map((s) => s.id);
-        const [{ data: exs }, { data: logs }] = await Promise.all([
-          supabase
-            .from("session_exercises")
-            .select("session_id, exercises(discipline, category)")
-            .in("session_id", sIds),
-          supabase
-            .from("workout_logs")
-            .select(
-              "id, session_id, borg_scale, overall_notes, submitted_at, performed_at, status",
-            )
-            .eq("client_id", client!.id)
-            .in("session_id", sIds),
-        ]);
-        const counts = new Map<string, number>();
-        const typesMap = new Map<string, Set<string>>();
-        for (const e of (exs ?? []) as any[]) {
-          counts.set(e.session_id, (counts.get(e.session_id) ?? 0) + 1);
-          const disc = e.exercises?.discipline as string | undefined;
-          const cat = e.exercises?.category as string | undefined;
-          const t = disc && disc !== "General" ? disc : cat;
-          if (t) {
-            if (!typesMap.has(e.session_id))
-              typesMap.set(e.session_id, new Set());
-            typesMap.get(e.session_id)!.add(t);
-          }
-        }
-        const logMap = new Map<string, any>();
-        for (const l of (logs ?? []) as any[]) logMap.set(l.session_id, l);
-
-        // Block offsets in days from plan.start_date
-        const offsets = new Map<string, number>();
-        let cum = 0;
-        for (const b of blocks) {
-          offsets.set(b.id, cum);
-          cum += b.weeks * 7;
-        }
-
-        for (const s of sList) {
-          const c = counts.get(s.id) ?? 0;
-          if (c === 0 && !s.is_client_added) continue;
-          const blk = blocks.find((b: any) => b.id === s.block_id);
-          if (!blk) continue;
-          const off =
-            (offsets.get(s.block_id) ?? 0) +
-            (s.week_number - 1) * 7 +
-            (s.day_of_week - 1);
-          const planned = toISODate(
-            addDays(parseISODate(plan.start_date), off),
-          );
-          let types = Array.from(typesMap.get(s.id) ?? []);
-          // Drop "Mobility" unless the session is exclusively mobility
-          if (types.length > 1) {
-            types = types.filter((t) => t.toLowerCase() !== "mobility");
-          }
-          rows.push({
-            id: s.id,
-            name: s.name,
-            day_of_week: s.day_of_week,
-            week_number: s.week_number,
-            block_id: s.block_id,
-            block_name: blk.name,
-            block_position: blk.position,
-            planned_date: planned,
-            ex_count: c,
-            types,
-            is_client_added: s.is_client_added,
-            discipline: s.discipline,
-            intensity: s.intensity,
-            duration_minutes: s.duration_minutes,
-            distance_meters: s.distance_meters,
-            log: logMap.get(s.id),
-          });
-        }
-      }
-      return rows;
-    },
-  });
+  const { data: client } = useMyClientForFeedback();
+  const { data: sessions = [], isLoading } = useMyPastSessions(client?.id);
 
   const todayISO = toISODate(new Date());
+  const due = useMemo(
+    () => sessions.filter((s) => s.planned_date <= todayISO || s.log),
+    [sessions, todayISO],
+  );
+  const unloggedCount = useMemo(() => due.filter((s) => !s.log).length, [due]);
   const visible = useMemo(() => {
-    return sessions
-      .filter((s) => s.planned_date <= todayISO || s.log)
+    return due
+      .filter((s) => (filter === "unlogged" ? !s.log : true))
       .sort((a, b) => {
         const ad = a.log?.performed_at ?? a.planned_date;
         const bd = b.log?.performed_at ?? b.planned_date;
         return bd.localeCompare(ad);
       });
-  }, [sessions, todayISO]);
+  }, [due, filter]);
 
   const content = (() => {
     if (!client) {
@@ -173,11 +61,34 @@ export function MyFeedback({ wrap }: { wrap?: boolean } = {}) {
     }
     return (
       <>
-        <div className="mb-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold">My Feedback</h1>
-          <p className="text-sm text-muted-foreground">
-            Log or edit feedback on your past sessions.
-          </p>
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h1 className="text-2xl font-bold">My Feedback</h1>
+            <p className="text-sm text-muted-foreground">
+              Log or edit feedback on your past sessions.
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <Button
+              variant={filter === "unlogged" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setFilter("unlogged")}
+            >
+              To log
+              {unloggedCount > 0 && (
+                <Badge className="ml-1.5 bg-foreground text-background">
+                  {unloggedCount}
+                </Badge>
+              )}
+            </Button>
+            <Button
+              variant={filter === "all" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setFilter("all")}
+            >
+              All
+            </Button>
+          </div>
         </div>
         {isLoading ? (
           <div className="py-20 text-center text-muted-foreground">
@@ -186,7 +97,11 @@ export function MyFeedback({ wrap }: { wrap?: boolean } = {}) {
         ) : visible.length === 0 ? (
           <div className="py-20 text-center">
             <MessageSquare className="mx-auto h-12 w-12 text-muted-foreground/40" />
-            <p className="mt-2 text-muted-foreground">No past sessions yet.</p>
+            <p className="mt-2 text-muted-foreground">
+              {filter === "unlogged"
+                ? "You're all caught up — nothing left to log."
+                : "No past sessions yet."}
+            </p>
           </div>
         ) : (
           <div className="space-y-2">

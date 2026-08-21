@@ -5,7 +5,11 @@ import {
   type PdfExercise,
   type PdfInterval,
 } from "./pdf";
-import { summarizePrescription, type Discipline } from "./prescription";
+import {
+  rowToPrescription,
+  summarizePrescription,
+  type Discipline,
+} from "./prescription";
 
 export async function downloadTrainingPdf(opts: {
   scope: TrainingPdfScope;
@@ -92,32 +96,13 @@ export async function downloadTrainingPdf(opts: {
     const structure = (e.exercises?.structure_type ??
       "simple") as PdfExercise["structure_type"];
     const oneRm = rmMap.get(e.exercise_id) ?? null;
-    let load_label = "";
-    if (e.load_mode === "bodyweight") load_label = "BW";
-    else if (e.load_value != null) {
-      if (e.load_mode === "%1RM") {
-        const abs = oneRm
-          ? Math.round((Number(e.load_value) / 100) * oneRm * 10) / 10
-          : null;
-        load_label =
-          abs != null ? `${e.load_value}% (${abs}kg)` : `${e.load_value}% 1RM`;
-      } else {
-        load_label = `${e.load_value}kg`;
-      }
-    }
     return {
       name: e.exercises?.name_en ?? "Exercise",
       discipline,
       order_index: e.order_index ?? 0,
-      sets: e.sets ?? null,
-      reps: e.reps ?? "",
-      load_label,
-      rest_sec: e.rest_sec ?? null,
-      tempo: e.tempo ?? "",
-      rpe: e.rpe ?? null,
       notes: e.notes ?? "",
       video_url: e.exercises?.video_url ?? null,
-      summary: summarizePrescription(discipline, e as any, oneRm),
+      summary: summarizePrescription(discipline, rowToPrescription(e), oneRm),
       intervals: intervalsBySE.get(e.id),
       structure_type: structure,
     };
