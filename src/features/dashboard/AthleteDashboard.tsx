@@ -108,6 +108,36 @@ export async function fetchLastLoggedWeights(
   }
   return result;
 }
+export const EMPTY_ONE_RMS: Record<string, number> = {};
+
+// %1RM-based weight only means something once resolved against the
+// athlete's actual 1RM — without it there's no way to turn "80%" into a
+// real kg number, so callers must leave the weight blank rather than guess.
+export async function fetchOneRms(
+  clientId: string,
+  sessionExercises: { exercise_id: string | null }[],
+): Promise<Record<string, number>> {
+  const exerciseIds = Array.from(
+    new Set(
+      sessionExercises
+        .map((e) => e.exercise_id)
+        .filter((id): id is string => !!id),
+    ),
+  );
+  if (!exerciseIds.length) return {};
+  const { data } = await supabase
+    .from("client_exercise_1rm")
+    .select("exercise_id, value_kg, tested_date")
+    .eq("client_id", clientId)
+    .in("exercise_id", exerciseIds)
+    .order("tested_date", { ascending: false });
+  const result: Record<string, number> = {};
+  for (const row of (data ?? []) as any[]) {
+    if (result[row.exercise_id] == null)
+      result[row.exercise_id] = Number(row.value_kg);
+  }
+  return result;
+}
 
 export function AthleteDashboard() {
   const navigate = useNavigate();
@@ -868,16 +898,18 @@ function LogWorkout({
         .order("order_index");
       const list = (data ?? []) as any[];
       const lastWeights = await fetchLastLoggedWeights(client.id, list);
+      const oneRms = await fetchOneRms(client.id, list);
       const intervalRounds = await fetchIntervalRounds(
         list
           .filter((e) => e.exercises?.structure_type === "intervals")
           .map((e) => e.id),
       );
-      return { list, lastWeights, intervalRounds };
+      return { list, lastWeights, oneRms, intervalRounds };
     },
   });
   const exs = exsData?.list ?? EMPTY_EXS;
   const lastWeights = exsData?.lastWeights ?? EMPTY_LAST_WEIGHTS;
+  const oneRms = exsData?.oneRms ?? EMPTY_ONE_RMS;
   const intervalRounds = exsData?.intervalRounds ?? EMPTY_INTERVAL_ROUNDS;
 
   const { data: existingExLogsData } = useQuery({
@@ -935,14 +967,24 @@ function LogWorkout({
     for (const e of exs) {
       const el = byId.get(e.id);
       const setCount = Math.max(1, Number(e.sets) || 1);
+      const oneRm = oneRms[e.exercise_id] ?? null;
+      const isPercentOneRm = e.load_mode === "%1RM";
       const prescribedWeight =
         e.load_mode === "bodyweight"
           ? "0"
-          : e.load_value != null
-            ? String(e.load_value)
-            : "";
+          : isPercentOneRm
+            ? oneRm != null && e.load_value != null
+              ? String(Math.round((e.load_value / 100) * oneRm * 10) / 10)
+              : ""
+            : e.load_value != null
+              ? String(e.load_value)
+              : "";
+      // %1RM with no 1RM on file has nothing valid to prefill — leave it
+      // blank rather than fall back to a guessed last-used weight.
       const defaultWeight =
-        prescribedWeight || lastWeights[e.exercise_id] || "";
+        isPercentOneRm && oneRm == null
+          ? ""
+          : prescribedWeight || lastWeights[e.exercise_id] || "";
       const defaultReps = e.reps != null ? String(e.reps) : "";
       let sets: SetEntry[] = [];
       const stored = Array.isArray(el?.sets_json) ? el!.sets_json : null;
@@ -1223,9 +1265,11 @@ function LogWorkout({
             discipline === "Running" ||
             discipline === "Swimming" ||
             discipline === "Cycling";
+          const oneRm = oneRms[e.exercise_id] ?? null;
+          const isPercentOneRm = e.load_mode === "%1RM";
           const summary = isIntervals
             ? summarizeIntervals(rounds)
-            : summarizePrescription(discipline, rowToPrescription(e));
+            : summarizePrescription(discipline, rowToPrescription(e), oneRm);
           return (
             <Card key={e.id} className="p-4">
               <div className="flex items-start gap-2">
@@ -1255,12 +1299,12 @@ function LogWorkout({
                   <div className="grid grid-cols-[auto_1fr_1fr_auto] items-center gap-2 text-xs text-muted-foreground">
                     <span className="w-8">Set</span>
                     <span>
-                      Weight
-                      {e.load_mode === "%1RM"
-                        ? " (% 1RM)"
-                        : e.load_mode === "bodyweight"
-                          ? ""
-                          : " (kg)"}
+                      Weight{e.load_mode === "bodyweight" ? "" : " (kg)"}
+                      {isPercentOneRm && oneRm == null && (
+                        <span className="ml-1 text-[10px]">
+                          — no 1RM on file, target {e.load_value}% 1RM
+                        </span>
+                      )}
                     </span>
                     <span>Reps</span>
                     <span className="w-9" />
@@ -1276,6 +1320,11 @@ function LogWorkout({
                       <Input
                         inputMode="decimal"
                         className="h-11 text-base"
+                        placeholder={
+                          isPercentOneRm && oneRm == null
+                            ? `${e.load_value}% 1RM`
+                            : undefined
+                        }
                         value={s.weight}
                         onChange={(ev) =>
                           updateSet(e.id, idx, { weight: ev.target.value })
