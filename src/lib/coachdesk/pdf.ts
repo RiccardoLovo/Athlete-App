@@ -3,7 +3,7 @@ import { DAY_LABELS } from "./constants";
 import type { Discipline } from "./prescription";
 
 // ─────────────────────────────────────────────────────────────────────
-// CoachDesk training PDF. Landscape A4, dark theme — the exact palette
+// Athlete App training PDF. Landscape A4, dark theme — the exact palette
 // and card language the app itself uses (rounded-card exercises, thin
 // hairlines, one clean summary line per exercise instead of a data
 // grid). Strength and endurance exercises share the same card layout;
@@ -128,7 +128,7 @@ export function exportTrainingPdf(opts: {
     setText(doc, C.textDim);
     doc.setFont("helvetica", "normal");
     doc.setFontSize(8);
-    doc.text("CoachDesk · Training Export", M, 22);
+    doc.text("Athlete App · Training Export", M, 22);
 
     setText(doc, C.text);
     doc.setFont("helvetica", "bold");
@@ -155,7 +155,7 @@ export function exportTrainingPdf(opts: {
     setText(doc, C.textDim);
     doc.setFont("helvetica", "normal");
     doc.setFontSize(8);
-    doc.text("CoachDesk", M, H - 13);
+    doc.text("Athlete App", M, H - 13);
     doc.text(`${pageNum} / ${pageTotal}`, W - M, H - 13, { align: "right" });
   };
 

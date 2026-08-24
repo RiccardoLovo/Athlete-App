@@ -12,7 +12,7 @@ export const Route = createFileRoute("/_authenticated/feedback")({
   }),
   head: () => ({
     meta: [
-      { title: "CoachDesk Feedback — Log training sessions" },
+      { title: "Athlete App Feedback — Log training sessions" },
       {
         name: "description",
         content:
@@ -20,7 +20,7 @@ export const Route = createFileRoute("/_authenticated/feedback")({
       },
       {
         property: "og:title",
-        content: "CoachDesk Feedback — Log training sessions",
+        content: "Athlete App Feedback — Log training sessions",
       },
       {
         property: "og:description",

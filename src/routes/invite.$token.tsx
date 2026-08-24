@@ -97,7 +97,7 @@ function InvitePage() {
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background to-muted px-4">
       <Card className="w-full max-w-md p-8">
         <h1 className="text-center text-2xl font-bold text-primary">
-          Welcome to CoachDesk
+          Welcome to Athlete App
         </h1>
         <p className="mb-1 mt-2 text-center text-sm">
           Coach <strong>{invite.coach_name}</strong> invited you

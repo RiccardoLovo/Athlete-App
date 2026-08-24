@@ -78,12 +78,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       meta: [
         { charSet: "utf-8" },
         { name: "viewport", content: "width=device-width, initial-scale=1" },
-        { title: "CoachDesk" },
+        { title: "Athlete App" },
         {
           name: "description",
           content: "Training programme management for coaches and athletes.",
         },
-        { property: "og:title", content: "CoachDesk" },
+        { property: "og:title", content: "Athlete App" },
         {
           property: "og:description",
           content: "Training programme management for coaches and athletes.",
@@ -93,7 +93,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         { name: "mobile-web-app-capable", content: "yes" },
         { name: "apple-mobile-web-app-capable", content: "yes" },
         { name: "apple-mobile-web-app-status-bar-style", content: "default" },
-        { name: "apple-mobile-web-app-title", content: "CoachDesk" },
+        { name: "apple-mobile-web-app-title", content: "Athlete App" },
       ],
       links: [
         {

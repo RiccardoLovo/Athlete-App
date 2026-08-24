@@ -1,6 +1,6 @@
 {
-  "name": "CoachDesk",
-  "short_name": "CoachDesk",
+  "name": "Athlete App",
+  "short_name": "Athlete App",
   "description": "Training programme management for coaches and athletes.",
   "start_url": "/dashboard",
   "id": "/dashboard",

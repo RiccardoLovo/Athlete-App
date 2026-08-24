@@ -115,7 +115,7 @@ function AuthPage() {
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background to-muted px-4">
       <Card className="w-full min-w-0 max-w-md p-8">
         <h1 className="text-center text-2xl font-bold text-primary">
-          CoachDesk
+          Athlete App
         </h1>
         <p className="mb-6 mt-1 text-center text-sm text-muted-foreground">
           Coach sign-in. Athletes — open the invite link your coach sent.

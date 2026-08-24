@@ -135,12 +135,20 @@ type Exercise = {
   structure_type: "simple" | "intervals" | "template";
   template_type: "rsa" | "pyramid" | null;
   template_defaults: Record<string, unknown> | null;
+  added_by_athlete: boolean;
+  reviewed_by_coach: boolean;
 };
 
 export function ExercisesPage() {
   const qc = useQueryClient();
   const { data: role } = useRole();
   const isAdmin = !!role?.isAdmin;
+
+  const { data: myId } = useQuery({
+    queryKey: ["my-uid"],
+    queryFn: async () => (await supabase.auth.getUser()).data.user?.id ?? null,
+  });
+
   const [search, setSearch] = useState("");
   const [discipline, setDiscipline] = useState<"All" | Discipline>("All");
   const [fCategory, setFCategory] = useState<string>("");
@@ -183,8 +191,12 @@ export function ExercisesPage() {
     discipline === "Padel" ||
     discipline === "Mobility";
 
+  function canManage(e: Exercise) {
+    return isAdmin || e.created_by === myId;
+  }
+
   async function deleteOne(e: Exercise) {
-    if (e.is_global && !isAdmin) {
+    if (!canManage(e)) {
       toast.error("Built-in exercises can't be deleted");
       return;
     }
@@ -193,6 +205,27 @@ export function ExercisesPage() {
     if (error) toast.error(error.message);
     else {
       toast.success("Deleted");
+      qc.invalidateQueries({ queryKey: ["exercises"] });
+    }
+  }
+
+  async function markReviewed(e: Exercise) {
+    const { error } = await supabase
+      .from("exercises")
+      .update({ reviewed_by_coach: true } as never)
+      .eq("id", e.id);
+    if (error) toast.error(error.message);
+    else qc.invalidateQueries({ queryKey: ["exercises"] });
+  }
+
+  async function togglePublish(e: Exercise) {
+    const { error } = await supabase
+      .from("exercises")
+      .update({ is_global: !e.is_global } as never)
+      .eq("id", e.id);
+    if (error) toast.error(error.message);
+    else {
+      toast.success(e.is_global ? "Unpublished" : "Published to library");
       qc.invalidateQueries({ queryKey: ["exercises"] });
     }
   }
@@ -319,9 +352,14 @@ export function ExercisesPage() {
                       {e.stroke_default}
                     </span>
                   )}
-                  {e.is_global && (
+                  {e.is_global && !canManage(e) && (
                     <span className="inline-flex items-center gap-1 rounded-full border border-border bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">
                       <Lock className="h-3 w-3" /> Built-in
+                    </span>
+                  )}
+                  {e.added_by_athlete && !e.reviewed_by_coach && (
+                    <span className="rounded-full border border-foreground bg-foreground px-2 py-0.5 text-[10px] font-medium text-background">
+                      New
                     </span>
                   )}
                   {e.structure_type === "intervals" && (
@@ -343,37 +381,75 @@ export function ExercisesPage() {
                   </p>
                 )}
               </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                disabled={e.is_global && !isAdmin}
-                title={
-                  e.is_global && !isAdmin
-                    ? "Built-in exercises can't be edited"
-                    : "Edit"
-                }
-                onClick={() => {
-                  setEditing(e);
-                  setShowForm(true);
-                }}
-              >
-                <Pencil className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                disabled={e.is_global && !isAdmin}
-                title={
-                  e.is_global && !isAdmin
-                    ? "Built-in exercises can't be deleted"
-                    : "Delete"
-                }
-                onClick={() => deleteOne(e)}
-              >
-                <Trash2
-                  className={`h-4 w-4 ${e.is_global && !isAdmin ? "text-muted-foreground" : "text-destructive"}`}
-                />
-              </Button>
+              <div className="flex shrink-0 flex-col items-end gap-1">
+                <div className="flex items-center gap-1">
+                  {e.added_by_athlete &&
+                    !e.reviewed_by_coach &&
+                    canManage(e) && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-7 text-xs"
+                        onClick={() => markReviewed(e)}
+                      >
+                        Mark reviewed
+                      </Button>
+                    )}
+                  {canManage(e) && !e.is_global && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-7 text-xs"
+                      onClick={() => togglePublish(e)}
+                    >
+                      Publish to library
+                    </Button>
+                  )}
+                  {canManage(e) && e.is_global && e.created_by === myId && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 text-xs text-muted-foreground"
+                      onClick={() => togglePublish(e)}
+                    >
+                      Unpublish
+                    </Button>
+                  )}
+                </div>
+                <div className="flex items-center">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    disabled={!canManage(e)}
+                    title={
+                      !canManage(e)
+                        ? "Built-in exercises can't be edited"
+                        : "Edit"
+                    }
+                    onClick={() => {
+                      setEditing(e);
+                      setShowForm(true);
+                    }}
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    disabled={!canManage(e)}
+                    title={
+                      !canManage(e)
+                        ? "Built-in exercises can't be deleted"
+                        : "Delete"
+                    }
+                    onClick={() => deleteOne(e)}
+                  >
+                    <Trash2
+                      className={`h-4 w-4 ${!canManage(e) ? "text-muted-foreground" : "text-destructive"}`}
+                    />
+                  </Button>
+                </div>
+              </div>
             </Card>
           ))}
           {!filtered.length && (

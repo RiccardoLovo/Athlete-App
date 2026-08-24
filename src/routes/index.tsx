@@ -6,7 +6,7 @@ import { fetchMyRole } from "@/hooks/use-role";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "CoachDesk — Training & feedback for elite coaches" },
+      { title: "Athlete App — Training & feedback for elite coaches" },
       {
         name: "description",
         content:
@@ -50,7 +50,7 @@ function Index() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 text-center">
       <h1 className="text-2xl font-bold text-primary">
-        {name ? `Welcome back, ${name}` : "CoachDesk"}
+        {name ? `Welcome back, ${name}` : "Athlete App"}
       </h1>
       <p className="mt-2 text-sm text-muted-foreground">
         Taking you to your clients…

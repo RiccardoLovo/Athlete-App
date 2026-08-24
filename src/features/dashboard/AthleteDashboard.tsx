@@ -43,6 +43,8 @@ import {
 } from "@/lib/coachdesk/periodization";
 import { getEmbedUrl } from "@/lib/coachdesk/video";
 import {
+  DISCIPLINES as EXERCISE_DISCIPLINES,
+  DISCIPLINE_ICON,
   rowToPrescription,
   summarizeIntervals,
   summarizePrescription,
@@ -857,6 +859,241 @@ async function fetchIntervalRounds(
 }
 const EMPTY_INTERVAL_ROUNDS: Record<string, IntervalRow[]> = {};
 
+// Athletes can add an exercise mid-session — either an existing library
+// entry, or (if it's not on record) a brand-new one created "as" their own
+// coach, so it shows up in that coach's Knowledge Bank flagged for review.
+// Either way the session_exercises row is unprescribed (no target sets/
+// reps/load) since nothing was planned — the athlete just logs what they
+// actually did.
+async function addExistingExerciseToSession(
+  sessionId: string,
+  exerciseId: string,
+) {
+  const { data: last } = await supabase
+    .from("session_exercises")
+    .select("order_index")
+    .eq("session_id", sessionId)
+    .order("order_index", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  const nextIndex = ((last?.order_index ?? -1) as number) + 1;
+  return supabase.from("session_exercises").insert({
+    session_id: sessionId,
+    exercise_id: exerciseId,
+    order_index: nextIndex,
+    added_by_client: true,
+  } as never);
+}
+
+const DISCIPLINE_DEFAULT_CATEGORY: Record<ExerciseDiscipline, string> = {
+  Strength: "Resistance",
+  Running: "Cardio",
+  Swimming: "Cardio",
+  Cycling: "Cardio",
+  Football: "Cardio",
+  Padel: "Cardio",
+  Mobility: "Mobility",
+};
+
+async function createAthleteExerciseAndAddToSession(
+  sessionId: string,
+  coachId: string,
+  name: string,
+  discipline: ExerciseDiscipline,
+) {
+  const { data: exercise, error: exError } = await supabase
+    .from("exercises")
+    .insert({
+      name_en: name,
+      name_it: name,
+      discipline,
+      category: DISCIPLINE_DEFAULT_CATEGORY[discipline],
+      created_by: coachId,
+      is_global: false,
+      added_by_athlete: true,
+    } as never)
+    .select("id")
+    .single();
+  if (exError || !exercise) return { error: exError };
+  return addExistingExerciseToSession(sessionId, (exercise as any).id);
+}
+
+function AddExerciseDialog({
+  open,
+  onOpenChange,
+  sessionId,
+  coachId,
+  onAdded,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  sessionId: string;
+  coachId: string;
+  onAdded: () => void;
+}) {
+  const [search, setSearch] = useState("");
+  const [creating, setCreating] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [newDiscipline, setNewDiscipline] =
+    useState<ExerciseDiscipline>("Strength");
+  const [busy, setBusy] = useState(false);
+
+  const { data: bank = [] } = useQuery({
+    queryKey: ["exercises"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("exercises")
+        .select("id, name_en, discipline")
+        .order("name_en");
+      return (data ?? []) as { id: string; name_en: string; discipline: ExerciseDiscipline }[];
+    },
+    enabled: open,
+  });
+
+  const filtered = search.trim()
+    ? bank.filter((e) =>
+        e.name_en.toLowerCase().includes(search.trim().toLowerCase()),
+      )
+    : bank;
+
+  function reset() {
+    setSearch("");
+    setCreating(false);
+    setNewName("");
+    setNewDiscipline("Strength");
+  }
+
+  async function pick(exerciseId: string) {
+    setBusy(true);
+    const { error } = await addExistingExerciseToSession(
+      sessionId,
+      exerciseId,
+    );
+    setBusy(false);
+    if (error) return toast.error(`Couldn't add exercise: ${error.message}`);
+    toast.success("Exercise added");
+    reset();
+    onOpenChange(false);
+    onAdded();
+  }
+
+  async function createNew(e: React.FormEvent) {
+    e.preventDefault();
+    if (!newName.trim()) return;
+    setBusy(true);
+    const { error } = await createAthleteExerciseAndAddToSession(
+      sessionId,
+      coachId,
+      newName.trim(),
+      newDiscipline,
+    );
+    setBusy(false);
+    if (error) return toast.error(`Couldn't add exercise: ${error.message}`);
+    toast.success("Exercise added — your coach will review it");
+    reset();
+    onOpenChange(false);
+    onAdded();
+  }
+
+  return (
+    <Dialog
+      open={open}
+      onOpenChange={(o) => {
+        if (!o) reset();
+        onOpenChange(o);
+      }}
+    >
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Add an exercise</DialogTitle>
+        </DialogHeader>
+        {!creating ? (
+          <div className="space-y-3">
+            <Input
+              placeholder="Search exercises…"
+              value={search}
+              onChange={(ev) => setSearch(ev.target.value)}
+              autoFocus
+            />
+            <div className="max-h-64 space-y-1 overflow-auto">
+              {filtered.length === 0 && (
+                <p className="p-2 text-sm text-muted-foreground">
+                  No matches.
+                </p>
+              )}
+              {filtered.map((e) => (
+                <button
+                  key={e.id}
+                  disabled={busy}
+                  onClick={() => pick(e.id)}
+                  className="flex w-full items-center gap-2 rounded-md border p-2 text-left text-sm hover:border-primary disabled:opacity-50"
+                >
+                  <span>{DISCIPLINE_ICON[e.discipline] ?? ""}</span>
+                  <span className="flex-1">{e.name_en}</span>
+                </button>
+              ))}
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full"
+              onClick={() => setCreating(true)}
+            >
+              Can't find it? Add a new exercise
+            </Button>
+          </div>
+        ) : (
+          <form onSubmit={createNew} className="space-y-3">
+            <p className="text-xs text-muted-foreground">
+              This creates a new exercise for your coach — it'll be flagged
+              for their review.
+            </p>
+            <div className="space-y-1">
+              <Label htmlFor="new-ex-name">Exercise name</Label>
+              <Input
+                id="new-ex-name"
+                required
+                autoFocus
+                value={newName}
+                onChange={(ev) => setNewName(ev.target.value)}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label>Discipline</Label>
+              <div className="flex flex-wrap gap-1.5">
+                {EXERCISE_DISCIPLINES.map((d) => (
+                  <Button
+                    key={d}
+                    type="button"
+                    size="sm"
+                    variant={newDiscipline === d ? "default" : "outline"}
+                    onClick={() => setNewDiscipline(d)}
+                  >
+                    {DISCIPLINE_ICON[d]} {d}
+                  </Button>
+                ))}
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => setCreating(false)}
+                disabled={busy}
+              >
+                Back
+              </Button>
+              <Button type="submit" className="flex-1" disabled={busy}>
+                {busy ? "Adding…" : "Add exercise"}
+              </Button>
+            </div>
+          </form>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 const AUTOSAVE_DELAY_MS = 900;
 
 // Single logging screen used whether the athlete opens it before, during,
@@ -940,6 +1177,7 @@ function LogWorkout({
   const skipNextAutoSaveRef = useRef(false);
   const logIdRef = useRef<string | null>(null);
   const [watchUrl, setWatchUrl] = useState<string | null>(null);
+  const [showAddExercise, setShowAddExercise] = useState(false);
 
   function watchVideo(url: string) {
     const embed = getEmbedUrl(url);
@@ -1198,6 +1436,17 @@ function LogWorkout({
     });
   }
 
+  async function removeAddedExercise(sessionExerciseId: string) {
+    const { error } = await supabase
+      .from("session_exercises")
+      .delete()
+      .eq("id", sessionExerciseId);
+    if (error) return toast.error(`Couldn't remove: ${error.message}`);
+    qc.invalidateQueries({
+      queryKey: ["my-session-exs", session.id, client.id],
+    });
+  }
+
   return (
     <div className="h-[calc(100vh-3.5rem)] overflow-auto">
       <div className="mx-auto max-w-2xl space-y-4 p-4 sm:p-6">
@@ -1272,9 +1521,14 @@ function LogWorkout({
             : summarizePrescription(discipline, rowToPrescription(e), oneRm);
           return (
             <Card key={e.id} className="p-4">
-              <div className="flex items-start gap-2">
+              <div className="flex items-start justify-between gap-2">
                 <div className="flex flex-wrap items-center gap-1.5 font-semibold">
                   {i + 1}. {e.exercises?.name_en ?? "Exercise removed"}
+                  {e.added_by_client && (
+                    <Badge variant="outline" className="text-[10px] font-normal">
+                      Added by you
+                    </Badge>
+                  )}
                   {e.exercises?.video_url && (
                     <Button
                       variant="ghost"
@@ -1287,6 +1541,17 @@ function LogWorkout({
                     </Button>
                   )}
                 </div>
+                {e.added_by_client && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 shrink-0 text-muted-foreground"
+                    title="Remove this exercise"
+                    onClick={() => removeAddedExercise(e.id)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                )}
               </div>
               {summary && (
                 <p className="mt-0.5 text-xs text-muted-foreground">
@@ -1486,6 +1751,14 @@ function LogWorkout({
           );
         })}
 
+        <Button
+          variant="outline"
+          className="w-full"
+          onClick={() => setShowAddExercise(true)}
+        >
+          <Plus className="mr-1 h-4 w-4" /> Add an exercise
+        </Button>
+
         <Card className="p-4">
           <Label className="text-sm font-semibold">Overall Notes</Label>
           <Textarea
@@ -1530,6 +1803,18 @@ function LogWorkout({
           )}
         </DialogContent>
       </Dialog>
+
+      <AddExerciseDialog
+        open={showAddExercise}
+        onOpenChange={setShowAddExercise}
+        sessionId={session.id}
+        coachId={client.coach_id}
+        onAdded={() =>
+          qc.invalidateQueries({
+            queryKey: ["my-session-exs", session.id, client.id],
+          })
+        }
+      />
     </div>
   );
 }

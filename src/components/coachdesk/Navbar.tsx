@@ -70,6 +70,21 @@ export function Navbar() {
     refetchInterval: 30_000,
     enabled: !isAthlete,
   });
+  const { data: newExerciseCount = 0 } = useQuery({
+    queryKey: ["new-athlete-exercise-count"],
+    queryFn: async () => {
+      const { data: user } = await supabase.auth.getUser();
+      const { count } = await supabase
+        .from("exercises")
+        .select("*", { count: "exact", head: true })
+        .eq("added_by_athlete", true)
+        .eq("reviewed_by_coach", false)
+        .eq("created_by", user.user?.id ?? "");
+      return count ?? 0;
+    },
+    refetchInterval: 30_000,
+    enabled: showCoachLinks,
+  });
 
   async function signOut() {
     if (document.activeElement instanceof HTMLElement)
@@ -103,7 +118,7 @@ export function Navbar() {
           to={isAthlete ? "/dashboard" : "/clients"}
           className="mr-1 shrink-0 text-base font-bold text-primary sm:mr-4 sm:text-lg"
         >
-          CoachDesk
+          Athlete App
         </Link>
         {isAdmin && (
           <Badge className="ml-1 hidden bg-foreground text-background hover:bg-foreground sm:inline-flex">
@@ -113,7 +128,12 @@ export function Navbar() {
         <nav className="flex min-w-0 items-center gap-0.5 sm:gap-1">
           {showCoachLinks && (
             <>
-              <NavLink to="/exercises" icon={Dumbbell} label="Knowledge Bank" />
+              <NavLink
+                to="/exercises"
+                icon={Dumbbell}
+                label="Knowledge Bank"
+                badge={newExerciseCount}
+              />
               <NavLink to="/clients" icon={Users} label="Clients" />
               <NavLink
                 to="/feedback"

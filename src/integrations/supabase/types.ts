@@ -319,6 +319,7 @@ export type Database = {
       };
       exercises: {
         Row: {
+          added_by_athlete: boolean;
           body_region: string | null;
           category: string;
           created_at: string;
@@ -331,6 +332,7 @@ export type Database = {
           muscle_group: string | null;
           name_en: string;
           name_it: string;
+          reviewed_by_coach: boolean;
           sport_tag: string | null;
           stroke_default: string | null;
           structure_type: string;
@@ -340,6 +342,7 @@ export type Database = {
           video_url: string | null;
         };
         Insert: {
+          added_by_athlete?: boolean;
           body_region?: string | null;
           category: string;
           created_at?: string;
@@ -352,6 +355,7 @@ export type Database = {
           muscle_group?: string | null;
           name_en: string;
           name_it: string;
+          reviewed_by_coach?: boolean;
           sport_tag?: string | null;
           stroke_default?: string | null;
           structure_type?: string;
@@ -361,6 +365,7 @@ export type Database = {
           video_url?: string | null;
         };
         Update: {
+          added_by_athlete?: boolean;
           body_region?: string | null;
           category?: string;
           created_at?: string;
@@ -373,6 +378,7 @@ export type Database = {
           muscle_group?: string | null;
           name_en?: string;
           name_it?: string;
+          reviewed_by_coach?: boolean;
           sport_tag?: string | null;
           stroke_default?: string | null;
           structure_type?: string;
@@ -450,6 +456,7 @@ export type Database = {
       };
       session_exercises: {
         Row: {
+          added_by_client: boolean;
           created_at: string;
           distance_km: number | null;
           duration_min: number | null;
@@ -474,6 +481,7 @@ export type Database = {
           tempo: string | null;
         };
         Insert: {
+          added_by_client?: boolean;
           created_at?: string;
           distance_km?: number | null;
           duration_min?: number | null;
@@ -498,6 +506,7 @@ export type Database = {
           tempo?: string | null;
         };
         Update: {
+          added_by_client?: boolean;
           created_at?: string;
           distance_km?: number | null;
           duration_min?: number | null;
