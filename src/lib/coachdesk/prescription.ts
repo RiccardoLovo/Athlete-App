@@ -280,6 +280,108 @@ export function summarizeIntervals(rows: IntervalRoundLike[]): string {
     .join(" + ");
 }
 
+// The athlete's most recent logged result for an exercise, used to suggest
+// a starting weight for a new prescription when no 1RM is on file yet (or
+// to confirm a kg-mode weight repeats what was actually lifted last time).
+export interface ExerciseHistory {
+  loadMode: string | null;
+  loadValue: number | null;
+  sets: number | null;
+  reps: string | null;
+  weights: number[];
+  date: string | null;
+}
+
+export interface WeightSuggestion {
+  kg: number;
+  detail: string;
+  // true only when it's safe to write `kg` straight into load_value (the
+  // sets/reps scheme matches exactly what was actually done last time).
+  canFill: boolean;
+}
+
+function avg(nums: number[]): number {
+  return nums.reduce((a, b) => a + b, 0) / nums.length;
+}
+
+function round1(n: number): number {
+  return Math.round(n * 10) / 10;
+}
+
+function formatShortDate(iso: string | null): string {
+  const d = iso ? new Date(iso) : null;
+  return d && !Number.isNaN(d.getTime())
+    ? d.toLocaleDateString(undefined, { month: "short", day: "numeric" })
+    : "an earlier session";
+}
+
+// Suggests a weight for a Strength %1RM or kg prescription:
+//  - %1RM with a known 1RM: straight conversion (informational only).
+//  - %1RM with no 1RM on file: scaled proportionally from the athlete's
+//    most recent %1RM-mode log for this exercise (informational only).
+//  - kg mode: only suggested (and fillable) when the athlete's last kg-mode
+//    log for this exercise used the exact same sets × reps scheme.
+export function suggestStrengthWeight(
+  form: Prescription,
+  oneRmKg: number | null,
+  history: ExerciseHistory | null,
+): WeightSuggestion | null {
+  if (form.load_mode === "%1RM" && form.load_value != null) {
+    if (oneRmKg != null) {
+      return {
+        kg: Math.round((form.load_value / 100) * oneRmKg * 2) / 2,
+        detail: `${form.load_value}% of ${oneRmKg}kg 1RM`,
+        canFill: false,
+      };
+    }
+    if (
+      history?.loadMode === "%1RM" &&
+      history.loadValue &&
+      history.weights.length
+    ) {
+      const histWeight = avg(history.weights);
+      return {
+        kg:
+          Math.round(histWeight * (form.load_value / history.loadValue) * 2) /
+          2,
+        detail: `scaled from ${round1(histWeight)}kg @ ${history.loadValue}% logged ${formatShortDate(history.date)}`,
+        canFill: false,
+      };
+    }
+    return null;
+  }
+  if (
+    form.load_mode === "kg" &&
+    history?.loadMode === "kg" &&
+    history.sets != null &&
+    form.sets === history.sets &&
+    (form.reps ?? "").trim() === (history.reps ?? "").trim() &&
+    history.weights.length
+  ) {
+    return {
+      kg: Math.round(avg(history.weights) * 2) / 2,
+      detail: `last logged ${history.sets}×${history.reps} @ ${history.weights.map(round1).join("/")}kg on ${formatShortDate(history.date)}`,
+      canFill: true,
+    };
+  }
+  return null;
+}
+
+// Plain reference note for a kg-mode prescription when the athlete's history
+// exists but doesn't match the current sets/reps closely enough to suggest
+// (and is therefore not auto-fillable) — still useful context for the coach.
+export function describeKgHistory(
+  history: ExerciseHistory | null,
+): string | null {
+  if (!history || history.loadMode !== "kg" || !history.weights.length)
+    return null;
+  const setsReps =
+    history.sets != null && history.reps
+      ? `${history.sets}×${history.reps} `
+      : "";
+  return `Last logged ${setsReps}@ ${history.weights.map(round1).join("/")}kg on ${formatShortDate(history.date)}`;
+}
+
 // Build a Prescription object from a raw DB row (lossy fields default to empty).
 export function rowToPrescription(row: Record<string, unknown>): Prescription {
   const get = <T>(k: string): T | null =>

@@ -12,6 +12,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import {
   type Discipline,
+  type ExerciseHistory,
   DISCIPLINE_ICON,
   summarizePrescription,
 } from "@/lib/coachdesk/prescription";
@@ -104,6 +105,57 @@ export function SessionExercises({
     return m;
   }, [oneRms]);
 
+  const { data: lastLogs = [] } = useQuery({
+    queryKey: ["last-strength-logs", clientId],
+    enabled: !!clientId,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("exercise_logs")
+        .select(
+          "sets_json, session_exercises!inner(exercise_id, load_mode, load_value, sets, reps), workout_logs!inner(client_id, performed_at)",
+        )
+        .eq("workout_logs.client_id", clientId!)
+        .order("performed_at", {
+          foreignTable: "workout_logs",
+          ascending: false,
+        })
+        .limit(500);
+      return (data ?? []) as unknown as {
+        sets_json: { weight?: string; reps?: string }[] | null;
+        session_exercises: {
+          exercise_id: string;
+          load_mode: string | null;
+          load_value: number | null;
+          sets: number | null;
+          reps: string | null;
+        };
+        workout_logs: { client_id: string; performed_at: string | null };
+      }[];
+    },
+  });
+
+  const lastLogByEx = useMemo(() => {
+    const m = new Map<string, ExerciseHistory>();
+    for (const row of lastLogs) {
+      const exId = row.session_exercises?.exercise_id;
+      if (!exId || m.has(exId)) continue;
+      const weights = Array.isArray(row.sets_json)
+        ? row.sets_json
+            .map((s) => Number(s.weight))
+            .filter((n) => Number.isFinite(n))
+        : [];
+      m.set(exId, {
+        loadMode: row.session_exercises.load_mode,
+        loadValue: row.session_exercises.load_value,
+        sets: row.session_exercises.sets,
+        reps: row.session_exercises.reps,
+        weights,
+        date: row.workout_logs.performed_at,
+      });
+    }
+    return m;
+  }, [lastLogs]);
+
   function invalidate() {
     qc.invalidateQueries({ queryKey: ["session-exs", sessionId] });
     qc.invalidateQueries({ queryKey: ["session-ex-count", sessionId] });
@@ -173,6 +225,7 @@ export function SessionExercises({
             }
             onChanged={invalidate}
             oneRmKg={latestRmByEx.get(e.exercise_id) ?? null}
+            history={lastLogByEx.get(e.exercise_id) ?? null}
             canMoveUp={idx > 0}
             canMoveDown={idx < exs.length - 1}
             onOptimisticRemove={(id) => {
@@ -216,6 +269,7 @@ export function ExerciseCard({
   defaultExpanded,
   onChanged,
   oneRmKg,
+  history,
   canMoveUp,
   canMoveDown,
   onMoveUp,
@@ -226,6 +280,7 @@ export function ExerciseCard({
   defaultExpanded?: boolean;
   onChanged: () => void;
   oneRmKg: number | null;
+  history?: ExerciseHistory | null;
   canMoveUp?: boolean;
   canMoveDown?: boolean;
   onMoveUp?: () => void;
@@ -299,6 +354,7 @@ export function ExerciseCard({
             discipline={discipline}
             initial={initial}
             oneRmKg={oneRmKg}
+            history={history ?? null}
             strokeDefault={se.exercises?.stroke_default ?? null}
             onChanged={onChanged}
             structureType={se.exercises?.structure_type ?? "simple"}

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Check, Loader2 } from "lucide-react";
+import { Check, Loader2, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -15,9 +15,12 @@ import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   type Discipline,
+  type ExerciseHistory,
   type Prescription,
+  describeKgHistory,
   emptyPrescription,
   rowToPrescription,
+  suggestStrengthWeight,
   summarizePrescription,
 } from "@/lib/coachdesk/prescription";
 import { t } from "@/lib/coachdesk/i18n";
@@ -34,6 +37,7 @@ export function PrescriptionForm({
   discipline,
   initial,
   oneRmKg,
+  history = null,
   strokeDefault,
   onChanged,
   structureType = "simple",
@@ -45,6 +49,7 @@ export function PrescriptionForm({
   discipline: Discipline;
   initial: Prescription;
   oneRmKg: number | null;
+  history?: ExerciseHistory | null;
   strokeDefault: string | null;
   onChanged?: () => void;
   structureType?: "simple" | "intervals" | "template";
@@ -287,6 +292,7 @@ export function PrescriptionForm({
             patch={patch}
             patchJson={patchJson}
             oneRmKg={oneRmKg}
+            history={history}
           />
         );
       case "Running":
@@ -341,6 +347,7 @@ type FormProps = {
   patch: (p: Partial<Prescription>) => void;
   patchJson?: (k: string, v: unknown) => void;
   oneRmKg?: number | null;
+  history?: ExerciseHistory | null;
 };
 
 function numOrNull(v: string): number | null {
@@ -523,15 +530,24 @@ function IntervalsSection({
   );
 }
 
-function StrengthForm({ form, patch, patchJson, oneRmKg }: FormProps) {
+function StrengthForm({
+  form,
+  patch,
+  patchJson,
+  oneRmKg,
+  history = null,
+}: FormProps) {
   const isPct = form.load_mode === "%1RM";
   const isBw = form.load_mode === "bodyweight";
   const pct = form.load_value;
-  const calcKg =
-    isPct && oneRmKg && pct != null
-      ? Math.round((pct / 100) * oneRmKg * 10) / 10
-      : null;
   const rir = form.prescription.rir;
+
+  const suggestion = suggestStrengthWeight(form, oneRmKg ?? null, history);
+  const kgHistoryNote =
+    !isPct && !isBw && !suggestion?.canFill ? describeKgHistory(history) : null;
+  const suggestionKey = `${form.load_mode}:${form.load_value}`;
+  const [dismissedKey, setDismissedKey] = useState<string | null>(null);
+  const showSuggestion = suggestion && dismissedKey !== suggestionKey;
   return (
     <div className="space-y-2">
       <div className="grid grid-cols-2 gap-1">
@@ -577,21 +593,45 @@ function StrengthForm({ form, patch, patchJson, oneRmKg }: FormProps) {
             placeholder={isPct ? "75" : "80"}
             step="0.5"
           />
-          {isPct &&
-            pct != null &&
-            (oneRmKg != null ? (
-              <div className="mt-1 text-[10px] text-muted-foreground">
-                {t("strength.pct_calc", {
-                  pct: pct,
-                  oneRm: oneRmKg,
-                  abs: calcKg ?? "?",
-                })}
-              </div>
-            ) : (
-              <div className="mt-1 rounded bg-amber-100 px-1.5 py-0.5 text-[10px] text-amber-800 dark:bg-amber-500/15 dark:text-amber-300">
-                {t("strength.no_1rm")}
-              </div>
-            ))}
+          {isPct && pct != null && !showSuggestion && oneRmKg == null && (
+            <div className="mt-1 rounded bg-amber-100 px-1.5 py-0.5 text-[10px] text-amber-800 dark:bg-amber-500/15 dark:text-amber-300">
+              {t("strength.no_1rm")}
+            </div>
+          )}
+          {showSuggestion && suggestion && (
+            <div className="mt-1 flex items-start justify-between gap-2 rounded border border-border bg-secondary px-1.5 py-1 text-[10px] text-secondary-foreground">
+              <span>
+                Suggested: <strong>{suggestion.kg}kg</strong> (
+                {suggestion.detail})
+              </span>
+              <span className="flex shrink-0 items-center gap-1">
+                {suggestion.canFill && (
+                  <button
+                    type="button"
+                    className="rounded border border-foreground px-1.5 py-0.5 font-medium hover:bg-foreground hover:text-background"
+                    onClick={() => {
+                      patch({ load_value: suggestion.kg });
+                      setDismissedKey(suggestionKey);
+                    }}
+                  >
+                    Use it
+                  </button>
+                )}
+                <button
+                  type="button"
+                  className="px-1 text-muted-foreground hover:text-foreground"
+                  onClick={() => setDismissedKey(suggestionKey)}
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </span>
+            </div>
+          )}
+          {kgHistoryNote && (
+            <div className="mt-1 text-[10px] text-muted-foreground">
+              {kgHistoryNote}
+            </div>
+          )}
         </div>
       )}
       <div className="grid grid-cols-2 gap-1">
