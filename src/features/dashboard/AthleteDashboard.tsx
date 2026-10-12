@@ -945,7 +945,11 @@ function AddExerciseDialog({
         .from("exercises")
         .select("id, name_en, discipline")
         .order("name_en");
-      return (data ?? []) as { id: string; name_en: string; discipline: ExerciseDiscipline }[];
+      return (data ?? []) as {
+        id: string;
+        name_en: string;
+        discipline: ExerciseDiscipline;
+      }[];
     },
     enabled: open,
   });
@@ -965,10 +969,7 @@ function AddExerciseDialog({
 
   async function pick(exerciseId: string) {
     setBusy(true);
-    const { error } = await addExistingExerciseToSession(
-      sessionId,
-      exerciseId,
-    );
+    const { error } = await addExistingExerciseToSession(sessionId, exerciseId);
     setBusy(false);
     if (error) return toast.error(`Couldn't add exercise: ${error.message}`);
     toast.success("Exercise added");
@@ -1017,9 +1018,7 @@ function AddExerciseDialog({
             />
             <div className="max-h-64 space-y-1 overflow-auto">
               {filtered.length === 0 && (
-                <p className="p-2 text-sm text-muted-foreground">
-                  No matches.
-                </p>
+                <p className="p-2 text-sm text-muted-foreground">No matches.</p>
               )}
               {filtered.map((e) => (
                 <button
@@ -1045,8 +1044,8 @@ function AddExerciseDialog({
         ) : (
           <form onSubmit={createNew} className="space-y-3">
             <p className="text-xs text-muted-foreground">
-              This creates a new exercise for your coach — it'll be flagged
-              for their review.
+              This creates a new exercise for your coach — it'll be flagged for
+              their review.
             </p>
             <div className="space-y-1">
               <Label htmlFor="new-ex-name">Exercise name</Label>
@@ -1525,7 +1524,10 @@ function LogWorkout({
                 <div className="flex flex-wrap items-center gap-1.5 font-semibold">
                   {i + 1}. {e.exercises?.name_en ?? "Exercise removed"}
                   {e.added_by_client && (
-                    <Badge variant="outline" className="text-[10px] font-normal">
+                    <Badge
+                      variant="outline"
+                      className="text-[10px] font-normal"
+                    >
                       Added by you
                     </Badge>
                   )}
@@ -1727,6 +1729,13 @@ function LogWorkout({
                       />
                     </div>
                   )}
+                </div>
+              )}
+
+              {e.notes && (
+                <div className="mt-3 rounded border border-border bg-secondary p-2 text-sm text-secondary-foreground">
+                  <span className="font-semibold">Coach's notes:</span>{" "}
+                  {e.notes}
                 </div>
               )}
 

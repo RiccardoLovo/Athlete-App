@@ -603,6 +603,12 @@ export function MyFeedbackDetail({
               </div>
             )}
 
+            {e.notes && (
+              <div className="mt-3 rounded border border-border bg-secondary p-2 text-sm text-secondary-foreground">
+                <span className="font-semibold">Coach's notes:</span> {e.notes}
+              </div>
+            )}
+
             <div className="mt-3">
               <Label className="text-xs">Notes</Label>
               <Input

@@ -249,6 +249,12 @@ export function FeedbackDetail({
                     <div>{e.reps_done || "—"}</div>
                   </div>
                 </div>
+                {se?.notes && (
+                  <div className="mt-2 rounded border border-border bg-secondary p-2 text-sm text-secondary-foreground">
+                    <span className="font-semibold">Your notes:</span>{" "}
+                    {se.notes}
+                  </div>
+                )}
                 {e.notes && (
                   <div className="mt-2 rounded border border-yellow-200 bg-yellow-50 p-2 text-sm">
                     <span className="font-semibold">Client Note:</span>{" "}

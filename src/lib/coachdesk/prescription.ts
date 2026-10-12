@@ -218,7 +218,11 @@ export function summarizePrescription(
       break;
     }
   }
-  if (p.notes) parts.push(p.notes);
+  // Notes are shown in their own dedicated block by every caller that
+  // renders to an athlete (LogWorkout, MyFeedbackDetail) and separately in
+  // the PDF export — folding them into this one-line summary too used to
+  // duplicate them there, and dropped them entirely for interval-structured
+  // exercises (which use summarizeIntervals instead of this function).
   return parts.join(" | ");
 }
 
