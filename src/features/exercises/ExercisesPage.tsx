@@ -1,7 +1,20 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, Search, Pencil, Trash2, X, Lock } from "lucide-react";
+import {
+  Plus,
+  Search,
+  Pencil,
+  Trash2,
+  X,
+  Lock,
+  Download,
+  Upload,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  exercisesToCsv,
+  parseExerciseImport,
+} from "@/lib/coachdesk/exercise-csv";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -230,6 +243,67 @@ export function ExercisesPage() {
     }
   }
 
+  function exportCsv() {
+    const csv = exercisesToCsv(exercises);
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `exercises-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  const importInputRef = useRef<HTMLInputElement>(null);
+  const [importing, setImporting] = useState(false);
+
+  async function importCsv(file: File) {
+    setImporting(true);
+    try {
+      const text = await file.text();
+      const { rows, errors } = parseExerciseImport(text);
+      const toUpdate = rows.filter((r) => "id" in r);
+      const toInsert = rows.filter((r) => !("id" in r));
+
+      let updated = 0;
+      let inserted = 0;
+      if (toUpdate.length) {
+        const { error, data } = await supabase
+          .from("exercises")
+          .upsert(toUpdate as never[], { onConflict: "id" })
+          .select("id");
+        if (error) errors.push(`Update batch failed: ${error.message}`);
+        else updated = data?.length ?? toUpdate.length;
+      }
+      if (toInsert.length) {
+        const { error, data } = await supabase
+          .from("exercises")
+          .insert(toInsert as never[])
+          .select("id");
+        if (error) errors.push(`Insert batch failed: ${error.message}`);
+        else inserted = data?.length ?? toInsert.length;
+      }
+
+      qc.invalidateQueries({ queryKey: ["exercises"] });
+      if (inserted || updated) {
+        toast.success(
+          `Imported: ${inserted} added, ${updated} updated${errors.length ? `, ${errors.length} skipped` : ""}`,
+        );
+      }
+      if (errors.length) {
+        console.warn("Exercise import issues:", errors);
+        toast.error(
+          `${errors.length} row${errors.length === 1 ? "" : "s"} had issues — see console for details`,
+        );
+      }
+      if (!inserted && !updated && !errors.length) {
+        toast.error("No rows found in file");
+      }
+    } finally {
+      setImporting(false);
+    }
+  }
+
   return (
     <div className="flex h-[calc(100vh-3.5rem)] flex-col">
       <div className="border-b bg-card p-4">
@@ -288,6 +362,32 @@ export function ExercisesPage() {
             >
               <X className="mr-1 h-4 w-4" /> Clear
             </Button>
+          )}
+          {isAdmin && (
+            <>
+              <Button variant="outline" onClick={exportCsv}>
+                <Download className="mr-1 h-4 w-4" /> Export CSV
+              </Button>
+              <input
+                ref={importInputRef}
+                type="file"
+                accept=".csv,text/csv"
+                className="hidden"
+                onChange={(ev) => {
+                  const file = ev.target.files?.[0];
+                  ev.target.value = "";
+                  if (file) void importCsv(file);
+                }}
+              />
+              <Button
+                variant="outline"
+                disabled={importing}
+                onClick={() => importInputRef.current?.click()}
+              >
+                <Upload className="mr-1 h-4 w-4" />
+                {importing ? "Importing…" : "Import CSV"}
+              </Button>
+            </>
           )}
           <Button
             onClick={() => {
