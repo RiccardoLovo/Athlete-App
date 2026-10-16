@@ -45,6 +45,7 @@ import { getEmbedUrl } from "@/lib/coachdesk/video";
 import {
   DISCIPLINES as EXERCISE_DISCIPLINES,
   DISCIPLINE_ICON,
+  hasIntervalRounds,
   rowToPrescription,
   summarizeIntervals,
   summarizePrescription,
@@ -1137,7 +1138,11 @@ function LogWorkout({
       const oneRms = await fetchOneRms(client.id, list);
       const intervalRounds = await fetchIntervalRounds(
         list
-          .filter((e) => e.exercises?.structure_type === "intervals")
+          .filter(
+            (e) =>
+              e.exercises?.structure_type === "intervals" ||
+              e.exercises?.structure_type === "template",
+          )
           .map((e) => e.id),
       );
       return { list, lastWeights, oneRms, intervalRounds };
@@ -1343,7 +1348,10 @@ function LogWorkout({
         .eq("workout_log_id", logId!);
       const rows = exs.map((e: any) => {
         const f = forms[e.id] ?? EMPTY_EXFORM;
-        const isIntervals = e.exercises?.structure_type === "intervals";
+        const isIntervals = hasIntervalRounds(
+          e.exercises?.structure_type,
+          (intervalRounds[e.id] ?? []).length,
+        );
         const discipline = (e.exercises?.discipline ??
           "Strength") as ExerciseDiscipline;
         const distanceUnit = distanceUnitFor(discipline);
@@ -1506,8 +1514,11 @@ function LogWorkout({
           const discipline = (e.exercises?.discipline ??
             "Strength") as ExerciseDiscipline;
           const isStrength = discipline === "Strength";
-          const isIntervals = e.exercises?.structure_type === "intervals";
           const rounds = intervalRounds[e.id] ?? [];
+          const isIntervals = hasIntervalRounds(
+            e.exercises?.structure_type,
+            rounds.length,
+          );
           const distanceUnit = distanceUnitFor(discipline);
           const showPace =
             discipline === "Running" ||

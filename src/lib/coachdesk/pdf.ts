@@ -436,8 +436,9 @@ export function exportTrainingPdf(opts: {
         sorted.forEach((ex, eIdx) => {
           const isLast = eIdx === sorted.length - 1;
           if (
-            ex.structure_type === "intervals" ||
-            ex.structure_type === "template"
+            (ex.structure_type === "intervals" ||
+              ex.structure_type === "template") &&
+            (ex.intervals?.length ?? 0) > 0
           )
             drawIntervalsExercise(ex, isLast);
           else drawSimpleExercise(ex, isLast);

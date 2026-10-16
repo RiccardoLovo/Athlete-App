@@ -1,5 +1,22 @@
 import { t } from "./i18n";
 
+// An exercise's `structure_type` ("intervals" or "template") only means
+// round-by-round UI should render if rounds actually exist for this
+// specific session_exercise — plenty of "intervals"/"template" exercises
+// were authored with the plain simple fields instead (duration/distance/
+// pace + notes) and have zero prescription_intervals rows, which used to
+// render as a bare, contentless round table. Fall back to the simple
+// fields whenever there's nothing to show in the round table.
+export function hasIntervalRounds(
+  structureType: string | null | undefined,
+  roundCount: number,
+): boolean {
+  return (
+    (structureType === "intervals" || structureType === "template") &&
+    roundCount > 0
+  );
+}
+
 export type Discipline =
   | "Strength"
   | "Running"

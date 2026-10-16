@@ -28,6 +28,7 @@ import {
   fetchOneRms,
 } from "@/features/dashboard/AthleteDashboard";
 import {
+  hasIntervalRounds,
   rowToPrescription,
   summarizeIntervals,
   summarizePrescription,
@@ -110,7 +111,11 @@ export function MyFeedbackDetail({
       const oneRms = await fetchOneRms(client.id, list);
       const intervalRounds = await fetchIntervalRounds(
         list
-          .filter((e) => e.exercises?.structure_type === "intervals")
+          .filter(
+            (e) =>
+              e.exercises?.structure_type === "intervals" ||
+              e.exercises?.structure_type === "template",
+          )
           .map((e) => e.id),
       );
       return { list, lastWeights, oneRms, intervalRounds };
@@ -302,7 +307,10 @@ export function MyFeedbackDetail({
       }
       const rows = exs.map((e: any) => {
         const f = forms[e.id] ?? EMPTY_EXFORM;
-        const isIntervals = e.exercises?.structure_type === "intervals";
+        const isIntervals = hasIntervalRounds(
+          e.exercises?.structure_type,
+          (intervalRounds[e.id] ?? []).length,
+        );
         // Keep the summary text fields populated for legacy views:
         const weightSummary = f.sets.map((s) => s.weight).join(" / ");
         const repsSummary = f.sets.map((s) => s.reps).join(" / ");
@@ -417,8 +425,11 @@ export function MyFeedbackDetail({
         const discipline = (e.exercises?.discipline ??
           "Strength") as ExerciseDiscipline;
         const isStrength = discipline === "Strength";
-        const isIntervals = e.exercises?.structure_type === "intervals";
         const rounds = intervalRounds[e.id] ?? [];
+        const isIntervals = hasIntervalRounds(
+          e.exercises?.structure_type,
+          rounds.length,
+        );
         const distanceUnit = distanceUnitFor(discipline);
         const showPace =
           discipline === "Running" ||
