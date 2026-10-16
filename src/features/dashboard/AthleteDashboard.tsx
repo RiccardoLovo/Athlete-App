@@ -45,6 +45,7 @@ import { getEmbedUrl } from "@/lib/coachdesk/video";
 import {
   DISCIPLINES as EXERCISE_DISCIPLINES,
   DISCIPLINE_ICON,
+  describeIntervalRound,
   hasIntervalRounds,
   rowToPrescription,
   summarizeIntervals,
@@ -1645,12 +1646,6 @@ function LogWorkout({
                     <span className="w-24">Actual</span>
                   </div>
                   {rounds.map((round, idx) => {
-                    const unit =
-                      round.target_unit === "meters"
-                        ? "m"
-                        : round.target_unit === "minutes"
-                          ? "min"
-                          : "s";
                     return (
                       <div
                         key={round.id}
@@ -1661,11 +1656,7 @@ function LogWorkout({
                         </span>
                         <span className="text-sm text-muted-foreground">
                           {round.label ? `${round.label}: ` : ""}
-                          {round.target_value != null
-                            ? `${round.target_value}${unit}`
-                            : "—"}
-                          {round.rest_seconds != null &&
-                            ` · rest ${round.rest_seconds}s`}
+                          {describeIntervalRound(round)}
                         </span>
                         <Input
                           inputMode="decimal"

@@ -28,6 +28,7 @@ import {
   fetchOneRms,
 } from "@/features/dashboard/AthleteDashboard";
 import {
+  describeIntervalRound,
   hasIntervalRounds,
   rowToPrescription,
   summarizeIntervals,
@@ -518,12 +519,6 @@ export function MyFeedbackDetail({
                   <span className="w-24">Actual</span>
                 </div>
                 {rounds.map((round, idx) => {
-                  const unit =
-                    round.target_unit === "meters"
-                      ? "m"
-                      : round.target_unit === "minutes"
-                        ? "min"
-                        : "s";
                   return (
                     <div
                       key={round.id}
@@ -534,11 +529,7 @@ export function MyFeedbackDetail({
                       </span>
                       <span className="text-sm text-muted-foreground">
                         {round.label ? `${round.label}: ` : ""}
-                        {round.target_value != null
-                          ? `${round.target_value}${unit}`
-                          : "—"}
-                        {round.rest_seconds != null &&
-                          ` · rest ${round.rest_seconds}s`}
+                        {describeIntervalRound(round)}
                       </span>
                       <Input
                         inputMode="decimal"

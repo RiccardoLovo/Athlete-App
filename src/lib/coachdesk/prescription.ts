@@ -260,6 +260,40 @@ export interface IntervalRoundLike {
   rest_seconds: number | null;
 }
 
+export interface IntervalRoundDetail extends IntervalRoundLike {
+  label?: string | null;
+  rest_type?: "passive" | "active" | null;
+  pace_per_km?: string | null;
+  hr_zone?: number | null;
+  watts?: number | null;
+  cadence?: number | null;
+  stroke?: string | null;
+  intensity?: string | null;
+}
+
+// Full one-line description of a single round, for the athlete's own
+// per-round row (summarizeIntervals below stays terse on purpose since it
+// collapses many rounds into one card-level summary; a single round's row
+// has room to show everything the coach actually set for it — target,
+// pace, HR zone, watts/cadence, stroke, intensity, and rest).
+export function describeIntervalRound(r: IntervalRoundDetail): string {
+  const unit = INTERVAL_UNIT_ABBREV[r.target_unit] ?? r.target_unit;
+  const parts: string[] = [];
+  if (r.target_value != null) parts.push(`${r.target_value}${unit}`);
+  if (r.pace_per_km) parts.push(`Pace ${r.pace_per_km}`);
+  if (r.hr_zone != null) parts.push(`HR Z${r.hr_zone}`);
+  if (r.watts != null) parts.push(`${r.watts}W`);
+  if (r.cadence != null) parts.push(`${r.cadence}rpm`);
+  if (r.stroke) parts.push(r.stroke);
+  if (r.intensity) parts.push(r.intensity);
+  if (r.rest_seconds != null) {
+    parts.push(
+      `${r.rest_type === "active" ? "active rest" : "rest"} ${r.rest_seconds}s`,
+    );
+  }
+  return parts.join(" · ") || "—";
+}
+
 // Collapses a round-by-round interval prescription into a compact human
 // summary, e.g. 10 identical 20s-on/20s-off rounds -> "10 × 20s (rest 20s)".
 // Runs of identical rounds collapse together; differing rounds stay listed
