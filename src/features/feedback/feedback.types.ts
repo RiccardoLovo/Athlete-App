@@ -15,6 +15,7 @@ export type WorkoutLog = {
     duration_minutes: number | null;
     distance_meters: number | null;
     intensity: string | null;
+    training_blocks: { name: string | null; position: number } | null;
   };
 };
 

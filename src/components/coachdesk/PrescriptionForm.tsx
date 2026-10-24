@@ -436,18 +436,22 @@ function Sel({
 function NotesRpe({
   form,
   patch,
+  showRpe = true,
 }: {
   form: Prescription;
   patch: (p: Partial<Prescription>) => void;
+  showRpe?: boolean;
 }) {
   return (
     <>
-      <div className="grid grid-cols-2 gap-1">
-        <div>
-          <L>{t("common.rpe")} (1-10)</L>
-          <NumIn value={form.rpe} onChange={(n) => patch({ rpe: n })} />
+      {showRpe && (
+        <div className="grid grid-cols-2 gap-1">
+          <div>
+            <L>{t("common.rpe")} (1-10)</L>
+            <NumIn value={form.rpe} onChange={(n) => patch({ rpe: n })} />
+          </div>
         </div>
-      </div>
+      )}
       <div>
         <L>{t("common.notes")}</L>
         <Textarea
@@ -524,7 +528,7 @@ function IntervalsSection({
         />
       )}
       <IntervalBuilder sessionExerciseId={rowId} discipline={discipline} />
-      <NotesRpe form={form} patch={patch} />
+      <NotesRpe form={form} patch={patch} showRpe={false} />
       <SaveIndicator status={status} />
     </div>
   );

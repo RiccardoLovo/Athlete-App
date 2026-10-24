@@ -29,7 +29,7 @@ export function CoachFeedback({
       let q = supabase
         .from("workout_logs")
         .select(
-          "*, clients(id, name), sessions(day_of_week, week_number, name, discipline, duration_minutes, distance_meters, intensity)",
+          "*, clients(id, name), sessions(day_of_week, week_number, name, discipline, duration_minutes, distance_meters, intensity, training_blocks(name, position))",
         )
         .neq("status", "draft") // athlete hasn't finished the workout yet
         .order("submitted_at", { ascending: false });
@@ -118,6 +118,14 @@ export function CoachFeedback({
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
                     <span className="font-semibold">{l.clients.name}</span>
+                    {l.sessions?.training_blocks && (
+                      <span className="text-sm text-muted-foreground">
+                        Block {l.sessions.training_blocks.position}
+                        {l.sessions.training_blocks.name
+                          ? ` — ${l.sessions.training_blocks.name}`
+                          : ""}
+                      </span>
+                    )}
                     <span className="text-sm text-muted-foreground">
                       {l.sessions?.name ||
                         ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][

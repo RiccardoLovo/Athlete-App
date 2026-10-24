@@ -94,6 +94,7 @@ export function IntervalBuilder({
         order_index: nextOrder,
         target_unit: "meters",
         rest_type: "passive",
+        stroke: discipline === "Swimming" ? "Freestyle" : null,
       } as never);
       if (!error) {
         invalidate();
@@ -164,7 +165,7 @@ export function IntervalBuilder({
           <thead className="bg-muted/50 text-[10px] uppercase text-muted-foreground">
             <tr>
               <th className="px-1.5 py-1 text-left w-8">#</th>
-              <th className="px-1.5 py-1 text-left">Label</th>
+              {cols.label && <th className="px-1.5 py-1 text-left">Label</th>}
               <th className="px-1.5 py-1 text-left">Target</th>
               <th className="px-1.5 py-1 text-left">Unit</th>
               {cols.pace && <th className="px-1.5 py-1 text-left">Pace</th>}
@@ -230,6 +231,7 @@ function formatSeconds(s: number): string {
 }
 
 type ColumnFlags = {
+  label: boolean;
   pace: boolean;
   hrZone: boolean;
   watts: boolean;
@@ -241,6 +243,7 @@ function columnsForDiscipline(d: Discipline): ColumnFlags {
   switch (d) {
     case "Running":
       return {
+        label: true,
         pace: true,
         hrZone: true,
         watts: false,
@@ -249,16 +252,21 @@ function columnsForDiscipline(d: Discipline): ColumnFlags {
         intensity: true,
       };
     case "Swimming":
+      // Swimming already has the most columns (pace, HR, stroke, intensity),
+      // and round labels here tend to be generic ("Build 2") rather than
+      // meaningful — drop the column so the rest has room to breathe.
       return {
+        label: false,
         pace: true,
         hrZone: true,
         watts: false,
         cadence: false,
         stroke: true,
-        intensity: true,
+        intensity: false,
       };
     case "Cycling":
       return {
+        label: true,
         pace: false,
         hrZone: true,
         watts: true,
@@ -268,6 +276,7 @@ function columnsForDiscipline(d: Discipline): ColumnFlags {
       };
     default:
       return {
+        label: true,
         pace: true,
         hrZone: true,
         watts: false,
@@ -297,6 +306,7 @@ function IntervalRowEditor({
   onSwapDown: () => void;
   onDelete: () => void;
 }) {
+  const qc = useQueryClient();
   const [local, setLocal] = useState<IntervalRow>(row);
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">(
     "idle",
@@ -306,6 +316,7 @@ function IntervalRowEditor({
   const savingRef = useRef(false);
   const localRef = useRef(local);
   const idRef = useRef(row.id);
+  const seIdRef = useRef(row.session_exercise_id);
   localRef.current = local;
 
   useEffect(() => {
@@ -352,6 +363,12 @@ function IntervalRowEditor({
     }
     if (!dirty.current) {
       setStatus("saved");
+      // The footer total (and anything else reading the parent's row list)
+      // is computed from the react-query cache, not this row's own local
+      // state — without this, editing an existing row's target value saved
+      // fine but the total stayed stuck at whatever it was after the last
+      // add/delete/reorder.
+      qc.invalidateQueries({ queryKey: intervalsKey(seIdRef.current) });
       window.setTimeout(
         () => setStatus((s) => (s === "saved" ? "idle" : s)),
         1200,
@@ -359,7 +376,7 @@ function IntervalRowEditor({
     } else {
       timer.current = window.setTimeout(flush, 120);
     }
-  }, []);
+  }, [qc]);
 
   useEffect(() => {
     function onBefore() {
@@ -395,14 +412,16 @@ function IntervalRowEditor({
   return (
     <tr className="border-t border-border" onBlur={() => void flush()}>
       <td className="px-1.5 py-1 text-muted-foreground">{index + 1}</td>
-      <td className="px-1.5 py-1">
-        <Input
-          className="h-7 text-xs"
-          value={local.label ?? ""}
-          placeholder="Label"
-          onChange={(e) => patch({ label: e.target.value || null })}
-        />
-      </td>
+      {cols.label && (
+        <td className="px-1.5 py-1">
+          <Input
+            className="h-7 text-xs"
+            value={local.label ?? ""}
+            placeholder="Label"
+            onChange={(e) => patch({ label: e.target.value || null })}
+          />
+        </td>
+      )}
       <td className="px-1.5 py-1">
         <Input
           className="h-7 text-xs w-20"

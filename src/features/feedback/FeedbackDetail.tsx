@@ -48,7 +48,7 @@ export function FeedbackDetail({
       const { data: log } = await supabase
         .from("workout_logs")
         .select(
-          "*, clients(name), sessions(day_of_week, week_number, name, discipline, duration_minutes, distance_meters, intensity)",
+          "*, clients(name), sessions(day_of_week, week_number, name, discipline, duration_minutes, distance_meters, intensity, training_blocks(name, position))",
         )
         .eq("id", id)
         .single();
@@ -128,6 +128,15 @@ export function FeedbackDetail({
           <h1 className="text-xl font-bold">{log.clients.name}</h1>
           <span className="text-muted-foreground">
             —{" "}
+            {log.sessions?.training_blocks && (
+              <>
+                Block {log.sessions.training_blocks.position}
+                {log.sessions.training_blocks.name
+                  ? ` — ${log.sessions.training_blocks.name}`
+                  : ""}
+                ,{" "}
+              </>
+            )}
             {log.sessions?.name ||
               ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][
                 (log.sessions?.day_of_week ?? 1) - 1
@@ -256,7 +265,7 @@ export function FeedbackDetail({
                   </div>
                 )}
                 {e.notes && (
-                  <div className="mt-2 rounded border border-yellow-200 bg-yellow-50 p-2 text-sm">
+                  <div className="mt-2 rounded border border-border bg-muted p-2 text-sm text-foreground">
                     <span className="font-semibold">Client Note:</span>{" "}
                     {e.notes}
                   </div>
