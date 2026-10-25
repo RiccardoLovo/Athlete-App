@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Slider } from "@/components/ui/slider";
+import { WorkoutPhotos } from "@/components/coachdesk/WorkoutPhotos";
 import {
   BORG_LABELS,
   borgColor,
@@ -462,7 +463,9 @@ export function MyFeedbackDetail({
                       </span>
                     )}
                   </span>
-                  <span>{e.target_mode === "Hold" ? "Hold (sec)" : "Reps"}</span>
+                  <span>
+                    {e.target_mode === "Hold" ? "Hold (sec)" : "Reps"}
+                  </span>
                   <span className="w-8" />
                 </div>
                 {f.sets.map((s, idx) => (
@@ -640,6 +643,24 @@ export function MyFeedbackDetail({
           value={overall}
           onChange={(e) => setOverall(e.target.value)}
         />
+      </Card>
+
+      <Card className="p-4">
+        <Label className="text-sm font-semibold">Photos</Label>
+        {existing?.id ? (
+          <div className="mt-2">
+            <WorkoutPhotos
+              workoutLogId={existing.id}
+              clientId={client.id}
+              coachId={client.coach_id}
+              editable
+            />
+          </div>
+        ) : (
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            Save this feedback first, then come back to attach photos.
+          </p>
+        )}
       </Card>
 
       <Button className="w-full" size="lg" onClick={submit} disabled={saving}>

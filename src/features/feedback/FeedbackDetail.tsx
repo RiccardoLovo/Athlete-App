@@ -12,6 +12,7 @@ import {
 } from "@/lib/coachdesk/constants";
 import { toast } from "sonner";
 import { useState } from "react";
+import { WorkoutPhotos } from "@/components/coachdesk/WorkoutPhotos";
 
 function loggedWeights(e: {
   sets_json: unknown;
@@ -203,6 +204,13 @@ export function FeedbackDetail({
             <p className="mt-1 text-sm">{log.overall_notes}</p>
           </Card>
         )}
+
+        <WorkoutPhotos
+          workoutLogId={log.id}
+          clientId={log.client_id}
+          coachId={log.coach_id}
+          editable={false}
+        />
 
         <div className="space-y-2">
           {data.exs.map((e: any, i: number) => {

@@ -12,6 +12,7 @@ import {
   PlayCircle,
 } from "lucide-react";
 import { ClientProfileDialog } from "@/components/coachdesk/ClientProfileDialog";
+import { WorkoutPhotos } from "@/components/coachdesk/WorkoutPhotos";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -1181,6 +1182,7 @@ function LogWorkout({
   const hydratedRef = useRef(false);
   const skipNextAutoSaveRef = useRef(false);
   const logIdRef = useRef<string | null>(null);
+  const [savedLogId, setSavedLogId] = useState<string | null>(null);
   const [watchUrl, setWatchUrl] = useState<string | null>(null);
   const [showAddExercise, setShowAddExercise] = useState(false);
 
@@ -1199,6 +1201,7 @@ function LogWorkout({
     if (existingLog?.id && existingExLogsData === undefined) return;
     hydratedRef.current = true;
     logIdRef.current = existingLog?.id ?? null;
+    setSavedLogId(existingLog?.id ?? null);
     setBorg(existingLog?.borg_scale ?? 5);
     setOverall(existingLog?.overall_notes ?? "");
     setPerformedAt(existingLog?.performed_at ?? session.planned_date);
@@ -1304,8 +1307,11 @@ function LogWorkout({
     session.planned_date,
   ]);
 
-  async function save(opts?: { finish?: boolean; silent?: boolean }) {
-    if (!hydratedRef.current) return;
+  async function save(opts?: {
+    finish?: boolean;
+    silent?: boolean;
+  }): Promise<string | null> {
+    if (!hydratedRef.current) return null;
     setSaveState("saving");
     try {
       let logId = logIdRef.current;
@@ -1342,6 +1348,7 @@ function LogWorkout({
         if (error || !log) throw error ?? new Error("Failed to save");
         logId = log.id;
         logIdRef.current = logId;
+        setSavedLogId(logId);
       }
       await supabase
         .from("exercise_logs")
@@ -1390,9 +1397,11 @@ function LogWorkout({
         qc.invalidateQueries({ queryKey: ["pending-feedback-count"] });
         qc.invalidateQueries({ queryKey: ["clients-training-status"] });
       }
+      return logId;
     } catch (err: any) {
       setSaveState("idle");
       if (!opts?.silent) toast.error(err?.message ?? "Failed to save");
+      return null;
     }
   }
 
@@ -1585,7 +1594,9 @@ function LogWorkout({
                         </span>
                       )}
                     </span>
-                    <span>{e.target_mode === "Hold" ? "Hold (sec)" : "Reps"}</span>
+                    <span>
+                      {e.target_mode === "Hold" ? "Hold (sec)" : "Reps"}
+                    </span>
                     <span className="w-9" />
                   </div>
                   {f.sets.map((s, idx) => (
@@ -1779,6 +1790,23 @@ function LogWorkout({
             value={overall}
             onChange={(e) => setOverall(e.target.value)}
           />
+        </Card>
+
+        <Card className="p-4">
+          <Label className="text-sm font-semibold">Photos</Label>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            Attach a Strava/Garmin summary or anything else — your coach can see
+            these.
+          </p>
+          <div className="mt-2">
+            <WorkoutPhotos
+              workoutLogId={savedLogId}
+              clientId={client.id}
+              coachId={client.coach_id}
+              editable
+              ensureLogId={() => save({ silent: true })}
+            />
+          </div>
         </Card>
 
         {finished ? (

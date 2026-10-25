@@ -25,6 +25,7 @@ export type Database = {
           mime_type: string;
           storage_path: string;
           uploaded_by: string;
+          workout_log_id: string | null;
         };
         Insert: {
           client_id: string;
@@ -36,6 +37,7 @@ export type Database = {
           mime_type: string;
           storage_path: string;
           uploaded_by: string;
+          workout_log_id?: string | null;
         };
         Update: {
           client_id?: string;
@@ -47,6 +49,7 @@ export type Database = {
           mime_type?: string;
           storage_path?: string;
           uploaded_by?: string;
+          workout_log_id?: string | null;
         };
         Relationships: [
           {
