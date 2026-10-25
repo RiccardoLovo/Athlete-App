@@ -62,6 +62,29 @@ export async function replaceIntervals(seId: string, rows: IntervalRowInput[]) {
   if (ins.error) throw ins.error;
 }
 
+/** Append rows after whatever already exists for a session_exercise (used
+ * by "Generate from template" in additive mode — e.g. a second RSA block
+ * added after an existing one, rather than replacing it). */
+export async function appendIntervals(seId: string, rows: IntervalRowInput[]) {
+  if (!rows.length) return;
+  const { data: latest } = await supabase
+    .from("prescription_intervals")
+    .select("order_index")
+    .eq("session_exercise_id", seId)
+    .order("order_index", { ascending: false })
+    .limit(1);
+  const start = latest && latest.length ? Number(latest[0].order_index) + 1 : 0;
+  const payload = rows.map((r, i) => ({
+    ...r,
+    session_exercise_id: seId,
+    order_index: start + i,
+  }));
+  const ins = await supabase
+    .from("prescription_intervals")
+    .insert(payload as never);
+  if (ins.error) throw ins.error;
+}
+
 export function IntervalBuilder({
   sessionExerciseId,
   discipline,

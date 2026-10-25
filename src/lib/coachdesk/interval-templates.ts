@@ -62,6 +62,18 @@ export type PyramidParams = {
   peak_m: number;
   step_m: number;
   rest_seconds: number;
+  /** Repeat the peak step twice before descending. */
+  double_peak?: boolean;
+  /**
+   * Ratio-based rest instead of a fixed `rest_seconds`: rest = (time to
+   * cover that round's distance at `pace_sec_per_unit`) × `rest_ratio`.
+   * E.g. pace 4:30/km + rest_ratio 1 = 1:1 work:rest, rest auto-scales
+   * with each round's distance instead of staying fixed.
+   */
+  rest_ratio?: number;
+  pace_sec_per_unit?: number;
+  /** 1000 for pace-per-km (Running/Cycling), 100 for pace-per-100m (Swimming). */
+  pace_unit_m?: number;
 };
 
 export type PyramidResult = {
@@ -70,6 +82,15 @@ export type PyramidResult = {
   effectivePeak: number;
   warning?: string;
 };
+
+function pyramidRestSeconds(p: PyramidParams, distanceM: number): number {
+  if (p.rest_ratio != null && p.pace_sec_per_unit != null) {
+    const unit = p.pace_unit_m || 1000;
+    const workSec = (distanceM / unit) * p.pace_sec_per_unit;
+    return Math.round(workSec * p.rest_ratio);
+  }
+  return p.rest_seconds;
+}
 
 export function generatePyramid(p: PyramidParams): PyramidResult {
   if (!(p.peak_m > p.start_m)) {
@@ -96,9 +117,19 @@ export function generatePyramid(p: PyramidParams): PyramidResult {
       label: i === steps ? "Peak" : `Build ${i + 1}`,
       target_value: dist,
       target_unit: "meters",
-      rest_seconds: p.rest_seconds,
+      rest_seconds: pyramidRestSeconds(p, dist),
       rest_type: "passive",
     });
+    if (i === steps && p.double_peak) {
+      rows.push({
+        ...blank(),
+        label: "Peak 2",
+        target_value: dist,
+        target_unit: "meters",
+        rest_seconds: pyramidRestSeconds(p, dist),
+        rest_type: "passive",
+      });
+    }
   }
   // Descending: peak-step, ..., start
   for (let i = steps - 1; i >= 0; i--) {
@@ -108,7 +139,7 @@ export function generatePyramid(p: PyramidParams): PyramidResult {
       label: `Descend ${steps - i}`,
       target_value: dist,
       target_unit: "meters",
-      rest_seconds: p.rest_seconds,
+      rest_seconds: pyramidRestSeconds(p, dist),
       rest_type: "passive",
     });
   }

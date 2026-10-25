@@ -1585,7 +1585,7 @@ function LogWorkout({
                         </span>
                       )}
                     </span>
-                    <span>Reps</span>
+                    <span>{e.target_mode === "Hold" ? "Hold (sec)" : "Reps"}</span>
                     <span className="w-9" />
                   </div>
                   {f.sets.map((s, idx) => (

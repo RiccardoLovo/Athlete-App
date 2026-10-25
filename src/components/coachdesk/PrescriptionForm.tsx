@@ -521,6 +521,7 @@ function IntervalsSection({
         <TemplateForm
           sessionExerciseId={rowId}
           templateType={templateType}
+          discipline={discipline}
           defaults={templateDefaults}
           hasExistingIntervals={hasRows}
           templateGeneratedAt={templateGeneratedAt}
@@ -552,19 +553,36 @@ function StrengthForm({
   const suggestionKey = `${form.load_mode}:${form.load_value}`;
   const [dismissedKey, setDismissedKey] = useState<string | null>(null);
   const showSuggestion = suggestion && dismissedKey !== suggestionKey;
+  const isHold = form.target_mode === "Hold";
   return (
     <div className="space-y-2">
+      <div>
+        <div className="flex gap-1">
+          {(["Reps", "Hold"] as const).map((m) => (
+            <button
+              key={m}
+              type="button"
+              onClick={() =>
+                patch({ target_mode: m === "Reps" ? null : "Hold" })
+              }
+              className={`flex-1 rounded border px-2 py-1 text-[10px] ${(m === "Hold") === isHold ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"}`}
+            >
+              {m === "Reps" ? "Reps" : "Hold (isometric)"}
+            </button>
+          ))}
+        </div>
+      </div>
       <div className="grid grid-cols-2 gap-1">
         <div>
           <L>{t("common.sets")}</L>
           <NumIn value={form.sets} onChange={(n) => patch({ sets: n })} />
         </div>
         <div>
-          <L>{t("common.reps")}</L>
+          <L>{isHold ? "Hold (sec)" : t("common.reps")}</L>
           <TextIn
             value={form.reps}
             onChange={(s) => patch({ reps: s })}
-            placeholder="8-10"
+            placeholder={isHold ? "30" : "8-10"}
           />
         </div>
       </div>
@@ -680,6 +698,56 @@ function StrengthForm({
   );
 }
 
+// Warm-up/cool-down for endurance exercises live as optional extra fields
+// on the exercise itself (not a separate exercise card) — unlike Strength,
+// where a warm-up is its own loggable exercise.
+function WarmupCooldown({
+  form,
+  patchJson,
+}: {
+  form: Prescription;
+  patchJson?: (k: string, v: unknown) => void;
+}) {
+  const warmupMin = form.prescription.warmup_min as number | undefined;
+  const warmupKm = form.prescription.warmup_km as number | undefined;
+  const cooldownMin = form.prescription.cooldown_min as number | undefined;
+  const cooldownKm = form.prescription.cooldown_km as number | undefined;
+  return (
+    <div className="grid grid-cols-2 gap-1">
+      <div>
+        <L>Warm-up (min / km)</L>
+        <div className="flex gap-1">
+          <NumIn
+            value={warmupMin ?? null}
+            onChange={(n) => patchJson?.("warmup_min", n)}
+            step="0.5"
+          />
+          <NumIn
+            value={warmupKm ?? null}
+            onChange={(n) => patchJson?.("warmup_km", n)}
+            step="0.1"
+          />
+        </div>
+      </div>
+      <div>
+        <L>Cool-down (min / km)</L>
+        <div className="flex gap-1">
+          <NumIn
+            value={cooldownMin ?? null}
+            onChange={(n) => patchJson?.("cooldown_min", n)}
+            step="0.5"
+          />
+          <NumIn
+            value={cooldownKm ?? null}
+            onChange={(n) => patchJson?.("cooldown_km", n)}
+            step="0.1"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function RunningForm({ form, patch }: FormProps) {
   const isDist = form.target_mode === "Distance";
   const isTime = form.target_mode === "Time";
@@ -749,6 +817,7 @@ function RunningForm({ form, patch }: FormProps) {
           />
         </div>
       </div>
+      <WarmupCooldown form={form} patchJson={patchJson} />
       <NotesRpe form={form} patch={patch} />
     </div>
   );
@@ -868,6 +937,7 @@ function SwimmingForm({ form, patch, patchJson }: FormProps) {
           />
         </div>
       </div>
+      <WarmupCooldown form={form} patchJson={patchJson} />
       <NotesRpe form={form} patch={patch} />
     </div>
   );
@@ -956,6 +1026,7 @@ function CyclingForm({ form, patch, patchJson }: FormProps) {
           <NumIn value={form.rpe} onChange={(n) => patch({ rpe: n })} />
         </div>
       </div>
+      <WarmupCooldown form={form} patchJson={patchJson} />
       <div>
         <L>{t("common.notes")}</L>
         <Textarea

@@ -18,11 +18,19 @@ import {
   type PyramidParams,
   type RsaParams,
 } from "@/lib/coachdesk/interval-templates";
-import { replaceIntervals } from "./IntervalBuilder";
+import { appendIntervals, replaceIntervals } from "./IntervalBuilder";
+
+// "4:30" -> 270 seconds. Returns null for anything unparseable.
+function parsePaceToSeconds(pace: string): number | null {
+  const m = pace.trim().match(/^(\d+):(\d{1,2})$/);
+  if (!m) return null;
+  return Number(m[1]) * 60 + Number(m[2]);
+}
 
 export function TemplateForm({
   sessionExerciseId,
   templateType,
+  discipline,
   defaults,
   hasExistingIntervals,
   templateGeneratedAt,
@@ -30,6 +38,7 @@ export function TemplateForm({
 }: {
   sessionExerciseId: string;
   templateType: "rsa" | "pyramid";
+  discipline?: string;
   defaults: Record<string, unknown> | null;
   hasExistingIntervals: boolean;
   templateGeneratedAt: string | null;
@@ -42,37 +51,63 @@ export function TemplateForm({
         ...(defaults ?? {}),
       }) as Record<string, number | string>,
   );
+  const [doublePeak, setDoublePeak] = useState(false);
+  const [restMode, setRestMode] = useState<"seconds" | "ratio">("seconds");
+  const [restRatio, setRestRatio] = useState("1");
+  const [restPace, setRestPace] = useState("");
   const [busy, setBusy] = useState(false);
 
-  async function generate() {
-    if (
-      hasExistingIntervals &&
-      !confirm("Replace current intervals with newly generated ones?")
-    )
-      return;
-    setBusy(true);
-    try {
-      let rows;
-      if (templateType === "rsa") {
-        const p = params as unknown as RsaParams;
-        rows = generateRsa({
+  function buildRows(): {
+    rows: ReturnType<typeof generateRsa>;
+    warning?: string;
+  } {
+    if (templateType === "rsa") {
+      const p = params as unknown as RsaParams;
+      return {
+        rows: generateRsa({
           sprint_count: Number(p.sprint_count) || 6,
           sprint_distance_m: Number(p.sprint_distance_m) || 30,
           rest_seconds: Number(p.rest_seconds) || 30,
           intensity: (p.intensity as string) || "max",
-        });
-      } else {
-        const p = params as unknown as PyramidParams;
-        const res = generatePyramid({
-          start_m: Number(p.start_m) || 200,
-          peak_m: Number(p.peak_m) || 800,
-          step_m: Number(p.step_m) || 200,
-          rest_seconds: Number(p.rest_seconds) || 60,
-        });
-        if (res.warning) toast.warning(res.warning);
-        rows = res.rows;
-      }
-      await replaceIntervals(sessionExerciseId, rows);
+        }),
+      };
+    }
+    const p = params as unknown as PyramidParams;
+    const paceSec = restMode === "ratio" ? parsePaceToSeconds(restPace) : null;
+    const res = generatePyramid({
+      start_m: Number(p.start_m) || 200,
+      peak_m: Number(p.peak_m) || 800,
+      step_m: Number(p.step_m) || 200,
+      rest_seconds: Number(p.rest_seconds) || 60,
+      double_peak: doublePeak,
+      rest_ratio: paceSec != null ? Number(restRatio) || 1 : undefined,
+      pace_sec_per_unit: paceSec ?? undefined,
+      pace_unit_m: discipline === "Swimming" ? 100 : 1000,
+    });
+    if (res.warning) toast.warning(res.warning);
+    return { rows: res.rows, warning: res.warning };
+  }
+
+  async function generate(mode: "replace" | "append") {
+    if (
+      mode === "replace" &&
+      hasExistingIntervals &&
+      !confirm("Replace current intervals with newly generated ones?")
+    )
+      return;
+    if (
+      restMode === "ratio" &&
+      templateType === "pyramid" &&
+      parsePaceToSeconds(restPace) == null
+    ) {
+      toast.error('Enter a valid pace like "4:30" for ratio-based rest');
+      return;
+    }
+    setBusy(true);
+    try {
+      const { rows } = buildRows();
+      if (mode === "append") await appendIntervals(sessionExerciseId, rows);
+      else await replaceIntervals(sessionExerciseId, rows);
       await supabase
         .from("session_exercises")
         .update({ template_generated_at: new Date().toISOString() } as never)
@@ -82,7 +117,9 @@ export function TemplateForm({
       });
       qc.invalidateQueries({ queryKey: ["session-exs"] });
       onGenerated();
-      toast.success("Intervals generated");
+      toast.success(
+        mode === "append" ? "Intervals added" : "Intervals generated",
+      );
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e);
       toast.error(`Generate failed: ${msg}`);
@@ -176,23 +213,88 @@ export function TemplateForm({
               onChange={(e) => set("step_m", e.target.value)}
             />
           </Field>
-          <Field label="Rest (s)">
-            <Input
-              className="h-7"
-              type="number"
-              value={String(params.rest_seconds ?? "")}
-              onChange={(e) => set("rest_seconds", e.target.value)}
-            />
-          </Field>
+          <div className="col-span-2 flex items-center gap-1 text-[11px]">
+            <label className="flex items-center gap-1">
+              <input
+                type="checkbox"
+                checked={doublePeak}
+                onChange={(e) => setDoublePeak(e.target.checked)}
+              />
+              Double peak
+            </label>
+          </div>
+          <div className="col-span-2 flex gap-1 rounded-md border border-border p-1 text-[11px]">
+            {(["seconds", "ratio"] as const).map((m) => (
+              <button
+                key={m}
+                type="button"
+                onClick={() => setRestMode(m)}
+                className={`flex-1 rounded px-2 py-1 ${restMode === m ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+              >
+                {m === "seconds" ? "Fixed rest" : "Rest ratio"}
+              </button>
+            ))}
+          </div>
+          {restMode === "seconds" ? (
+            <Field label="Rest (s)">
+              <Input
+                className="h-7"
+                type="number"
+                value={String(params.rest_seconds ?? "")}
+                onChange={(e) => set("rest_seconds", e.target.value)}
+              />
+            </Field>
+          ) : (
+            <>
+              <Field
+                label={`Pace (${discipline === "Swimming" ? "/100m" : "/km"})`}
+              >
+                <Input
+                  className="h-7"
+                  placeholder="4:30"
+                  value={restPace}
+                  onChange={(e) => setRestPace(e.target.value)}
+                />
+              </Field>
+              <Field label="Rest ratio (× work time)">
+                <Input
+                  className="h-7"
+                  type="number"
+                  step="0.1"
+                  value={restRatio}
+                  onChange={(e) => setRestRatio(e.target.value)}
+                />
+              </Field>
+            </>
+          )}
         </div>
       )}
-      <Button size="sm" onClick={generate} disabled={busy} className="w-full">
-        {busy
-          ? "Generating…"
-          : hasExistingIntervals
-            ? "Re-generate intervals"
-            : "Generate intervals"}
-      </Button>
+      <div className="flex gap-1">
+        <Button
+          size="sm"
+          onClick={() => generate("replace")}
+          disabled={busy}
+          className="flex-1"
+        >
+          {busy
+            ? "Generating…"
+            : hasExistingIntervals
+              ? "Re-generate (replace)"
+              : "Generate intervals"}
+        </Button>
+        {hasExistingIntervals && (
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => generate("append")}
+            disabled={busy}
+            className="flex-1"
+            title="Add these as a second block after the existing intervals"
+          >
+            Add as new block
+          </Button>
+        )}
+      </div>
     </div>
   );
 }

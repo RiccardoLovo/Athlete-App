@@ -131,9 +131,13 @@ export function summarizePrescription(
   const parts: string[] = [];
   switch (d) {
     case "Strength": {
-      if (p.sets != null && p.reps) parts.push(`${p.sets}×${p.reps}`);
+      const isHold = p.target_mode === "Hold";
+      if (p.sets != null && p.reps)
+        parts.push(
+          isHold ? `${p.sets} × ${p.reps}s hold` : `${p.sets}×${p.reps}`,
+        );
       else if (p.sets != null) parts.push(`${p.sets} sets`);
-      else if (p.reps) parts.push(p.reps);
+      else if (p.reps) parts.push(isHold ? `${p.reps}s hold` : p.reps);
       if (p.load_mode === "bodyweight") parts.push("BW");
       else if (p.load_value != null) {
         if (p.load_mode === "%1RM") {
@@ -170,6 +174,7 @@ export function summarizePrescription(
       if (p.hr_zone != null) parts.push(`HR Z${p.hr_zone}`);
       if (p.rest_sec != null) parts.push(`Rest: ${p.rest_sec}s`);
       if (p.rpe != null) parts.push(`RPE: ${p.rpe}`);
+      parts.push(...warmupCooldownParts(p));
       break;
     }
     case "Swimming": {
@@ -194,6 +199,7 @@ export function summarizePrescription(
         parts.push(`Equipment: ${equipment}`);
       if (p.rest_sec != null) parts.push(`Rest: ${p.rest_sec}s`);
       if (p.rpe != null) parts.push(`RPE: ${p.rpe}`);
+      parts.push(...warmupCooldownParts(p));
       break;
     }
     case "Cycling": {
@@ -211,6 +217,7 @@ export function summarizePrescription(
       if (typeof cadence === "number") parts.push(`${cadence}rpm`);
       if (p.rest_sec != null) parts.push(`Rest: ${p.rest_sec}s`);
       if (p.rpe != null) parts.push(`RPE: ${p.rpe}`);
+      parts.push(...warmupCooldownParts(p));
       break;
     }
     case "Football":
@@ -246,6 +253,28 @@ export function summarizePrescription(
 // Helper labels used by PDF and tooltips
 export function disciplineLabel(d: Discipline): string {
   return `${DISCIPLINE_ICON[d]} ${t(`discipline.${d}`)}`;
+}
+
+// Warm-up/cool-down for endurance exercises are extra fields on the
+// exercise itself, not a separate exercise — this renders them for the
+// one-line summary (shared by Running/Swimming/Cycling).
+function warmupCooldownParts(p: Prescription): string[] {
+  const parts: string[] = [];
+  const wMin = p.prescription?.["warmup_min"];
+  const wKm = p.prescription?.["warmup_km"];
+  const cMin = p.prescription?.["cooldown_min"];
+  const cKm = p.prescription?.["cooldown_km"];
+  const fmt = (min: unknown, km: unknown) => {
+    const bits: string[] = [];
+    if (typeof min === "number") bits.push(`${min}min`);
+    if (typeof km === "number") bits.push(`${km}km`);
+    return bits.join("/");
+  };
+  const wu = fmt(wMin, wKm);
+  if (wu) parts.push(`WU: ${wu}`);
+  const cd = fmt(cMin, cKm);
+  if (cd) parts.push(`CD: ${cd}`);
+  return parts;
 }
 
 const INTERVAL_UNIT_ABBREV: Record<string, string> = {
