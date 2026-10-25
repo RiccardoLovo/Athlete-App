@@ -18,19 +18,26 @@ import {
   type PyramidParams,
   type RsaParams,
 } from "@/lib/coachdesk/interval-templates";
-import { appendIntervals, replaceIntervals } from "./IntervalBuilder";
+import {
+  type ZoneNumber,
+  bikeZoneWattsMid,
+  formatSecondsToPace,
+  parsePaceToSeconds,
+  swimZonePaceSec,
+} from "@/lib/coachdesk/zones";
+import {
+  appendIntervals,
+  replaceIntervals,
+  useLatestThreshold,
+} from "./IntervalBuilder";
 
-// "4:30" -> 270 seconds. Returns null for anything unparseable.
-function parsePaceToSeconds(pace: string): number | null {
-  const m = pace.trim().match(/^(\d+):(\d{1,2})$/);
-  if (!m) return null;
-  return Number(m[1]) * 60 + Number(m[2]);
-}
+const ZONES: ZoneNumber[] = [1, 2, 3, 4, 5];
 
 export function TemplateForm({
   sessionExerciseId,
   templateType,
   discipline,
+  clientId = null,
   defaults,
   hasExistingIntervals,
   templateGeneratedAt,
@@ -39,12 +46,21 @@ export function TemplateForm({
   sessionExerciseId: string;
   templateType: "rsa" | "pyramid";
   discipline?: string;
+  clientId?: string | null;
   defaults: Record<string, unknown> | null;
   hasExistingIntervals: boolean;
   templateGeneratedAt: string | null;
   onGenerated: () => void;
 }) {
   const qc = useQueryClient();
+  const { data: ftpWatts } = useLatestThreshold(
+    discipline === "Cycling" ? clientId : null,
+    "ftp_watts",
+  );
+  const { data: cssSec } = useLatestThreshold(
+    discipline === "Swimming" ? clientId : null,
+    "css_pace_sec_per_100m",
+  );
   const [params, setParams] = useState<Record<string, number | string>>(
     () =>
       ({
@@ -63,14 +79,26 @@ export function TemplateForm({
   } {
     if (templateType === "rsa") {
       const p = params as unknown as RsaParams;
-      return {
-        rows: generateRsa({
-          sprint_count: Number(p.sprint_count) || 6,
-          sprint_distance_m: Number(p.sprint_distance_m) || 30,
-          rest_seconds: Number(p.rest_seconds) || 30,
-          intensity: (p.intensity as string) || "max",
-        }),
-      };
+      const zoneStr = (p.intensity as string) || "Z5";
+      const zoneNum = Number(zoneStr.replace("Z", "")) as ZoneNumber;
+      const rows = generateRsa({
+        sprint_count: Number(p.sprint_count) || 6,
+        sprint_distance_m: Number(p.sprint_distance_m) || 30,
+        rest_seconds: Number(p.rest_seconds) || 30,
+        intensity: zoneStr,
+      });
+      // Auto-fill pace (swim) or watts (bike) from the athlete's own
+      // threshold test for this zone, when one's on file.
+      for (const row of rows) {
+        if (discipline === "Swimming" && cssSec != null) {
+          row.pace_per_km = formatSecondsToPace(
+            swimZonePaceSec(cssSec, zoneNum),
+          );
+        } else if (discipline === "Cycling" && ftpWatts != null) {
+          row.watts = bikeZoneWattsMid(ftpWatts, zoneNum);
+        }
+      }
+      return { rows };
     }
     const p = params as unknown as PyramidParams;
     const paceSec = restMode === "ratio" ? parsePaceToSeconds(restPace) : null;
@@ -169,20 +197,31 @@ export function TemplateForm({
               onChange={(e) => set("rest_seconds", e.target.value)}
             />
           </Field>
-          <Field label="Intensity">
+          <Field label="Zone">
             <Select
-              value={String(params.intensity ?? "max")}
+              value={String(params.intensity ?? "Z5")}
               onValueChange={(v) => setParams((p) => ({ ...p, intensity: v }))}
             >
               <SelectTrigger className="h-7">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {["easy", "moderate", "hard", "max"].map((i) => (
-                  <SelectItem key={i} value={i}>
-                    {i}
-                  </SelectItem>
-                ))}
+                {ZONES.map((z) => {
+                  const watts =
+                    discipline === "Cycling" && ftpWatts != null
+                      ? ` (${bikeZoneWattsMid(ftpWatts, z)}W)`
+                      : "";
+                  const pace =
+                    discipline === "Swimming" && cssSec != null
+                      ? ` (${formatSecondsToPace(swimZonePaceSec(cssSec, z))})`
+                      : "";
+                  return (
+                    <SelectItem key={z} value={`Z${z}`}>
+                      Z{z}
+                      {watts || pace}
+                    </SelectItem>
+                  );
+                })}
               </SelectContent>
             </Select>
           </Field>

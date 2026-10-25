@@ -226,6 +226,7 @@ export function SessionExercises({
             onChanged={invalidate}
             oneRmKg={latestRmByEx.get(e.exercise_id) ?? null}
             history={lastLogByEx.get(e.exercise_id) ?? null}
+            clientId={clientId ?? null}
             canMoveUp={idx > 0}
             canMoveDown={idx < exs.length - 1}
             onOptimisticRemove={(id) => {
@@ -270,6 +271,7 @@ export function ExerciseCard({
   onChanged,
   oneRmKg,
   history,
+  clientId,
   canMoveUp,
   canMoveDown,
   onMoveUp,
@@ -281,6 +283,7 @@ export function ExerciseCard({
   onChanged: () => void;
   oneRmKg: number | null;
   history?: ExerciseHistory | null;
+  clientId?: string | null;
   canMoveUp?: boolean;
   canMoveDown?: boolean;
   onMoveUp?: () => void;
@@ -355,6 +358,7 @@ export function ExerciseCard({
             initial={initial}
             oneRmKg={oneRmKg}
             history={history ?? null}
+            clientId={clientId ?? null}
             strokeDefault={se.exercises?.stroke_default ?? null}
             onChanged={onChanged}
             structureType={se.exercises?.structure_type ?? "simple"}

@@ -38,6 +38,7 @@ export function PrescriptionForm({
   initial,
   oneRmKg,
   history = null,
+  clientId = null,
   strokeDefault,
   onChanged,
   structureType = "simple",
@@ -50,6 +51,7 @@ export function PrescriptionForm({
   initial: Prescription;
   oneRmKg: number | null;
   history?: ExerciseHistory | null;
+  clientId?: string | null;
   strokeDefault: string | null;
   onChanged?: () => void;
   structureType?: "simple" | "intervals" | "template";
@@ -269,6 +271,7 @@ export function PrescriptionForm({
       <IntervalsSection
         rowId={rowId}
         discipline={discipline}
+        clientId={clientId}
         structureType={structureType}
         templateType={templateType}
         templateDefaults={templateDefaults}
@@ -467,6 +470,7 @@ function NotesRpe({
 function IntervalsSection({
   rowId,
   discipline,
+  clientId,
   structureType,
   templateType,
   templateDefaults,
@@ -480,6 +484,7 @@ function IntervalsSection({
 }: {
   rowId: string;
   discipline: Discipline;
+  clientId?: string | null;
   structureType: "simple" | "intervals" | "template";
   templateType: "rsa" | "pyramid" | null;
   templateDefaults: Record<string, unknown> | null;
@@ -522,13 +527,18 @@ function IntervalsSection({
           sessionExerciseId={rowId}
           templateType={templateType}
           discipline={discipline}
+          clientId={clientId}
           defaults={templateDefaults}
           hasExistingIntervals={hasRows}
           templateGeneratedAt={templateGeneratedAt}
           onGenerated={() => onChanged?.()}
         />
       )}
-      <IntervalBuilder sessionExerciseId={rowId} discipline={discipline} />
+      <IntervalBuilder
+        sessionExerciseId={rowId}
+        discipline={discipline}
+        clientId={clientId}
+      />
       <NotesRpe form={form} patch={patch} showRpe={false} />
       <SaveIndicator status={status} />
     </div>

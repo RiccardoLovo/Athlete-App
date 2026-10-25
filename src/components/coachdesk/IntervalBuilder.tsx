@@ -15,6 +15,12 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import type { Discipline } from "@/lib/coachdesk/prescription";
 import type { IntervalRowInput } from "@/lib/coachdesk/interval-templates";
+import {
+  type ZoneNumber,
+  bikeZoneWattsMid,
+  formatSecondsToPace,
+  swimZonePaceSec,
+} from "@/lib/coachdesk/zones";
 
 export type IntervalRow = IntervalRowInput & {
   id: string;
@@ -85,15 +91,48 @@ export async function appendIntervals(seId: string, rows: IntervalRowInput[]) {
   if (ins.error) throw ins.error;
 }
 
+// Latest FTP (watts) or CSS (sec/100m) test on file for a client — shared
+// by IntervalBuilder's per-round zone pickers and TemplateForm's RSA zone
+// generation.
+export function useLatestThreshold(
+  clientId: string | null | undefined,
+  metric: "ftp_watts" | "css_pace_sec_per_100m",
+) {
+  return useQuery({
+    queryKey: ["latest-threshold", clientId, metric],
+    enabled: !!clientId,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("client_threshold_tests")
+        .select("value")
+        .eq("client_id", clientId!)
+        .eq("metric", metric)
+        .order("tested_date", { ascending: false })
+        .limit(1);
+      return data && data.length ? Number(data[0].value) : null;
+    },
+  });
+}
+
 export function IntervalBuilder({
   sessionExerciseId,
   discipline,
+  clientId = null,
 }: {
   sessionExerciseId: string;
   discipline: Discipline;
+  clientId?: string | null;
 }) {
   const qc = useQueryClient();
   const { data: rows = [] } = useQuery(intervalsQuery(sessionExerciseId));
+  const { data: ftpWatts } = useLatestThreshold(
+    discipline === "Cycling" ? clientId : null,
+    "ftp_watts",
+  );
+  const { data: cssSec } = useLatestThreshold(
+    discipline === "Swimming" ? clientId : null,
+    "css_pace_sec_per_100m",
+  );
 
   function invalidate() {
     qc.invalidateQueries({ queryKey: intervalsKey(sessionExerciseId) });
@@ -193,6 +232,7 @@ export function IntervalBuilder({
               <th className="px-1.5 py-1 text-left">Unit</th>
               {cols.pace && <th className="px-1.5 py-1 text-left">Pace</th>}
               {cols.hrZone && <th className="px-1.5 py-1 text-left">HR</th>}
+              {cols.zone && <th className="px-1.5 py-1 text-left">Zone</th>}
               {cols.watts && <th className="px-1.5 py-1 text-left">W</th>}
               {cols.cadence && <th className="px-1.5 py-1 text-left">RPM</th>}
               {cols.stroke && <th className="px-1.5 py-1 text-left">Stroke</th>}
@@ -211,6 +251,7 @@ export function IntervalBuilder({
                 row={r}
                 index={idx}
                 cols={cols}
+                cssSec={cssSec ?? null}
                 canUp={idx > 0}
                 canDown={idx < rows.length - 1}
                 onSwapUp={() => swap(r, rows[idx - 1])}
@@ -257,6 +298,7 @@ type ColumnFlags = {
   label: boolean;
   pace: boolean;
   hrZone: boolean;
+  zone: boolean;
   watts: boolean;
   cadence: boolean;
   stroke: boolean;
@@ -269,6 +311,7 @@ function columnsForDiscipline(d: Discipline): ColumnFlags {
         label: true,
         pace: true,
         hrZone: true,
+        zone: false,
         watts: false,
         cadence: false,
         stroke: false,
@@ -278,10 +321,13 @@ function columnsForDiscipline(d: Discipline): ColumnFlags {
       // Swimming already has the most columns (pace, HR, stroke, intensity),
       // and round labels here tend to be generic ("Build 2") rather than
       // meaningful — drop the column so the rest has room to breathe.
+      // HR zones also aren't the right measure for swim pace — a Zone
+      // picker auto-fills Pace from the athlete's CSS instead.
       return {
         label: false,
         pace: true,
-        hrZone: true,
+        hrZone: false,
+        zone: true,
         watts: false,
         cadence: false,
         stroke: true,
@@ -292,6 +338,7 @@ function columnsForDiscipline(d: Discipline): ColumnFlags {
         label: true,
         pace: false,
         hrZone: true,
+        zone: false,
         watts: true,
         cadence: true,
         stroke: false,
@@ -302,6 +349,7 @@ function columnsForDiscipline(d: Discipline): ColumnFlags {
         label: true,
         pace: true,
         hrZone: true,
+        zone: false,
         watts: false,
         cadence: false,
         stroke: false,
@@ -314,6 +362,7 @@ function IntervalRowEditor({
   row,
   index,
   cols,
+  cssSec = null,
   canUp,
   canDown,
   onSwapUp,
@@ -323,6 +372,7 @@ function IntervalRowEditor({
   row: IntervalRow;
   index: number;
   cols: ColumnFlags;
+  cssSec?: number | null;
   canUp: boolean;
   canDown: boolean;
   onSwapUp: () => void;
@@ -496,6 +546,45 @@ function IntervalRowEditor({
               {[1, 2, 3, 4, 5].map((z) => (
                 <SelectItem key={z} value={String(z)}>
                   Z{z}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </td>
+      )}
+      {cols.zone && (
+        <td className="px-1.5 py-1">
+          <Select
+            value="_"
+            onValueChange={(v) => {
+              if (v === "_" || cssSec == null) return;
+              patch({
+                pace_per_km: formatSecondsToPace(
+                  swimZonePaceSec(cssSec, Number(v) as ZoneNumber),
+                ),
+              });
+            }}
+          >
+            <SelectTrigger
+              className="h-7 text-xs w-16"
+              title={
+                cssSec == null
+                  ? "No CSS on file for this athlete"
+                  : "Fill pace from zone"
+              }
+            >
+              <SelectValue placeholder="Zone" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="_" disabled>
+                {cssSec == null ? "No CSS" : "Zone"}
+              </SelectItem>
+              {([1, 2, 3, 4, 5] as ZoneNumber[]).map((z) => (
+                <SelectItem key={z} value={String(z)} disabled={cssSec == null}>
+                  Z{z}
+                  {cssSec != null
+                    ? ` · ${formatSecondsToPace(swimZonePaceSec(cssSec, z))}`
+                    : ""}
                 </SelectItem>
               ))}
             </SelectContent>

@@ -103,6 +103,44 @@ export type Database = {
           },
         ];
       };
+      client_threshold_tests: {
+        Row: {
+          client_id: string;
+          coach_id: string;
+          created_at: string;
+          id: string;
+          metric: string;
+          tested_date: string;
+          value: number;
+        };
+        Insert: {
+          client_id: string;
+          coach_id: string;
+          created_at?: string;
+          id?: string;
+          metric: string;
+          tested_date?: string;
+          value: number;
+        };
+        Update: {
+          client_id?: string;
+          coach_id?: string;
+          created_at?: string;
+          id?: string;
+          metric?: string;
+          tested_date?: string;
+          value?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "client_threshold_tests_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "clients";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       client_invites: {
         Row: {
           client_id: string;

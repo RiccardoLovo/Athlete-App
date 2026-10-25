@@ -10,6 +10,7 @@ import {
   Copy,
   Check,
   Dumbbell,
+  Gauge,
   LineChart,
   Bell,
 } from "lucide-react";
@@ -37,6 +38,7 @@ import {
 import { toast } from "sonner";
 import { SPORTS } from "@/lib/coachdesk/constants";
 import { OneRmDialog } from "@/components/coachdesk/OneRmDialog";
+import { ThresholdDialog } from "@/components/coachdesk/ThresholdDialog";
 import { useRole } from "@/hooks/use-role";
 import {
   addDays,
@@ -188,6 +190,7 @@ function ClientsPage() {
   const [showForm, setShowForm] = useState(false);
   const [inviteFor, setInviteFor] = useState<Client | null>(null);
   const [oneRmFor, setOneRmFor] = useState<Client | null>(null);
+  const [thresholdFor, setThresholdFor] = useState<Client | null>(null);
 
   const { data: clients = [] } = useQuery({
     queryKey: ["clients"],
@@ -314,6 +317,18 @@ function ClientsPage() {
                     >
                       <Dumbbell className="h-4 w-4" />
                     </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      title="Thresholds (FTP / CSS)"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setThresholdFor(c);
+                      }}
+                    >
+                      <Gauge className="h-4 w-4" />
+                    </Button>
                     <Link
                       to="/analytics/$clientId"
                       params={{ clientId: c.id }}
@@ -414,6 +429,13 @@ function ClientsPage() {
           clientId={oneRmFor.id}
           clientName={oneRmFor.name}
           onClose={() => setOneRmFor(null)}
+        />
+      )}
+      {thresholdFor && (
+        <ThresholdDialog
+          clientId={thresholdFor.id}
+          clientName={thresholdFor.name}
+          onClose={() => setThresholdFor(null)}
         />
       )}
     </div>
