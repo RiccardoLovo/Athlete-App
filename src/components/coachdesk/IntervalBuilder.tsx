@@ -25,41 +25,68 @@ import {
 export type IntervalRow = IntervalRowInput & {
   id: string;
   session_exercise_id: string;
+  workout_block_id?: string | null;
   order_index: number;
 };
 
 const STROKES = ["Freestyle", "Backstroke", "Breaststroke", "Butterfly", "IM"];
 
-function intervalsKey(seId: string) {
-  return ["prescription-intervals", seId] as const;
+// A round's "owner": either a plain session_exercise (the original,
+// one-structure-per-exercise model) or a workout_block within a
+// structured Run/Swim/Bike container (a session_exercise can hold several
+// independent intervals/pyramid blocks). session_exercise_id is always
+// set either way — prescription_intervals requires it — workoutBlockId
+// additionally scopes rows to one specific block.
+export type IntervalScope = {
+  sessionExerciseId: string;
+  workoutBlockId?: string;
+};
+
+export function intervalsKey(scope: IntervalScope) {
+  return [
+    "prescription-intervals",
+    scope.sessionExerciseId,
+    scope.workoutBlockId ?? null,
+  ] as const;
 }
 
-export function intervalsQuery(seId: string) {
+export function intervalsQuery(scope: IntervalScope) {
   return {
-    queryKey: intervalsKey(seId),
+    queryKey: intervalsKey(scope),
     queryFn: async () => {
-      const { data, error } = await supabase
+      let q = supabase
         .from("prescription_intervals")
         .select("*")
-        .eq("session_exercise_id", seId)
-        .order("order_index");
+        .eq("session_exercise_id", scope.sessionExerciseId);
+      q = scope.workoutBlockId
+        ? q.eq("workout_block_id", scope.workoutBlockId)
+        : q.is("workout_block_id", null);
+      const { data, error } = await q.order("order_index");
       if (error) throw error;
       return (data ?? []) as unknown as IntervalRow[];
     },
   };
 }
 
-/** Replace every row for a session_exercise atomically (delete then insert). */
-export async function replaceIntervals(seId: string, rows: IntervalRowInput[]) {
-  const del = await supabase
+/** Replace every row for a scope atomically (delete then insert). */
+export async function replaceIntervals(
+  scope: IntervalScope,
+  rows: IntervalRowInput[],
+) {
+  let del = supabase
     .from("prescription_intervals")
     .delete()
-    .eq("session_exercise_id", seId);
-  if (del.error) throw del.error;
+    .eq("session_exercise_id", scope.sessionExerciseId);
+  del = scope.workoutBlockId
+    ? del.eq("workout_block_id", scope.workoutBlockId)
+    : del.is("workout_block_id", null);
+  const delRes = await del;
+  if (delRes.error) throw delRes.error;
   if (!rows.length) return;
   const payload = rows.map((r, i) => ({
     ...r,
-    session_exercise_id: seId,
+    session_exercise_id: scope.sessionExerciseId,
+    workout_block_id: scope.workoutBlockId ?? null,
     order_index: i,
   }));
   const ins = await supabase
@@ -68,21 +95,29 @@ export async function replaceIntervals(seId: string, rows: IntervalRowInput[]) {
   if (ins.error) throw ins.error;
 }
 
-/** Append rows after whatever already exists for a session_exercise (used
- * by "Generate from template" in additive mode — e.g. a second RSA block
+/** Append rows after whatever already exists for a scope (used by
+ * "Generate from template" in additive mode — e.g. a second RSA block
  * added after an existing one, rather than replacing it). */
-export async function appendIntervals(seId: string, rows: IntervalRowInput[]) {
+export async function appendIntervals(
+  scope: IntervalScope,
+  rows: IntervalRowInput[],
+) {
   if (!rows.length) return;
-  const { data: latest } = await supabase
+  let q = supabase
     .from("prescription_intervals")
     .select("order_index")
-    .eq("session_exercise_id", seId)
+    .eq("session_exercise_id", scope.sessionExerciseId);
+  q = scope.workoutBlockId
+    ? q.eq("workout_block_id", scope.workoutBlockId)
+    : q.is("workout_block_id", null);
+  const { data: latest } = await q
     .order("order_index", { ascending: false })
     .limit(1);
   const start = latest && latest.length ? Number(latest[0].order_index) + 1 : 0;
   const payload = rows.map((r, i) => ({
     ...r,
-    session_exercise_id: seId,
+    session_exercise_id: scope.sessionExerciseId,
+    workout_block_id: scope.workoutBlockId ?? null,
     order_index: start + i,
   }));
   const ins = await supabase
@@ -116,15 +151,18 @@ export function useLatestThreshold(
 
 export function IntervalBuilder({
   sessionExerciseId,
+  workoutBlockId,
   discipline,
   clientId = null,
 }: {
   sessionExerciseId: string;
+  workoutBlockId?: string;
   discipline: Discipline;
   clientId?: string | null;
 }) {
+  const scope: IntervalScope = { sessionExerciseId, workoutBlockId };
   const qc = useQueryClient();
-  const { data: rows = [] } = useQuery(intervalsQuery(sessionExerciseId));
+  const { data: rows = [] } = useQuery(intervalsQuery(scope));
   const { data: ftpWatts } = useLatestThreshold(
     discipline === "Cycling" ? clientId : null,
     "ftp_watts",
@@ -135,16 +173,20 @@ export function IntervalBuilder({
   );
 
   function invalidate() {
-    qc.invalidateQueries({ queryKey: intervalsKey(sessionExerciseId) });
+    qc.invalidateQueries({ queryKey: intervalsKey(scope) });
   }
 
   async function addRow() {
     // Always compute the next order_index from the DB to avoid race conditions
     // with stale cache (multiple quick taps, slow refetch after RLS check).
-    const { data: latest } = await supabase
+    let latestQ = supabase
       .from("prescription_intervals")
       .select("order_index")
-      .eq("session_exercise_id", sessionExerciseId)
+      .eq("session_exercise_id", sessionExerciseId);
+    latestQ = workoutBlockId
+      ? latestQ.eq("workout_block_id", workoutBlockId)
+      : latestQ.is("workout_block_id", null);
+    const { data: latest } = await latestQ
       .order("order_index", { ascending: false })
       .limit(1);
     let nextOrder =
@@ -153,6 +195,7 @@ export function IntervalBuilder({
     for (let attempt = 0; attempt < 5; attempt++) {
       const { error } = await supabase.from("prescription_intervals").insert({
         session_exercise_id: sessionExerciseId,
+        workout_block_id: workoutBlockId ?? null,
         order_index: nextOrder,
         target_unit: "meters",
         rest_type: "passive",
@@ -172,7 +215,7 @@ export function IntervalBuilder({
   }
 
   async function deleteRow(id: string) {
-    qc.setQueryData<IntervalRow[]>(intervalsKey(sessionExerciseId), (prev) =>
+    qc.setQueryData<IntervalRow[]>(intervalsKey(scope), (prev) =>
       (prev ?? []).filter((r) => r.id !== id),
     );
     const { error } = await supabase
@@ -389,7 +432,10 @@ function IntervalRowEditor({
   const savingRef = useRef(false);
   const localRef = useRef(local);
   const idRef = useRef(row.id);
-  const seIdRef = useRef(row.session_exercise_id);
+  const scopeRef = useRef<IntervalScope>({
+    sessionExerciseId: row.session_exercise_id,
+    workoutBlockId: row.workout_block_id ?? undefined,
+  });
   localRef.current = local;
 
   useEffect(() => {
@@ -441,7 +487,7 @@ function IntervalRowEditor({
       // state — without this, editing an existing row's target value saved
       // fine but the total stayed stuck at whatever it was after the last
       // add/delete/reorder.
-      qc.invalidateQueries({ queryKey: intervalsKey(seIdRef.current) });
+      qc.invalidateQueries({ queryKey: intervalsKey(scopeRef.current) });
       window.setTimeout(
         () => setStatus((s) => (s === "saved" ? "idle" : s)),
         1200,

@@ -61,6 +61,39 @@ export function swimZonePaceSec(
   return Math.max(1, Math.round(cssSecPer100m + SWIM_ZONE_OFFSET_SEC[zone]));
 }
 
+// Exact-percentage variants, for callers that want a precise %FTP/%CSS
+// rather than the Z1-Z5 bucket (the structured-workout block builder uses
+// the zone as a quick starting point, then lets the coach dial in an
+// exact percentage from there — these are the "dial in" functions).
+export function bikePctToWatts(ftpWatts: number, pct: number): number {
+  return Math.round(ftpWatts * (pct / 100));
+}
+
+// %CSS here means % of CSS *speed*, matching how swim coaches talk about
+// it (105% CSS = swimming faster than CSS pace) — not a pace percentage,
+// since pace and speed move in opposite directions.
+export function swimPctToPaceSec(cssSecPer100m: number, pct: number): number {
+  return Math.max(1, Math.round((cssSecPer100m * 100) / pct));
+}
+
+// Default %FTP for a zone (its band's midpoint) — a starting point before
+// the coach fine-tunes to an exact number.
+export function bikeZoneDefaultPct(zone: ZoneNumber): number {
+  const z = BIKE_ZONES[zone];
+  return Math.round(((z.min + z.max) / 2) * 100);
+}
+
+// Default %CSS for a zone, derived from the zone's pace offset converted
+// to a speed percentage (so the two zone systems agree on their starting
+// point even though one is offset-based and the other percentage-based).
+export function swimZoneDefaultPct(
+  cssSecPer100m: number,
+  zone: ZoneNumber,
+): number {
+  const targetSec = swimZonePaceSec(cssSecPer100m, zone);
+  return Math.round((cssSecPer100m / targetSec) * 100);
+}
+
 // "1:32" -> 92. Returns null for anything unparseable.
 export function parsePaceToSeconds(pace: string): number | null {
   const m = pace.trim().match(/^(\d+):(\d{1,2}(?:\.\d+)?)$/);

@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Slider } from "@/components/ui/slider";
 import { WorkoutPhotos } from "@/components/coachdesk/WorkoutPhotos";
+import { WorkoutBlockSummary } from "@/components/coachdesk/WorkoutBlockSummary";
 import {
   BORG_LABELS,
   borgColor,
@@ -105,7 +106,9 @@ export function MyFeedbackDetail({
     queryFn: async () => {
       const { data } = await supabase
         .from("session_exercises")
-        .select("*, exercises(name_en, discipline, structure_type)")
+        .select(
+          "*, exercises(name_en, discipline, structure_type, is_structured_container)",
+        )
         .eq("session_id", session.id)
         .order("order_index");
       const list = (data ?? []) as any[];
@@ -547,64 +550,71 @@ export function MyFeedbackDetail({
                 })}
               </div>
             ) : (
-              <div className="mt-3 flex flex-wrap gap-4">
-                <div>
-                  <Label className="text-xs">Duration (min)</Label>
-                  <Input
-                    type="number"
-                    inputMode="decimal"
-                    className="mt-1 w-28"
-                    value={f.duration}
-                    onChange={(ev) =>
-                      setForms((prev) => ({
-                        ...prev,
-                        [e.id]: {
-                          ...(prev[e.id] ?? EMPTY_EXFORM),
-                          duration: ev.target.value,
-                        },
-                      }))
-                    }
-                  />
-                </div>
-                {distanceUnit && (
+              <div className="mt-3 space-y-2">
+                {e.exercises?.is_structured_container && (
+                  <WorkoutBlockSummary sessionExerciseId={e.id} />
+                )}
+                <div className="flex flex-wrap gap-4">
                   <div>
-                    <Label className="text-xs">Distance ({distanceUnit})</Label>
+                    <Label className="text-xs">Duration (min)</Label>
                     <Input
                       type="number"
                       inputMode="decimal"
                       className="mt-1 w-28"
-                      value={f.distance}
+                      value={f.duration}
                       onChange={(ev) =>
                         setForms((prev) => ({
                           ...prev,
                           [e.id]: {
                             ...(prev[e.id] ?? EMPTY_EXFORM),
-                            distance: ev.target.value,
+                            duration: ev.target.value,
                           },
                         }))
                       }
                     />
                   </div>
-                )}
-                {showPace && (
-                  <div>
-                    <Label className="text-xs">Pace</Label>
-                    <Input
-                      placeholder={distanceUnit === "m" ? "/100m" : "/km"}
-                      className="mt-1 w-28"
-                      value={f.pace}
-                      onChange={(ev) =>
-                        setForms((prev) => ({
-                          ...prev,
-                          [e.id]: {
-                            ...(prev[e.id] ?? EMPTY_EXFORM),
-                            pace: ev.target.value,
-                          },
-                        }))
-                      }
-                    />
-                  </div>
-                )}
+                  {distanceUnit && (
+                    <div>
+                      <Label className="text-xs">
+                        Distance ({distanceUnit})
+                      </Label>
+                      <Input
+                        type="number"
+                        inputMode="decimal"
+                        className="mt-1 w-28"
+                        value={f.distance}
+                        onChange={(ev) =>
+                          setForms((prev) => ({
+                            ...prev,
+                            [e.id]: {
+                              ...(prev[e.id] ?? EMPTY_EXFORM),
+                              distance: ev.target.value,
+                            },
+                          }))
+                        }
+                      />
+                    </div>
+                  )}
+                  {showPace && (
+                    <div>
+                      <Label className="text-xs">Pace</Label>
+                      <Input
+                        placeholder={distanceUnit === "m" ? "/100m" : "/km"}
+                        className="mt-1 w-28"
+                        value={f.pace}
+                        onChange={(ev) =>
+                          setForms((prev) => ({
+                            ...prev,
+                            [e.id]: {
+                              ...(prev[e.id] ?? EMPTY_EXFORM),
+                              pace: ev.target.value,
+                            },
+                          }))
+                        }
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 

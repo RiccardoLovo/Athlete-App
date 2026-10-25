@@ -27,14 +27,17 @@ import {
 } from "@/lib/coachdesk/zones";
 import {
   appendIntervals,
+  intervalsKey,
   replaceIntervals,
   useLatestThreshold,
+  type IntervalScope,
 } from "./IntervalBuilder";
 
 const ZONES: ZoneNumber[] = [1, 2, 3, 4, 5];
 
 export function TemplateForm({
   sessionExerciseId,
+  workoutBlockId,
   templateType,
   discipline,
   clientId = null,
@@ -44,6 +47,7 @@ export function TemplateForm({
   onGenerated,
 }: {
   sessionExerciseId: string;
+  workoutBlockId?: string;
   templateType: "rsa" | "pyramid";
   discipline?: string;
   clientId?: string | null;
@@ -52,6 +56,7 @@ export function TemplateForm({
   templateGeneratedAt: string | null;
   onGenerated: () => void;
 }) {
+  const scope: IntervalScope = { sessionExerciseId, workoutBlockId };
   const qc = useQueryClient();
   const { data: ftpWatts } = useLatestThreshold(
     discipline === "Cycling" ? clientId : null,
@@ -134,16 +139,19 @@ export function TemplateForm({
     setBusy(true);
     try {
       const { rows } = buildRows();
-      if (mode === "append") await appendIntervals(sessionExerciseId, rows);
-      else await replaceIntervals(sessionExerciseId, rows);
-      await supabase
-        .from("session_exercises")
-        .update({ template_generated_at: new Date().toISOString() } as never)
-        .eq("id", sessionExerciseId);
-      qc.invalidateQueries({
-        queryKey: ["prescription-intervals", sessionExerciseId],
-      });
+      if (mode === "append") await appendIntervals(scope, rows);
+      else await replaceIntervals(scope, rows);
+      if (!workoutBlockId) {
+        // Only meaningful for the original per-exercise template model —
+        // a structured workout's blocks don't have their own "generated at".
+        await supabase
+          .from("session_exercises")
+          .update({ template_generated_at: new Date().toISOString() } as never)
+          .eq("id", sessionExerciseId);
+      }
+      qc.invalidateQueries({ queryKey: intervalsKey(scope) });
       qc.invalidateQueries({ queryKey: ["session-exs"] });
+      qc.invalidateQueries({ queryKey: ["workout-blocks", sessionExerciseId] });
       onGenerated();
       toast.success(
         mode === "append" ? "Intervals added" : "Intervals generated",

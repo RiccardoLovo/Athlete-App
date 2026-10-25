@@ -24,6 +24,7 @@ import {
   insertExerciseIntoSession,
   swapExerciseOrder,
 } from "@/components/coachdesk/ExerciseBank";
+import { WorkoutBlockBuilder } from "@/components/coachdesk/WorkoutBlockBuilder";
 import { toast } from "sonner";
 
 type SE = {
@@ -46,6 +47,7 @@ type SE = {
   notes: string | null;
   prescription: Record<string, unknown> | null;
   template_generated_at: string | null;
+  tags: string[];
   exercises: {
     name_en: string;
     discipline: Discipline;
@@ -53,6 +55,7 @@ type SE = {
     structure_type: "simple" | "intervals" | "template";
     template_type: "rsa" | "pyramid" | null;
     template_defaults: Record<string, unknown> | null;
+    is_structured_container: boolean;
   };
 };
 
@@ -73,7 +76,7 @@ export function SessionExercises({
       const { data } = await supabase
         .from("session_exercises")
         .select(
-          "*, exercises(name_en, discipline, stroke_default, structure_type, template_type, template_defaults)",
+          "*, exercises(name_en, discipline, stroke_default, structure_type, template_type, template_defaults, is_structured_container)",
         )
         .eq("session_id", sessionId)
         .order("order_index");
@@ -348,7 +351,20 @@ export function ExerciseCard({
       </div>
       {!expanded ? (
         <div className="mt-1 truncate text-[11px] text-muted-foreground">
-          {summary || "—"}
+          {se.exercises?.is_structured_container
+            ? "Structured workout — tap to edit"
+            : summary || "—"}
+        </div>
+      ) : se.exercises?.is_structured_container ? (
+        <div className="mt-2">
+          <WorkoutBlockBuilder
+            sessionExerciseId={se.id}
+            discipline={discipline}
+            notes={se.notes ?? ""}
+            tags={se.tags ?? []}
+            clientId={clientId ?? null}
+            onChanged={onChanged}
+          />
         </div>
       ) : (
         <div className="mt-2">

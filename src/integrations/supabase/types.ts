@@ -370,6 +370,7 @@ export type Database = {
           discipline: string;
           id: string;
           is_global: boolean;
+          is_structured_container: boolean;
           muscle_group: string | null;
           name_en: string;
           name_it: string;
@@ -393,6 +394,7 @@ export type Database = {
           discipline: string;
           id?: string;
           is_global?: boolean;
+          is_structured_container?: boolean;
           muscle_group?: string | null;
           name_en: string;
           name_it: string;
@@ -416,6 +418,7 @@ export type Database = {
           discipline?: string;
           id?: string;
           is_global?: boolean;
+          is_structured_container?: boolean;
           muscle_group?: string | null;
           name_en?: string;
           name_it?: string;
@@ -448,6 +451,7 @@ export type Database = {
           target_value: number | null;
           updated_at: string;
           watts: number | null;
+          workout_block_id: string | null;
         };
         Insert: {
           cadence?: number | null;
@@ -466,6 +470,7 @@ export type Database = {
           target_value?: number | null;
           updated_at?: string;
           watts?: number | null;
+          workout_block_id?: string | null;
         };
         Update: {
           cadence?: number | null;
@@ -484,6 +489,7 @@ export type Database = {
           target_value?: number | null;
           updated_at?: string;
           watts?: number | null;
+          workout_block_id?: string | null;
         };
         Relationships: [
           {
@@ -491,6 +497,13 @@ export type Database = {
             columns: ["session_exercise_id"];
             isOneToOne: false;
             referencedRelation: "session_exercises";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "prescription_intervals_workout_block_id_fkey";
+            columns: ["workout_block_id"];
+            isOneToOne: false;
+            referencedRelation: "workout_blocks";
             referencedColumns: ["id"];
           },
         ];
@@ -517,6 +530,7 @@ export type Database = {
           rpe: number | null;
           session_id: string;
           sets: number | null;
+          tags: string[];
           target_mode: string | null;
           template_generated_at: string | null;
           tempo: string | null;
@@ -542,6 +556,7 @@ export type Database = {
           rpe?: number | null;
           session_id: string;
           sets?: number | null;
+          tags?: string[];
           target_mode?: string | null;
           template_generated_at?: string | null;
           tempo?: string | null;
@@ -567,6 +582,7 @@ export type Database = {
           rpe?: number | null;
           session_id?: string;
           sets?: number | null;
+          tags?: string[];
           target_mode?: string | null;
           template_generated_at?: string | null;
           tempo?: string | null;
@@ -584,6 +600,68 @@ export type Database = {
             columns: ["session_id"];
             isOneToOne: false;
             referencedRelation: "sessions";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      workout_blocks: {
+        Row: {
+          block_type: string;
+          created_at: string;
+          distance_km: number | null;
+          double_peak: boolean | null;
+          duration_min: number | null;
+          id: string;
+          interval_count: number | null;
+          label: string | null;
+          notes: string | null;
+          order_index: number;
+          pace: string | null;
+          pct_threshold: number | null;
+          session_exercise_id: string;
+          target_mode: string | null;
+          zone: number | null;
+        };
+        Insert: {
+          block_type: string;
+          created_at?: string;
+          distance_km?: number | null;
+          double_peak?: boolean | null;
+          duration_min?: number | null;
+          id?: string;
+          interval_count?: number | null;
+          label?: string | null;
+          notes?: string | null;
+          order_index: number;
+          pace?: string | null;
+          pct_threshold?: number | null;
+          session_exercise_id: string;
+          target_mode?: string | null;
+          zone?: number | null;
+        };
+        Update: {
+          block_type?: string;
+          created_at?: string;
+          distance_km?: number | null;
+          double_peak?: boolean | null;
+          duration_min?: number | null;
+          id?: string;
+          interval_count?: number | null;
+          label?: string | null;
+          notes?: string | null;
+          order_index?: number;
+          pace?: string | null;
+          pct_threshold?: number | null;
+          session_exercise_id?: string;
+          target_mode?: string | null;
+          zone?: number | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "workout_blocks_session_exercise_id_fkey";
+            columns: ["session_exercise_id"];
+            isOneToOne: false;
+            referencedRelation: "session_exercises";
             referencedColumns: ["id"];
           },
         ];

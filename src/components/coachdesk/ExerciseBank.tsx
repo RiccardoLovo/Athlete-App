@@ -21,7 +21,14 @@ type Exercise = {
   category: string;
   body_region: string | null;
   stroke_default: string | null;
+  is_structured_container: boolean;
 };
+
+const STRUCTURED_DISCIPLINES = new Set<Discipline>([
+  "Running",
+  "Swimming",
+  "Cycling",
+]);
 
 export function ExerciseBank({
   className,
@@ -44,7 +51,7 @@ export function ExerciseBank({
       const { data } = await supabase
         .from("exercises")
         .select(
-          "id, name_en, name_it, discipline, category, body_region, stroke_default",
+          "id, name_en, name_it, discipline, category, body_region, stroke_default, is_structured_container",
         )
         .order("name_en");
       return (data ?? []) as unknown as Exercise[];
@@ -54,6 +61,16 @@ export function ExerciseBank({
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
     return bank.filter((e) => {
+      // Running/Swimming/Cycling have moved to the structured block
+      // builder — only the "Run"/"Swim"/"Bike" container shows here now.
+      // Old named exercises for those disciplines stay in the database
+      // (existing sessions still reference them) but are no longer
+      // offered for new additions.
+      if (
+        STRUCTURED_DISCIPLINES.has(e.discipline) &&
+        !e.is_structured_container
+      )
+        return false;
       if (
         q &&
         !e.name_en.toLowerCase().includes(q) &&

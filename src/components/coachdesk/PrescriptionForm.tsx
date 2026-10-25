@@ -261,7 +261,7 @@ export function PrescriptionForm({
   // Intervals/template structure: replace the per-discipline form with the
   // interval builder. RPE & notes still autosave on session_exercises.
   const intervalsQ = useQuery({
-    ...intervalsQuery(rowId),
+    ...intervalsQuery({ sessionExerciseId: rowId }),
     enabled: structureType !== "simple",
   });
 
