@@ -25,6 +25,7 @@ import {
   swapExerciseOrder,
 } from "@/components/coachdesk/ExerciseBank";
 import { WorkoutBlockBuilder } from "@/components/coachdesk/WorkoutBlockBuilder";
+import { WorkoutBlockSummary } from "@/components/coachdesk/WorkoutBlockSummary";
 import { toast } from "sonner";
 
 type SE = {
@@ -350,11 +351,15 @@ export function ExerciseCard({
         </button>
       </div>
       {!expanded ? (
-        <div className="mt-1 truncate text-[11px] text-muted-foreground">
-          {se.exercises?.is_structured_container
-            ? "Structured workout — tap to edit"
-            : summary || "—"}
-        </div>
+        se.exercises?.is_structured_container ? (
+          <div className="mt-1">
+            <WorkoutBlockSummary sessionExerciseId={se.id} />
+          </div>
+        ) : (
+          <div className="mt-1 truncate text-[11px] text-muted-foreground">
+            {summary || "—"}
+          </div>
+        )
       ) : se.exercises?.is_structured_container ? (
         <div className="mt-2">
           <WorkoutBlockBuilder

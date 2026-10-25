@@ -22,7 +22,6 @@ import {
   type ZoneNumber,
   bikeZoneWattsMid,
   formatSecondsToPace,
-  parsePaceToSeconds,
   swimZonePaceSec,
 } from "@/lib/coachdesk/zones";
 import {
@@ -32,6 +31,8 @@ import {
   useLatestThreshold,
   type IntervalScope,
 } from "./IntervalBuilder";
+import { RestField } from "@/components/coachdesk/RestField";
+import { DEFAULT_REST, restSpecOf, type RestValue } from "@/lib/coachdesk/rest";
 
 const ZONES: ZoneNumber[] = [1, 2, 3, 4, 5];
 
@@ -44,6 +45,7 @@ export function TemplateForm({
   defaults,
   hasExistingIntervals,
   templateGeneratedAt,
+  hideHeader = false,
   onGenerated,
 }: {
   sessionExerciseId: string;
@@ -54,6 +56,9 @@ export function TemplateForm({
   defaults: Record<string, unknown> | null;
   hasExistingIntervals: boolean;
   templateGeneratedAt: string | null;
+  /** Inside the structured block builder the block already says what it is,
+   *  so the "RSA template"/"Pyramid template" caption is just noise. */
+  hideHeader?: boolean;
   onGenerated: () => void;
 }) {
   const scope: IntervalScope = { sessionExerciseId, workoutBlockId };
@@ -73,10 +78,11 @@ export function TemplateForm({
       }) as Record<string, number | string>,
   );
   const [doublePeak, setDoublePeak] = useState(false);
-  const [restMode, setRestMode] = useState<"seconds" | "ratio">("seconds");
-  const [restRatio, setRestRatio] = useState("1");
-  const [restPace, setRestPace] = useState("");
+  // Rest is expressed the same way everywhere: whole seconds, or a ratio.
+  const [rest, setRest] = useState<RestValue>(DEFAULT_REST);
   const [busy, setBusy] = useState(false);
+
+  const restSpec = restSpecOf(rest);
 
   function buildRows(): {
     rows: ReturnType<typeof generateRsa>;
@@ -89,7 +95,7 @@ export function TemplateForm({
       const rows = generateRsa({
         sprint_count: Number(p.sprint_count) || 6,
         sprint_distance_m: Number(p.sprint_distance_m) || 30,
-        rest_seconds: Number(p.rest_seconds) || 30,
+        rest: restSpec,
         intensity: zoneStr,
       });
       // Auto-fill pace (swim) or watts (bike) from the athlete's own
@@ -105,17 +111,13 @@ export function TemplateForm({
       }
       return { rows };
     }
-    const p = params as unknown as PyramidParams;
-    const paceSec = restMode === "ratio" ? parsePaceToSeconds(restPace) : null;
+    const p = params as unknown as Record<string, unknown>;
     const res = generatePyramid({
       start_m: Number(p.start_m) || 200,
       peak_m: Number(p.peak_m) || 800,
       step_m: Number(p.step_m) || 200,
-      rest_seconds: Number(p.rest_seconds) || 60,
+      rest: restSpec,
       double_peak: doublePeak,
-      rest_ratio: paceSec != null ? Number(restRatio) || 1 : undefined,
-      pace_sec_per_unit: paceSec ?? undefined,
-      pace_unit_m: discipline === "Swimming" ? 100 : 1000,
     });
     if (res.warning) toast.warning(res.warning);
     return { rows: res.rows, warning: res.warning };
@@ -128,14 +130,6 @@ export function TemplateForm({
       !confirm("Replace current intervals with newly generated ones?")
     )
       return;
-    if (
-      restMode === "ratio" &&
-      templateType === "pyramid" &&
-      parsePaceToSeconds(restPace) == null
-    ) {
-      toast.error('Enter a valid pace like "4:30" for ratio-based rest');
-      return;
-    }
     setBusy(true);
     try {
       const { rows } = buildRows();
@@ -169,16 +163,18 @@ export function TemplateForm({
 
   return (
     <div className="space-y-2 rounded-md border border-dashed border-border p-2">
-      <div className="flex items-center justify-between">
-        <span className="text-[10px] font-semibold uppercase text-muted-foreground">
-          {templateType === "rsa" ? "RSA template" : "Pyramid template"}
-        </span>
-        {templateGeneratedAt && (
-          <span className="text-[10px] text-muted-foreground">
-            Generated {new Date(templateGeneratedAt).toLocaleString()}
+      {!hideHeader && (
+        <div className="flex items-center justify-between">
+          <span className="text-[10px] font-semibold uppercase text-muted-foreground">
+            {templateType === "rsa" ? "RSA template" : "Pyramid template"}
           </span>
-        )}
-      </div>
+          {templateGeneratedAt && (
+            <span className="text-[10px] text-muted-foreground">
+              Generated {new Date(templateGeneratedAt).toLocaleString()}
+            </span>
+          )}
+        </div>
+      )}
       {templateType === "rsa" ? (
         <div className="grid grid-cols-2 gap-2">
           <Field label="Sprints">
@@ -197,12 +193,12 @@ export function TemplateForm({
               onChange={(e) => set("sprint_distance_m", e.target.value)}
             />
           </Field>
-          <Field label="Rest (s)">
-            <Input
-              className="h-7"
-              type="number"
-              value={String(params.rest_seconds ?? "")}
-              onChange={(e) => set("rest_seconds", e.target.value)}
+          <Field label="Rest">
+            <RestField
+              value={rest}
+              onChange={setRest}
+              valueWidth="flex-1"
+              modeWidth="w-[84px]"
             />
           </Field>
           <Field label="Zone">
@@ -270,50 +266,14 @@ export function TemplateForm({
               Double peak
             </label>
           </div>
-          <div className="col-span-2 flex gap-1 rounded-md border border-border p-1 text-[11px]">
-            {(["seconds", "ratio"] as const).map((m) => (
-              <button
-                key={m}
-                type="button"
-                onClick={() => setRestMode(m)}
-                className={`flex-1 rounded px-2 py-1 ${restMode === m ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
-              >
-                {m === "seconds" ? "Fixed rest" : "Rest ratio"}
-              </button>
-            ))}
-          </div>
-          {restMode === "seconds" ? (
-            <Field label="Rest (s)">
-              <Input
-                className="h-7"
-                type="number"
-                value={String(params.rest_seconds ?? "")}
-                onChange={(e) => set("rest_seconds", e.target.value)}
-              />
-            </Field>
-          ) : (
-            <>
-              <Field
-                label={`Pace (${discipline === "Swimming" ? "/100m" : "/km"})`}
-              >
-                <Input
-                  className="h-7"
-                  placeholder="4:30"
-                  value={restPace}
-                  onChange={(e) => setRestPace(e.target.value)}
-                />
-              </Field>
-              <Field label="Rest ratio (× work time)">
-                <Input
-                  className="h-7"
-                  type="number"
-                  step="0.1"
-                  value={restRatio}
-                  onChange={(e) => setRestRatio(e.target.value)}
-                />
-              </Field>
-            </>
-          )}
+          <Field label="Rest">
+            <RestField
+              value={rest}
+              onChange={setRest}
+              valueWidth="flex-1"
+              modeWidth="w-[84px]"
+            />
+          </Field>
         </div>
       )}
       <div className="flex gap-1">

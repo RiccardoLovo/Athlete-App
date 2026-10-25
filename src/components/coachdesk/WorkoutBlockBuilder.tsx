@@ -1,6 +1,13 @@
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowDown, ArrowUp, Plus, Trash2 } from "lucide-react";
+import {
+  ArrowDown,
+  ArrowUp,
+  ChevronDown,
+  ChevronRight,
+  Plus,
+  Trash2,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -45,6 +52,11 @@ type Block = {
   block_type: BlockType;
   label: string | null;
   target_mode: "distance" | "time" | null;
+  target_unit: "km" | "m" | "min" | "sec" | null;
+  intensity_mode: "zone" | "pace";
+  rest_mode: "seconds" | "ratio";
+  rest_seconds: number | null;
+  rest_ratio: number | null;
   distance_km: number | null;
   duration_min: number | null;
   pace: string | null;
@@ -88,9 +100,18 @@ export function WorkoutBlockBuilder({
 }) {
   const qc = useQueryClient();
   const [localNotes, setLocalNotes] = useState(notes);
+  const [localTags, setLocalTags] = useState<string[]>(tags);
 
   const { data: blocks = [] } = useQuery({
     queryKey: blocksKey(sessionExerciseId),
+    // The app sets staleTime 30s + refetchOnMount:false globally to avoid
+    // refresh flashes. That combination means an invalidation interrupted
+    // by a re-render can leave this list stale with no refetch queued, so
+    // a just-added block wouldn't appear for ages. Keep this list always
+    // fresh; every mutation below also updates the cache optimistically so
+    // the UI never waits on a round trip.
+    staleTime: 0,
+    refetchOnMount: "always",
     queryFn: async () => {
       const { data, error } = await supabase
         .from("workout_blocks")
@@ -110,31 +131,62 @@ export function WorkoutBlockBuilder({
     const nextOrder = blocks.length
       ? Math.max(...blocks.map((b) => b.order_index)) + 1
       : 0;
-    const { error } = await supabase.from("workout_blocks").insert({
-      session_exercise_id: sessionExerciseId,
-      order_index: nextOrder,
-      block_type: type,
-      target_mode:
-        type === "intervals" || type === "pyramid" ? null : "distance",
-      interval_count: type === "intervals" ? 6 : null,
-    } as never);
-    if (error) return toast.error(error.message);
-    invalidate();
+    const { data, error } = await supabase
+      .from("workout_blocks")
+      .insert({
+        session_exercise_id: sessionExerciseId,
+        order_index: nextOrder,
+        block_type: type,
+        target_mode:
+          type === "intervals" || type === "pyramid" ? null : "distance",
+        target_unit:
+          type === "intervals" || type === "pyramid"
+            ? null
+            : discipline === "Swimming"
+              ? "m"
+              : "km",
+        interval_count: type === "intervals" ? 6 : null,
+      } as never)
+      .select("*")
+      .single();
+    if (error || !data) return toast.error(error?.message ?? "Add failed");
+    qc.setQueryData<Block[]>(blocksKey(sessionExerciseId), (prev) => [
+      ...(prev ?? []),
+      data as Block,
+    ]);
     onChanged();
   }
 
   async function deleteBlock(id: string) {
     if (!confirm("Delete this block?")) return;
+    qc.setQueryData<Block[]>(blocksKey(sessionExerciseId), (prev) =>
+      (prev ?? []).filter((b) => b.id !== id),
+    );
     const { error } = await supabase
       .from("workout_blocks")
       .delete()
       .eq("id", id);
-    if (error) return toast.error(error.message);
-    invalidate();
+    if (error) {
+      toast.error(error.message);
+      invalidate();
+      return;
+    }
     onChanged();
   }
 
   async function swapBlocks(a: Block, b: Block) {
+    qc.setQueryData<Block[]>(blocksKey(sessionExerciseId), (prev) =>
+      (prev ?? [])
+        .map((row) =>
+          row.id === a.id
+            ? { ...row, order_index: b.order_index }
+            : row.id === b.id
+              ? { ...row, order_index: a.order_index }
+              : row,
+        )
+        .sort((x, y) => x.order_index - y.order_index),
+    );
+    // Park one row on a temporary index first so the two never collide.
     const tmp = -1 * (Date.now() % 100000);
     await supabase
       .from("workout_blocks")
@@ -148,7 +200,6 @@ export function WorkoutBlockBuilder({
       .from("workout_blocks")
       .update({ order_index: b.order_index } as never)
       .eq("id", a.id);
-    invalidate();
   }
 
   async function saveNotes() {
@@ -162,14 +213,18 @@ export function WorkoutBlockBuilder({
   }
 
   async function toggleTag(tag: string) {
-    const next = tags.includes(tag)
-      ? tags.filter((t) => t !== tag)
-      : [...tags, tag];
+    const next = localTags.includes(tag)
+      ? localTags.filter((t) => t !== tag)
+      : [...localTags, tag];
+    setLocalTags(next);
     const { error } = await supabase
       .from("session_exercises")
       .update({ tags: next } as never)
       .eq("id", sessionExerciseId);
-    if (error) return toast.error(error.message);
+    if (error) {
+      setLocalTags(localTags);
+      return toast.error(error.message);
+    }
     onChanged();
   }
 
@@ -184,24 +239,22 @@ export function WorkoutBlockBuilder({
 
   return (
     <div className="space-y-3">
-      <div>
-        <Label className="text-[10px]">Tags</Label>
-        <div className="mt-1 flex flex-wrap gap-1">
-          {TAGS.map((tag) => (
-            <button
-              key={tag}
-              type="button"
-              onClick={() => toggleTag(tag)}
-              className={`rounded-full border px-2 py-0.5 text-[10px] ${
-                tags.includes(tag)
-                  ? "border-primary bg-primary/10 text-primary"
-                  : "border-border text-muted-foreground"
-              }`}
-            >
-              {tag}
-            </button>
-          ))}
-        </div>
+      <div className="flex flex-wrap items-center gap-1">
+        <Label className="mr-1 text-[10px]">Tags</Label>
+        {TAGS.map((tag) => (
+          <button
+            key={tag}
+            type="button"
+            onClick={() => toggleTag(tag)}
+            className={`rounded-full border px-2 py-0.5 text-[10px] ${
+              localTags.includes(tag)
+                ? "border-primary bg-primary/10 text-primary"
+                : "border-border text-muted-foreground"
+            }`}
+          >
+            {tag}
+          </button>
+        ))}
       </div>
 
       <div className="space-y-2">
@@ -279,50 +332,87 @@ function BlockEditor({
 }) {
   const isGenerated =
     block.block_type === "intervals" || block.block_type === "pyramid";
+  // Only intervals/pyramid collapse — they hold a whole round table, so
+  // they can't fit on one line. Everything else edits inline in its row.
+  const [open, setOpen] = useState(false);
 
-  return (
-    <div className="rounded-md border border-border bg-card p-2">
-      <div className="flex items-center gap-1.5">
-        <span className="rounded border border-border bg-secondary px-1.5 py-0.5 text-[10px] font-medium text-secondary-foreground">
-          {BLOCK_LABELS[block.block_type]}
-        </span>
-        <span className="flex-1" />
-        <button
-          onClick={onSwapUp}
-          disabled={!canUp}
-          className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-30"
-        >
-          <ArrowUp className="h-3.5 w-3.5" />
-        </button>
-        <button
-          onClick={onSwapDown}
-          disabled={!canDown}
-          className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-30"
-        >
-          <ArrowDown className="h-3.5 w-3.5" />
-        </button>
-        <button onClick={onDelete}>
-          <Trash2 className="h-3.5 w-3.5 text-destructive" />
-        </button>
-      </div>
+  const controls = (
+    <>
+      <button
+        onClick={onSwapUp}
+        disabled={!canUp}
+        title="Move up"
+        className="rounded p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-30"
+      >
+        <ArrowUp className="h-3.5 w-3.5" />
+      </button>
+      <button
+        onClick={onSwapDown}
+        disabled={!canDown}
+        title="Move down"
+        className="rounded p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-30"
+      >
+        <ArrowDown className="h-3.5 w-3.5" />
+      </button>
+      <button onClick={onDelete} title="Delete block" className="p-0.5">
+        <Trash2 className="h-3.5 w-3.5 text-destructive" />
+      </button>
+    </>
+  );
 
-      <div className="mt-2">
-        {isGenerated ? (
-          <GeneratedBlockBody
-            block={block}
-            discipline={discipline}
-            clientId={clientId}
-            onChanged={onChanged}
-          />
-        ) : (
+  if (!isGenerated) {
+    return (
+      <div className="rounded border border-border bg-card px-2 py-1.5">
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className="shrink-0 rounded border border-border bg-secondary px-1.5 py-0.5 text-[10px] font-medium text-secondary-foreground">
+            {BLOCK_LABELS[block.block_type]}
+          </span>
           <SimpleBlockBody
             block={block}
             discipline={discipline}
             clientId={clientId}
             onChanged={onChanged}
           />
-        )}
+          <span className="flex-1" />
+          {controls}
+        </div>
       </div>
+    );
+  }
+
+  return (
+    <div className="rounded border border-border bg-card">
+      <div className="flex items-center gap-1.5 px-2 py-1.5">
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          className="flex min-w-0 flex-1 items-center gap-1.5 text-left"
+        >
+          {open ? (
+            <ChevronDown className="h-3 w-3 shrink-0 text-muted-foreground" />
+          ) : (
+            <ChevronRight className="h-3 w-3 shrink-0 text-muted-foreground" />
+          )}
+          <span className="shrink-0 rounded border border-border bg-secondary px-1.5 py-0.5 text-[10px] font-medium text-secondary-foreground">
+            {BLOCK_LABELS[block.block_type]}
+          </span>
+          <span className="truncate text-[11px] text-muted-foreground">
+            {open ? "" : "open to build rounds"}
+          </span>
+        </button>
+        {controls}
+      </div>
+
+      {open && (
+        <div className="border-t border-border px-2 py-2">
+          <GeneratedBlockBody
+            block={block}
+            discipline={discipline}
+            clientId={clientId}
+            onChanged={onChanged}
+          />
+        </div>
+      )}
     </div>
   );
 }
@@ -355,6 +445,7 @@ function GeneratedBlockBody({
         defaults={null}
         hasExistingIntervals={rounds.length > 0}
         templateGeneratedAt={null}
+        hideHeader
         onGenerated={onChanged}
       />
       <IntervalBuilder
@@ -362,6 +453,7 @@ function GeneratedBlockBody({
         workoutBlockId={block.id}
         discipline={discipline}
         clientId={clientId}
+        intensityMode={block.intensity_mode}
       />
     </div>
   );
@@ -378,6 +470,7 @@ function SimpleBlockBody({
   clientId: string | null;
   onChanged: () => void;
 }) {
+  const qc = useQueryClient();
   const [local, setLocal] = useState(block);
   const usesThreshold = discipline === "Swimming" || discipline === "Cycling";
   const { data: ftpWatts } = useLatestThreshold(
@@ -393,6 +486,11 @@ function SimpleBlockBody({
   async function save(patch: Partial<Block>) {
     const next = { ...local, ...patch };
     setLocal(next);
+    // Keep the cached row in step so the collapsed one-line summary above
+    // reflects the edit straight away rather than after a refetch.
+    qc.setQueryData<Block[]>(blocksKey(block.session_exercise_id), (prev) =>
+      (prev ?? []).map((b) => (b.id === block.id ? { ...b, ...patch } : b)),
+    );
     const { error } = await supabase
       .from("workout_blocks")
       .update(patch as never)
@@ -420,145 +518,209 @@ function SimpleBlockBody({
         : `${formatSecondsToPace(swimPctToPaceSec(threshold, local.pct_threshold))}/100m`
       : null;
 
+  // Distance vs Time is chosen first; the unit list then follows from it
+  // (km/m for distance, min/sec for time) and the number is converted so
+  // switching unit never loses what was typed.
+  const isTime = local.target_mode === "time";
+  const unit: "km" | "m" | "min" | "sec" =
+    (local.target_unit as "km" | "m" | "min" | "sec" | null) ??
+    (isTime ? "min" : discipline === "Swimming" ? "m" : "km");
+  const unitOptions = isTime
+    ? (["min", "sec"] as const)
+    : (["km", "m"] as const);
+
+  // Everything is stored canonically (km / minutes); these convert to and
+  // from whatever unit the coach is currently working in.
+  const toDisplay = (): number | "" => {
+    if (isTime) {
+      if (local.duration_min == null) return "";
+      return unit === "sec"
+        ? Math.round(local.duration_min * 60)
+        : local.duration_min;
+    }
+    if (local.distance_km == null) return "";
+    return unit === "m"
+      ? Math.round(local.distance_km * 1000)
+      : local.distance_km;
+  };
+  const shownValue = toDisplay();
+
+  function patchForValue(n: number | null): Partial<Block> {
+    if (isTime)
+      return {
+        duration_min: n == null ? null : unit === "sec" ? n / 60 : n,
+      };
+    return {
+      distance_km: n == null ? null : unit === "m" ? n / 1000 : n,
+    };
+  }
+
+  function saveMode(mode: "distance" | "time") {
+    if (mode === (isTime ? "time" : "distance")) return;
+    save({
+      target_mode: mode,
+      target_unit:
+        mode === "time" ? "min" : discipline === "Swimming" ? "m" : "km",
+      distance_km: null,
+      duration_min: null,
+    });
+  }
+
+  function saveUnit(nextUnit: string) {
+    const current = shownValue;
+    const u = nextUnit as "km" | "m" | "min" | "sec";
+    if (typeof current !== "number") return save({ target_unit: u });
+    // Re-express the same physical value in the newly chosen unit.
+    const canonical =
+      u === "sec"
+        ? { duration_min: current / 60 }
+        : u === "min"
+          ? { duration_min: current }
+          : u === "m"
+            ? { distance_km: current / 1000 }
+            : { distance_km: current };
+    save({ target_unit: u, ...canonical });
+  }
+
+  const secondary = local.intensity_mode === "zone" ? "pace" : "zone";
+
   return (
-    <div className="space-y-2">
+    <>
       {block.block_type === "drill" && (
-        <div>
-          <Label className="text-[10px]">Drill name</Label>
-          <Input
-            className="h-8 text-xs"
-            placeholder="e.g. Catch-up, Single-arm, Fist drill…"
-            value={local.label ?? ""}
-            onChange={(e) => setLocal((p) => ({ ...p, label: e.target.value }))}
-            onBlur={() => save({ label: local.label })}
-          />
-        </div>
+        <Input
+          className="h-7 w-32 text-xs"
+          placeholder="Drill name"
+          title="Drill name"
+          value={local.label ?? ""}
+          onChange={(e) => setLocal((p) => ({ ...p, label: e.target.value }))}
+          onBlur={() => save({ label: local.label })}
+        />
       )}
 
-      <div>
-        <Label className="text-[10px]">Primary target</Label>
-        <div className="flex gap-1">
-          {(["distance", "time"] as const).map((m) => (
-            <button
-              key={m}
-              type="button"
-              onClick={() => save({ target_mode: m })}
-              className={`flex-1 rounded border px-2 py-1 text-[10px] ${local.target_mode === m ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"}`}
-            >
-              {m === "distance" ? "Distance" : "Time"}
-            </button>
+      <Select
+        value={isTime ? "time" : "distance"}
+        onValueChange={(v) => saveMode(v as "distance" | "time")}
+      >
+        <SelectTrigger className="h-7 w-[92px] text-xs" title="Target type">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="distance">Distance</SelectItem>
+          <SelectItem value="time">Time</SelectItem>
+        </SelectContent>
+      </Select>
+
+      <Input
+        className="h-7 w-20 text-xs"
+        type="number"
+        step="0.1"
+        placeholder={isTime ? "Time" : "Distance"}
+        title={isTime ? "Time" : "Distance"}
+        value={shownValue}
+        onChange={(e) =>
+          setLocal((p) => ({
+            ...p,
+            ...patchForValue(
+              e.target.value === "" ? null : Number(e.target.value),
+            ),
+          }))
+        }
+        onBlur={(e) =>
+          save(
+            patchForValue(
+              e.target.value === "" ? null : Number(e.target.value),
+            ),
+          )
+        }
+      />
+
+      <Select value={unit} onValueChange={saveUnit}>
+        <SelectTrigger className="h-7 w-[68px] text-xs" title="Unit">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {unitOptions.map((u) => (
+            <SelectItem key={u} value={u}>
+              {u}
+            </SelectItem>
           ))}
-        </div>
-      </div>
+        </SelectContent>
+      </Select>
 
-      <div className="grid grid-cols-2 gap-1">
-        <div>
-          <Label
-            className={`text-[10px] ${local.target_mode === "distance" ? "font-semibold text-foreground" : "text-muted-foreground"}`}
-          >
-            Distance (km)
-            {local.target_mode === "distance" ? "" : " — secondary"}
-          </Label>
-          <Input
-            className="h-8 text-xs"
-            type="number"
-            step="0.1"
-            value={local.distance_km ?? ""}
-            onChange={(e) =>
-              setLocal((p) => ({
-                ...p,
-                distance_km:
-                  e.target.value === "" ? null : Number(e.target.value),
-              }))
-            }
-            onBlur={() => save({ distance_km: local.distance_km })}
-          />
-        </div>
-        <div>
-          <Label
-            className={`text-[10px] ${local.target_mode === "time" ? "font-semibold text-foreground" : "text-muted-foreground"}`}
-          >
-            Duration (min){local.target_mode === "time" ? "" : " — secondary"}
-          </Label>
-          <Input
-            className="h-8 text-xs"
-            type="number"
-            step="0.5"
-            value={local.duration_min ?? ""}
-            onChange={(e) =>
-              setLocal((p) => ({
-                ...p,
-                duration_min:
-                  e.target.value === "" ? null : Number(e.target.value),
-              }))
-            }
-            onBlur={() => save({ duration_min: local.duration_min })}
-          />
-        </div>
-      </div>
+      <span className="ml-1 text-[10px] text-muted-foreground">Follow</span>
+      <Select
+        value={local.intensity_mode}
+        onValueChange={(v) => save({ intensity_mode: v as "zone" | "pace" })}
+      >
+        <SelectTrigger
+          className="h-7 w-[76px] text-xs"
+          title="Which target the athlete must follow; the other is indicative"
+        >
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="zone">Zone</SelectItem>
+          <SelectItem value="pace">Pace</SelectItem>
+        </SelectContent>
+      </Select>
 
-      <div>
-        <Label className="text-[10px]">Pace</Label>
-        <Input
-          className="h-8 text-xs"
-          placeholder="4:30"
-          value={local.pace ?? ""}
-          onChange={(e) => setLocal((p) => ({ ...p, pace: e.target.value }))}
-          onBlur={() => save({ pace: local.pace })}
-        />
+      <div className={secondary === "zone" ? "opacity-50" : ""}>
+        <Select
+          value={local.zone == null ? "_" : String(local.zone)}
+          onValueChange={(v) =>
+            v === "_" ? save({ zone: null }) : pickZone(Number(v) as ZoneNumber)
+          }
+        >
+          <SelectTrigger
+            className="h-7 w-[68px] text-xs"
+            title={secondary === "zone" ? "Indicative only" : "Zone to follow"}
+          >
+            <SelectValue placeholder="Zone" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="_">—</SelectItem>
+            {ZONES.map((z) => (
+              <SelectItem key={z} value={String(z)}>
+                Z{z}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       {usesThreshold && (
-        <div className="grid grid-cols-2 gap-1">
-          <div>
-            <Label className="text-[10px]">
-              Zone {threshold == null && "(no threshold on file)"}
-            </Label>
-            <Select
-              value={local.zone == null ? "_" : String(local.zone)}
-              onValueChange={(v) =>
-                v === "_"
-                  ? save({ zone: null })
-                  : pickZone(Number(v) as ZoneNumber)
-              }
-            >
-              <SelectTrigger className="h-8 text-xs">
-                <SelectValue placeholder="—" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="_">—</SelectItem>
-                {ZONES.map((z) => (
-                  <SelectItem key={z} value={String(z)}>
-                    Z{z}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <Label className="text-[10px]">
-              Exact % {discipline === "Cycling" ? "FTP" : "CSS"}
-            </Label>
-            <Input
-              className="h-8 text-xs"
-              type="number"
-              value={local.pct_threshold ?? ""}
-              onChange={(e) =>
-                setLocal((p) => ({
-                  ...p,
-                  pct_threshold:
-                    e.target.value === "" ? null : Number(e.target.value),
-                }))
-              }
-              onBlur={() => save({ pct_threshold: local.pct_threshold })}
-            />
-          </div>
-        </div>
+        <Input
+          className={`h-7 w-16 text-xs ${secondary === "zone" ? "opacity-50" : ""}`}
+          type="number"
+          placeholder={discipline === "Cycling" ? "%FTP" : "%CSS"}
+          title={`Exact % of ${discipline === "Cycling" ? "FTP" : "CSS"}`}
+          value={local.pct_threshold ?? ""}
+          onChange={(e) =>
+            setLocal((p) => ({
+              ...p,
+              pct_threshold:
+                e.target.value === "" ? null : Number(e.target.value),
+            }))
+          }
+          onBlur={() => save({ pct_threshold: local.pct_threshold })}
+        />
       )}
+
+      <Input
+        className={`h-7 w-20 text-xs ${secondary === "pace" ? "opacity-50" : ""}`}
+        placeholder={secondary === "pace" ? "~pace" : "Pace"}
+        title={secondary === "pace" ? "Indicative only" : "Pace to follow"}
+        value={local.pace ?? ""}
+        onChange={(e) => setLocal((p) => ({ ...p, pace: e.target.value }))}
+        onBlur={() => save({ pace: local.pace })}
+      />
+
       {resolvedValue && (
-        <p className="text-[10px] text-muted-foreground">= {resolvedValue}</p>
+        <span className="text-[10px] text-muted-foreground">
+          = {resolvedValue}
+        </span>
       )}
-    </div>
+    </>
   );
 }
 

@@ -1,4 +1,5 @@
 import { t } from "./i18n";
+import { restText } from "./rest";
 
 // An exercise's `structure_type` ("intervals" or "template") only means
 // round-by-round UI should render if rounds actually exist for this
@@ -287,6 +288,9 @@ export interface IntervalRoundLike {
   target_value: number | null;
   target_unit: string;
   rest_seconds: number | null;
+  // Rest may instead be a work:rest ratio — see lib/coachdesk/rest.ts.
+  rest_mode?: "seconds" | "ratio" | null;
+  rest_ratio?: number | null;
 }
 
 export interface IntervalRoundDetail extends IntervalRoundLike {
@@ -315,9 +319,10 @@ export function describeIntervalRound(r: IntervalRoundDetail): string {
   if (r.cadence != null) parts.push(`${r.cadence}rpm`);
   if (r.stroke) parts.push(r.stroke);
   if (r.intensity) parts.push(r.intensity);
-  if (r.rest_seconds != null) {
+  const rest = restText(r);
+  if (rest) {
     parts.push(
-      `${r.rest_type === "active" ? "active rest" : "rest"} ${r.rest_seconds}s`,
+      r.rest_type === "active" ? rest.replace("rest ", "active rest ") : rest,
     );
   }
   return parts.join(" · ") || "—";
@@ -332,24 +337,25 @@ export function summarizeIntervals(rows: IntervalRoundLike[]): string {
   type Group = {
     value: number | null;
     unit: string;
-    rest: number | null;
+    rest: string | null;
     count: number;
   };
   const groups: Group[] = [];
   for (const r of rows) {
+    const rest = restText(r);
     const last = groups[groups.length - 1];
     if (
       last &&
       last.value === r.target_value &&
       last.unit === r.target_unit &&
-      last.rest === r.rest_seconds
+      last.rest === rest
     ) {
       last.count++;
     } else {
       groups.push({
         value: r.target_value,
         unit: r.target_unit,
-        rest: r.rest_seconds,
+        rest,
         count: 1,
       });
     }
@@ -359,7 +365,7 @@ export function summarizeIntervals(rows: IntervalRoundLike[]): string {
       const unit = INTERVAL_UNIT_ABBREV[g.unit] ?? g.unit;
       const value = g.value != null ? `${g.value}${unit}` : "?";
       const base = g.count > 1 ? `${g.count} × ${value}` : value;
-      return g.rest != null ? `${base} (rest ${g.rest}s)` : base;
+      return g.rest ? `${base} (${g.rest})` : base;
     })
     .join(" + ");
 }

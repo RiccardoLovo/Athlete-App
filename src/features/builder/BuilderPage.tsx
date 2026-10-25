@@ -46,6 +46,8 @@ import {
   rowToPrescription,
 } from "@/components/coachdesk/PrescriptionForm";
 import { swapExerciseOrder } from "@/components/coachdesk/ExerciseBank";
+import { WorkoutBlockBuilder } from "@/components/coachdesk/WorkoutBlockBuilder";
+import { WorkoutBlockSummary } from "@/components/coachdesk/WorkoutBlockSummary";
 import { t } from "@/lib/coachdesk/i18n";
 import {
   DAYS_OF_WEEK,
@@ -64,7 +66,14 @@ type Exercise = {
   category: string;
   body_region: string | null;
   stroke_default: string | null;
+  is_structured_container: boolean;
 };
+
+const STRUCTURED_DISCIPLINES = new Set<Discipline>([
+  "Running",
+  "Swimming",
+  "Cycling",
+]);
 type SE = {
   id: string;
   session_id: string;
@@ -84,10 +93,16 @@ type SE = {
   tempo: string | null;
   notes: string | null;
   prescription: Record<string, unknown> | null;
+  template_generated_at: string | null;
+  tags: string[];
   exercises: {
     name_en: string;
     discipline: Discipline;
     stroke_default: string | null;
+    structure_type: "simple" | "intervals" | "template";
+    template_type: "rsa" | "pyramid" | null;
+    template_defaults: Record<string, unknown> | null;
+    is_structured_container: boolean;
   };
 };
 
@@ -165,7 +180,12 @@ export function BuilderPage() {
     queryFn: async () => {
       const { data } = await supabase
         .from("session_exercises")
-        .select("*, exercises(name_en, discipline, stroke_default)")
+        // Must stay identical to the select in SessionExercises.tsx: both
+        // share the ["session-exs", sessionId] cache, so a narrower select
+        // here would silently strip fields the other screen depends on.
+        .select(
+          "*, exercises(name_en, discipline, stroke_default, structure_type, template_type, template_defaults, is_structured_container)",
+        )
         .eq("session_id", sessionId)
         .order("order_index");
       return (data ?? []) as unknown as SE[];
@@ -197,12 +217,14 @@ export function BuilderPage() {
   }, [oneRms]);
 
   const { data: bank = [] } = useQuery({
-    queryKey: ["exercises"],
+    // Shares one key + identical select with ExerciseBank — see the note
+    // there on why this can't use the generic ["exercises"] key.
+    queryKey: ["exercise-bank"],
     queryFn: async () => {
       const { data } = await supabase
         .from("exercises")
         .select(
-          "id, name_en, name_it, discipline, category, body_region, stroke_default",
+          "id, name_en, name_it, discipline, category, body_region, stroke_default, is_structured_container",
         )
         .order("name_en");
       return (data ?? []) as unknown as Exercise[];
@@ -212,6 +234,13 @@ export function BuilderPage() {
   const filteredBank = useMemo(() => {
     const q = bankSearch.toLowerCase();
     return bank.filter((e) => {
+      // Running/Swimming/Cycling are built with the structured block
+      // builder now — only the Run/Swim/Bike container is offered.
+      if (
+        STRUCTURED_DISCIPLINES.has(e.discipline) &&
+        !e.is_structured_container
+      )
+        return false;
       if (
         q &&
         !e.name_en.toLowerCase().includes(q) &&
@@ -716,6 +745,7 @@ export function BuilderPage() {
                   defaultExpanded={idx === exs.length - 1 && exs.length <= 2}
                   onChanged={invalidate}
                   oneRmKg={latestRmByEx.get(e.exercise_id) ?? null}
+                  clientId={client?.id ?? null}
                   canMoveUp={idx > 0}
                   canMoveDown={idx < exs.length - 1}
                   onMoveUp={() => moveExercise(idx, -1)}
@@ -740,6 +770,7 @@ function ExerciseCard({
   defaultExpanded,
   onChanged,
   oneRmKg,
+  clientId,
   canMoveUp,
   canMoveDown,
   onMoveUp,
@@ -750,6 +781,7 @@ function ExerciseCard({
   defaultExpanded?: boolean;
   onChanged: () => void;
   oneRmKg: number | null;
+  clientId?: string | null;
   canMoveUp?: boolean;
   canMoveDown?: boolean;
   onMoveUp?: () => void;
@@ -812,8 +844,25 @@ function ExerciseCard({
         </button>
       </div>
       {!expanded ? (
-        <div className="mt-1 truncate text-xs text-muted-foreground">
-          {summary || "—"}
+        se.exercises?.is_structured_container ? (
+          <div className="mt-1">
+            <WorkoutBlockSummary sessionExerciseId={se.id} />
+          </div>
+        ) : (
+          <div className="mt-1 truncate text-xs text-muted-foreground">
+            {summary || "—"}
+          </div>
+        )
+      ) : se.exercises?.is_structured_container ? (
+        <div className="mt-2">
+          <WorkoutBlockBuilder
+            sessionExerciseId={se.id}
+            discipline={discipline}
+            notes={se.notes ?? ""}
+            tags={se.tags ?? []}
+            clientId={clientId ?? null}
+            onChanged={onChanged}
+          />
         </div>
       ) : (
         <div className="mt-2">
@@ -822,8 +871,13 @@ function ExerciseCard({
             discipline={discipline}
             initial={initial}
             oneRmKg={oneRmKg}
+            clientId={clientId ?? null}
             strokeDefault={se.exercises?.stroke_default ?? null}
             onChanged={onChanged}
+            structureType={se.exercises?.structure_type ?? "simple"}
+            templateType={se.exercises?.template_type ?? null}
+            templateDefaults={se.exercises?.template_defaults ?? null}
+            templateGeneratedAt={se.template_generated_at ?? null}
           />
         </div>
       )}

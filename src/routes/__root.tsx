@@ -8,9 +8,10 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
+import { Toaster } from "sonner";
 
 import appCss from "../styles.css?url";
-import { ThemeProvider, themeInitScript } from "../lib/theme";
+import { ThemeProvider, themeInitScript, useTheme } from "../lib/theme";
 import { supabase } from "@/integrations/supabase/client";
 
 function NotFoundComponent() {
@@ -180,7 +181,17 @@ function RootComponent() {
       <ThemeProvider>
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
         <Outlet />
+        <ToasterWithTheme />
       </ThemeProvider>
     </QueryClientProvider>
   );
+}
+
+// toast.success/toast.error calls throughout the app were silently
+// invisible until now — there was no <Toaster /> mounted anywhere, so
+// every success/error notification (including RLS/save failures) never
+// rendered. Wired to the app's own theme so it matches light/dark mode.
+function ToasterWithTheme() {
+  const { resolved } = useTheme();
+  return <Toaster theme={resolved} richColors closeButton />;
 }

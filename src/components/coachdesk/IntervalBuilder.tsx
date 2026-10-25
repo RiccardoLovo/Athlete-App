@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import type { Discipline } from "@/lib/coachdesk/prescription";
 import type { IntervalRowInput } from "@/lib/coachdesk/interval-templates";
+import { RestField } from "@/components/coachdesk/RestField";
 import {
   type ZoneNumber,
   bikeZoneWattsMid,
@@ -154,11 +155,15 @@ export function IntervalBuilder({
   workoutBlockId,
   discipline,
   clientId = null,
+  intensityMode,
 }: {
   sessionExerciseId: string;
   workoutBlockId?: string;
   discipline: Discipline;
   clientId?: string | null;
+  /** Which of Zone/Pace is binding; the other renders as indicative.
+   *  Omitted (legacy per-exercise intervals) = neither is dimmed. */
+  intensityMode?: "zone" | "pace";
 }) {
   const scope: IntervalScope = { sessionExerciseId, workoutBlockId };
   const qc = useQueryClient();
@@ -270,20 +275,22 @@ export function IntervalBuilder({
           <thead className="bg-muted/50 text-[10px] uppercase text-muted-foreground">
             <tr>
               <th className="px-1.5 py-1 text-left w-8">#</th>
-              {cols.label && <th className="px-1.5 py-1 text-left">Label</th>}
               <th className="px-1.5 py-1 text-left">Target</th>
               <th className="px-1.5 py-1 text-left">Unit</th>
-              {cols.pace && <th className="px-1.5 py-1 text-left">Pace</th>}
-              {cols.hrZone && <th className="px-1.5 py-1 text-left">HR</th>}
-              {cols.zone && <th className="px-1.5 py-1 text-left">Zone</th>}
+              {cols.zone && (
+                <th className="px-1.5 py-1 text-left">
+                  Zone{intensityMode === "pace" ? " ~" : ""}
+                </th>
+              )}
+              {cols.pace && (
+                <th className="px-1.5 py-1 text-left">
+                  Pace{intensityMode === "zone" ? " ~" : ""}
+                </th>
+              )}
               {cols.watts && <th className="px-1.5 py-1 text-left">W</th>}
               {cols.cadence && <th className="px-1.5 py-1 text-left">RPM</th>}
               {cols.stroke && <th className="px-1.5 py-1 text-left">Stroke</th>}
-              {cols.intensity && (
-                <th className="px-1.5 py-1 text-left">Int.</th>
-              )}
               <th className="px-1.5 py-1 text-left">Rest</th>
-              <th className="px-1.5 py-1 text-left">Type</th>
               <th className="px-1.5 py-1 w-20" />
             </tr>
           </thead>
@@ -295,6 +302,8 @@ export function IntervalBuilder({
                 index={idx}
                 cols={cols}
                 cssSec={cssSec ?? null}
+                ftpWatts={ftpWatts ?? null}
+                intensityMode={intensityMode}
                 canUp={idx > 0}
                 canDown={idx < rows.length - 1}
                 onSwapUp={() => swap(r, rows[idx - 1])}
@@ -338,65 +347,41 @@ function formatSeconds(s: number): string {
 }
 
 type ColumnFlags = {
-  label: boolean;
   pace: boolean;
-  hrZone: boolean;
   zone: boolean;
   watts: boolean;
   cadence: boolean;
   stroke: boolean;
-  intensity: boolean;
 };
+// Per-round labels ("Build 2", "Peak") and the old HR/intensity/rest-type
+// columns were dropped: the label added noise without meaning, and HR +
+// "intensity" duplicated what Zone already says. Zone and Pace both stay,
+// with intensityMode marking which one is binding.
 function columnsForDiscipline(d: Discipline): ColumnFlags {
   switch (d) {
-    case "Running":
+    case "Cycling":
       return {
-        label: true,
-        pace: true,
-        hrZone: true,
-        zone: false,
-        watts: false,
-        cadence: false,
+        pace: false,
+        zone: true,
+        watts: true,
+        cadence: true,
         stroke: false,
-        intensity: true,
       };
     case "Swimming":
-      // Swimming already has the most columns (pace, HR, stroke, intensity),
-      // and round labels here tend to be generic ("Build 2") rather than
-      // meaningful — drop the column so the rest has room to breathe.
-      // HR zones also aren't the right measure for swim pace — a Zone
-      // picker auto-fills Pace from the athlete's CSS instead.
       return {
-        label: false,
         pace: true,
-        hrZone: false,
         zone: true,
         watts: false,
         cadence: false,
         stroke: true,
-        intensity: false,
-      };
-    case "Cycling":
-      return {
-        label: true,
-        pace: false,
-        hrZone: true,
-        zone: false,
-        watts: true,
-        cadence: true,
-        stroke: false,
-        intensity: true,
       };
     default:
       return {
-        label: true,
         pace: true,
-        hrZone: true,
-        zone: false,
+        zone: true,
         watts: false,
         cadence: false,
         stroke: false,
-        intensity: true,
       };
   }
 }
@@ -406,6 +391,8 @@ function IntervalRowEditor({
   index,
   cols,
   cssSec = null,
+  ftpWatts = null,
+  intensityMode,
   canUp,
   canDown,
   onSwapUp,
@@ -416,6 +403,8 @@ function IntervalRowEditor({
   index: number;
   cols: ColumnFlags;
   cssSec?: number | null;
+  ftpWatts?: number | null;
+  intensityMode?: "zone" | "pace";
   canUp: boolean;
   canDown: boolean;
   onSwapUp: () => void;
@@ -468,6 +457,8 @@ function IntervalRowEditor({
       intensity: next.intensity,
       rest_seconds: next.rest_seconds,
       rest_type: next.rest_type,
+      rest_mode: next.rest_mode ?? "seconds",
+      rest_ratio: next.rest_ratio ?? null,
     };
     const { error } = await supabase
       .from("prescription_intervals")
@@ -528,19 +519,17 @@ function IntervalRowEditor({
     return Number.isFinite(n) ? n : null;
   }
 
+  // The field that is NOT binding renders dimmed with a "~" hint.
+  const secondary =
+    intensityMode === "zone"
+      ? "pace"
+      : intensityMode === "pace"
+        ? "zone"
+        : null;
+
   return (
     <tr className="border-t border-border" onBlur={() => void flush()}>
       <td className="px-1.5 py-1 text-muted-foreground">{index + 1}</td>
-      {cols.label && (
-        <td className="px-1.5 py-1">
-          <Input
-            className="h-7 text-xs"
-            value={local.label ?? ""}
-            placeholder="Label"
-            onChange={(e) => patch({ label: e.target.value || null })}
-          />
-        </td>
-      )}
       <td className="px-1.5 py-1">
         <Input
           className="h-7 text-xs w-20"
@@ -566,75 +555,60 @@ function IntervalRowEditor({
           </SelectContent>
         </Select>
       </td>
-      {cols.pace && (
-        <td className="px-1.5 py-1">
-          <Input
-            className="h-7 text-xs w-20"
-            value={local.pace_per_km ?? ""}
-            placeholder="4:30"
-            onChange={(e) => patch({ pace_per_km: e.target.value || null })}
-          />
-        </td>
-      )}
-      {cols.hrZone && (
-        <td className="px-1.5 py-1">
+      {cols.zone && (
+        <td
+          className={`px-1.5 py-1 ${secondary === "zone" ? "opacity-50" : ""}`}
+        >
           <Select
             value={local.hr_zone == null ? "_" : String(local.hr_zone)}
-            onValueChange={(v) =>
-              patch({ hr_zone: v === "_" ? null : Number(v) })
-            }
-          >
-            <SelectTrigger className="h-7 text-xs w-16">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="_">—</SelectItem>
-              {[1, 2, 3, 4, 5].map((z) => (
-                <SelectItem key={z} value={String(z)}>
-                  Z{z}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </td>
-      )}
-      {cols.zone && (
-        <td className="px-1.5 py-1">
-          <Select
-            value="_"
             onValueChange={(v) => {
-              if (v === "_" || cssSec == null) return;
-              patch({
-                pace_per_km: formatSecondsToPace(
-                  swimZonePaceSec(cssSec, Number(v) as ZoneNumber),
-                ),
-              });
+              if (v === "_") return patch({ hr_zone: null });
+              const z = Number(v) as ZoneNumber;
+              // Picking a zone also fills the indicative pace/watts when the
+              // athlete has a threshold test on file.
+              const extra: Partial<IntervalRow> = {};
+              if (cssSec != null)
+                extra.pace_per_km = formatSecondsToPace(
+                  swimZonePaceSec(cssSec, z),
+                );
+              else if (ftpWatts != null)
+                extra.watts = bikeZoneWattsMid(ftpWatts, z);
+              patch({ hr_zone: z, ...extra });
             }}
           >
             <SelectTrigger
               className="h-7 text-xs w-16"
-              title={
-                cssSec == null
-                  ? "No CSS on file for this athlete"
-                  : "Fill pace from zone"
-              }
+              title={secondary === "zone" ? "Indicative only" : "Zone"}
             >
-              <SelectValue placeholder="Zone" />
+              <SelectValue placeholder="—" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="_" disabled>
-                {cssSec == null ? "No CSS" : "Zone"}
-              </SelectItem>
+              <SelectItem value="_">—</SelectItem>
               {([1, 2, 3, 4, 5] as ZoneNumber[]).map((z) => (
-                <SelectItem key={z} value={String(z)} disabled={cssSec == null}>
+                <SelectItem key={z} value={String(z)}>
                   Z{z}
                   {cssSec != null
                     ? ` · ${formatSecondsToPace(swimZonePaceSec(cssSec, z))}`
-                    : ""}
+                    : ftpWatts != null
+                      ? ` · ${bikeZoneWattsMid(ftpWatts, z)}W`
+                      : ""}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
+        </td>
+      )}
+      {cols.pace && (
+        <td
+          className={`px-1.5 py-1 ${secondary === "pace" ? "opacity-50" : ""}`}
+        >
+          <Input
+            className="h-7 text-xs w-20"
+            value={local.pace_per_km ?? ""}
+            placeholder={secondary === "pace" ? "~4:30" : "4:30"}
+            title={secondary === "pace" ? "Indicative only" : "Pace"}
+            onChange={(e) => patch({ pace_per_km: e.target.value || null })}
+          />
         </td>
       )}
       {cols.watts && (
@@ -677,48 +651,15 @@ function IntervalRowEditor({
           </Select>
         </td>
       )}
-      {cols.intensity && (
-        <td className="px-1.5 py-1">
-          <Select
-            value={local.intensity ?? "_"}
-            onValueChange={(v) => patch({ intensity: v === "_" ? null : v })}
-          >
-            <SelectTrigger className="h-7 text-xs w-24">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="_">—</SelectItem>
-              {["easy", "moderate", "hard", "max"].map((s) => (
-                <SelectItem key={s} value={s}>
-                  {s}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </td>
-      )}
       <td className="px-1.5 py-1">
-        <Input
-          className="h-7 text-xs w-16"
-          type="number"
-          value={local.rest_seconds ?? ""}
-          placeholder="s"
-          onChange={(e) => patch({ rest_seconds: num(e.target.value) })}
+        <RestField
+          value={{
+            rest_mode: local.rest_mode ?? "seconds",
+            rest_seconds: local.rest_seconds,
+            rest_ratio: local.rest_ratio ?? null,
+          }}
+          onChange={(next) => patch(next)}
         />
-      </td>
-      <td className="px-1.5 py-1">
-        <Select
-          value={local.rest_type ?? "passive"}
-          onValueChange={(v) => patch({ rest_type: v as "passive" | "active" })}
-        >
-          <SelectTrigger className="h-7 text-xs w-24">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="passive">Passive</SelectItem>
-            <SelectItem value="active">Active</SelectItem>
-          </SelectContent>
-        </Select>
       </td>
       <td className="px-1.5 py-1">
         <div className="flex items-center justify-end gap-0.5">

@@ -46,7 +46,11 @@ export function ExerciseBank({
   const [filterRegions, setFilterRegions] = useState<Set<string>>(new Set());
 
   const { data: bank = [] } = useQuery({
-    queryKey: ["exercises"],
+    // Deliberately NOT ["exercises"]: that key is shared by several screens
+    // that each select different columns, so whichever loaded first won the
+    // cache — and the ones omitting is_structured_container made every
+    // Run/Swim/Bike row look like a non-container and get filtered away.
+    queryKey: ["exercise-bank"],
     queryFn: async () => {
       const { data } = await supabase
         .from("exercises")

@@ -1,3 +1,5 @@
+import type { RestSpec } from "./rest";
+
 // Pure template generators for interval prescriptions.
 // Each returns an array of row inputs ready to insert into
 // `prescription_intervals`. The caller assigns `session_exercise_id`
@@ -15,6 +17,9 @@ export type IntervalRowInput = {
   intensity: string | null;
   rest_seconds: number | null;
   rest_type: "passive" | "active";
+  // Rest can be a flat number of seconds or a work:rest ratio (1 = 1:1).
+  rest_mode?: "seconds" | "ratio";
+  rest_ratio?: number | null;
 };
 
 function blank(): IntervalRowInput {
@@ -30,13 +35,33 @@ function blank(): IntervalRowInput {
     intensity: null,
     rest_seconds: null,
     rest_type: "passive",
+    rest_mode: "seconds",
+    rest_ratio: null,
   };
+}
+
+/** How rest is expressed for generated rounds: a flat number of seconds,
+ *  or a work:rest ratio (1 = 1:1) stored on each round. */
+export type { RestSpec } from "./rest";
+
+function restFields(rest: RestSpec) {
+  return rest.mode === "ratio"
+    ? {
+        rest_mode: "ratio" as const,
+        rest_ratio: rest.value ?? 1,
+        rest_seconds: null,
+      }
+    : {
+        rest_mode: "seconds" as const,
+        rest_ratio: null,
+        rest_seconds: rest.value,
+      };
 }
 
 export type RsaParams = {
   sprint_count: number;
   sprint_distance_m: number;
-  rest_seconds: number;
+  rest: RestSpec;
   intensity?: string | null;
 };
 
@@ -50,7 +75,13 @@ export function generateRsa(p: RsaParams): IntervalRowInput[] {
       target_value: p.sprint_distance_m,
       target_unit: "meters",
       intensity: p.intensity ?? "max",
-      rest_seconds: i === n - 1 ? null : p.rest_seconds,
+      ...(i === n - 1
+        ? {
+            rest_mode: "seconds" as const,
+            rest_ratio: null,
+            rest_seconds: null,
+          }
+        : restFields(p.rest)),
       rest_type: "passive",
     });
   }
@@ -61,19 +92,9 @@ export type PyramidParams = {
   start_m: number;
   peak_m: number;
   step_m: number;
-  rest_seconds: number;
+  rest: RestSpec;
   /** Repeat the peak step twice before descending. */
   double_peak?: boolean;
-  /**
-   * Ratio-based rest instead of a fixed `rest_seconds`: rest = (time to
-   * cover that round's distance at `pace_sec_per_unit`) × `rest_ratio`.
-   * E.g. pace 4:30/km + rest_ratio 1 = 1:1 work:rest, rest auto-scales
-   * with each round's distance instead of staying fixed.
-   */
-  rest_ratio?: number;
-  pace_sec_per_unit?: number;
-  /** 1000 for pace-per-km (Running/Cycling), 100 for pace-per-100m (Swimming). */
-  pace_unit_m?: number;
 };
 
 export type PyramidResult = {
@@ -82,15 +103,6 @@ export type PyramidResult = {
   effectivePeak: number;
   warning?: string;
 };
-
-function pyramidRestSeconds(p: PyramidParams, distanceM: number): number {
-  if (p.rest_ratio != null && p.pace_sec_per_unit != null) {
-    const unit = p.pace_unit_m || 1000;
-    const workSec = (distanceM / unit) * p.pace_sec_per_unit;
-    return Math.round(workSec * p.rest_ratio);
-  }
-  return p.rest_seconds;
-}
 
 export function generatePyramid(p: PyramidParams): PyramidResult {
   if (!(p.peak_m > p.start_m)) {
@@ -117,7 +129,7 @@ export function generatePyramid(p: PyramidParams): PyramidResult {
       label: i === steps ? "Peak" : `Build ${i + 1}`,
       target_value: dist,
       target_unit: "meters",
-      rest_seconds: pyramidRestSeconds(p, dist),
+      ...restFields(p.rest),
       rest_type: "passive",
     });
     if (i === steps && p.double_peak) {
@@ -126,7 +138,7 @@ export function generatePyramid(p: PyramidParams): PyramidResult {
         label: "Peak 2",
         target_value: dist,
         target_unit: "meters",
-        rest_seconds: pyramidRestSeconds(p, dist),
+        ...restFields(p.rest),
         rest_type: "passive",
       });
     }
@@ -139,12 +151,15 @@ export function generatePyramid(p: PyramidParams): PyramidResult {
       label: `Descend ${steps - i}`,
       target_value: dist,
       target_unit: "meters",
-      rest_seconds: pyramidRestSeconds(p, dist),
+      ...restFields(p.rest),
       rest_type: "passive",
     });
   }
   // Last row no rest
-  if (rows.length) rows[rows.length - 1].rest_seconds = null;
+  if (rows.length) {
+    rows[rows.length - 1].rest_seconds = null;
+    rows[rows.length - 1].rest_ratio = null;
+  }
 
   return { rows, effectivePeak, warning };
 }

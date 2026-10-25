@@ -443,6 +443,8 @@ export type Database = {
           label: string | null;
           order_index: number;
           pace_per_km: string | null;
+          rest_mode: string;
+          rest_ratio: number | null;
           rest_seconds: number | null;
           rest_type: string | null;
           session_exercise_id: string;
@@ -462,6 +464,8 @@ export type Database = {
           label?: string | null;
           order_index: number;
           pace_per_km?: string | null;
+          rest_mode?: string;
+          rest_ratio?: number | null;
           rest_seconds?: number | null;
           rest_type?: string | null;
           session_exercise_id: string;
@@ -481,6 +485,8 @@ export type Database = {
           label?: string | null;
           order_index?: number;
           pace_per_km?: string | null;
+          rest_mode?: string;
+          rest_ratio?: number | null;
           rest_seconds?: number | null;
           rest_type?: string | null;
           session_exercise_id?: string;
@@ -609,6 +615,11 @@ export type Database = {
           block_type: string;
           created_at: string;
           distance_km: number | null;
+          intensity_mode: string;
+          rest_mode: string;
+          rest_ratio: number | null;
+          rest_seconds: number | null;
+          target_unit: string | null;
           double_peak: boolean | null;
           duration_min: number | null;
           id: string;
@@ -626,6 +637,11 @@ export type Database = {
           block_type: string;
           created_at?: string;
           distance_km?: number | null;
+          intensity_mode?: string;
+          rest_mode?: string;
+          rest_ratio?: number | null;
+          rest_seconds?: number | null;
+          target_unit?: string | null;
           double_peak?: boolean | null;
           duration_min?: number | null;
           id?: string;
@@ -643,6 +659,11 @@ export type Database = {
           block_type?: string;
           created_at?: string;
           distance_km?: number | null;
+          intensity_mode?: string;
+          rest_mode?: string;
+          rest_ratio?: number | null;
+          rest_seconds?: number | null;
+          target_unit?: string | null;
           double_peak?: boolean | null;
           duration_min?: number | null;
           id?: string;
