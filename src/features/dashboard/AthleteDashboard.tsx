@@ -843,6 +843,87 @@ const EMPTY_EXFORM: ExForm = {
   intervalActuals: [],
 };
 
+// A workout in progress is held on the device as well as on the server.
+// The server write is debounced and can fail or be frozen mid-flight when
+// the phone backgrounds the app; localStorage is synchronous and survives
+// the tab being killed, so it is the copy that guarantees an athlete never
+// retypes a set. `pendingSave` marks a draft the server has not confirmed:
+// only those are restored, so a finished-and-synced workout is read from
+// the server as before.
+type WorkoutDraft = {
+  v: 1;
+  savedAt: number;
+  pendingSave: boolean;
+  /** Serialized payload of the last server write, to tell whether this
+   *  draft still holds edits the server has not acknowledged. */
+  sig: string;
+  borg: number;
+  overall: string;
+  performedAt: string;
+  forms: Record<string, ExForm>;
+};
+
+function draftKeyFor(sessionId: string, clientId: string) {
+  return `athlete-app:workout-draft:${sessionId}:${clientId}`;
+}
+
+function draftSignature(d: {
+  borg: number;
+  overall: string;
+  performedAt: string;
+  forms: Record<string, ExForm>;
+}) {
+  return JSON.stringify([d.borg, d.overall, d.performedAt, d.forms]);
+}
+
+// Private browsing and blocked site data make every one of these throw,
+// so each is guarded — losing the local copy degrades to the old
+// server-only behaviour rather than breaking the workout screen.
+function readWorkoutDraft(key: string): WorkoutDraft | null {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return null;
+    const d = JSON.parse(raw) as WorkoutDraft;
+    return d && d.v === 1 && d.forms ? d : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeWorkoutDraft(
+  key: string,
+  d: Omit<WorkoutDraft, "v" | "savedAt" | "sig"> & { sig?: string },
+) {
+  try {
+    localStorage.setItem(
+      key,
+      JSON.stringify({
+        v: 1,
+        savedAt: Date.now(),
+        sig: d.sig ?? draftSignature(d),
+        ...d,
+      } satisfies WorkoutDraft),
+    );
+  } catch {
+    /* no local copy available — server autosave still applies */
+  }
+}
+
+/** Mark the draft synced, but only if nothing was typed while the write
+ *  was in flight (otherwise those newer edits must stay restorable). */
+function markWorkoutDraftSaved(key: string, sig: string) {
+  const d = readWorkoutDraft(key);
+  if (!d || d.sig !== sig) return;
+  try {
+    localStorage.setItem(
+      key,
+      JSON.stringify({ ...d, pendingSave: false } satisfies WorkoutDraft),
+    );
+  } catch {
+    /* ignore */
+  }
+}
+
 // Fetch prescribed rounds for every interval-structured exercise in a
 // session, keyed by session_exercise_id, so the athlete can log against
 // the actual round-by-round plan instead of a generic weight/reps grid.
@@ -1178,9 +1259,10 @@ function LogWorkout({
   const [performedAt, setPerformedAt] = useState<string>(session.planned_date);
   const [forms, setForms] = useState<Record<string, ExForm>>({});
   const [finished, setFinished] = useState(false);
-  const [saveState, setSaveState] = useState<"idle" | "saving" | "saved">(
-    "idle",
-  );
+  const [saveState, setSaveState] = useState<
+    "idle" | "saving" | "saved" | "error"
+  >("idle");
+  const draftKey = draftKeyFor(session.id, client.id);
 
   const hydratedRef = useRef(false);
   const skipNextAutoSaveRef = useRef(false);
@@ -1297,11 +1379,28 @@ function LogWorkout({
         intervalActuals,
       };
     }
-    setForms(init);
-    // The state updates above will re-trigger the autosave effect once —
-    // that run is hydration settling, not a real edit, so skip it.
-    skipNextAutoSaveRef.current = true;
+    // A draft the server never acknowledged outranks the server's copy:
+    // it is work the athlete did on this phone that didn't make it out.
+    // Per-exercise, so anything the coach has added since still appears.
+    const draft = readWorkoutDraft(draftKey);
+    const isFinished = !!existingLog && existingLog.status !== "draft";
+    const restoring = !!draft?.pendingSave && !isFinished;
+    if (restoring) {
+      setBorg(draft!.borg);
+      setOverall(draft!.overall);
+      setPerformedAt(draft!.performedAt);
+      setForms({ ...init, ...draft!.forms });
+      toast.info("Restored your unsaved sets from this device");
+    } else {
+      setForms(init);
+    }
+    // The state updates above re-trigger the autosave effect once. When
+    // that run is just hydration settling, skip it — but when we restored
+    // a draft, let it through so the recovered work reaches the server
+    // now rather than waiting for the next keystroke.
+    skipNextAutoSaveRef.current = !restoring;
   }, [
+    draftKey,
     exsData,
     existingLog,
     existingExLogsData,
@@ -1315,6 +1414,9 @@ function LogWorkout({
     silent?: boolean;
   }): Promise<string | null> {
     if (!hydratedRef.current) return null;
+    // Captured before any await, so a later keystroke can't be mistaken
+    // for part of this write when the draft is marked synced.
+    const sig = draftSignature({ borg, overall, performedAt, forms });
     setSaveState("saving");
     try {
       let logId = logIdRef.current;
@@ -1353,10 +1455,6 @@ function LogWorkout({
         logIdRef.current = logId;
         setSavedLogId(logId);
       }
-      await supabase
-        .from("exercise_logs")
-        .delete()
-        .eq("workout_log_id", logId!);
       const rows = exs.map((e: any) => {
         const f = forms[e.id] ?? EMPTY_EXFORM;
         const isIntervals = hasIntervalRounds(
@@ -1386,13 +1484,40 @@ function LogWorkout({
           pace: f.pace.trim() !== "" ? f.pace : null,
         };
       });
+      // Upsert in place rather than delete-then-insert: there must be no
+      // moment where the athlete's logged sets don't exist on the server,
+      // because the phone can freeze this request half-way through.
       if (rows.length) {
-        const { error } = await supabase.from("exercise_logs").insert(rows);
+        const { error } = await supabase.from("exercise_logs").upsert(rows, {
+          onConflict: "workout_log_id,session_exercise_id",
+        });
         if (error) throw error;
       }
+      // Only now drop logs whose exercise is no longer in the session
+      // (the athlete removed it) — never before the write above.
+      const keepIds = exs.map((e) => e.id);
+      let stale = supabase
+        .from("exercise_logs")
+        .delete()
+        .eq("workout_log_id", logId!);
+      if (keepIds.length) {
+        stale = stale.not(
+          "session_exercise_id",
+          "in",
+          `(${keepIds.join(",")})`,
+        );
+      }
+      await stale;
+      markWorkoutDraftSaved(draftKey, sig);
       setSaveState("saved");
       qc.invalidateQueries({ queryKey: ["athlete-week"] });
       if (opts?.finish) {
+        // Synced and finished — the local copy has nothing left to protect.
+        try {
+          localStorage.removeItem(draftKey);
+        } catch {
+          /* ignore */
+        }
         setFinished(true);
         toast.success("Workout finished — nice work 💪");
         qc.invalidateQueries({ queryKey: ["my-past-sessions"] });
@@ -1402,7 +1527,10 @@ function LogWorkout({
       }
       return logId;
     } catch (err: any) {
-      setSaveState("idle");
+      // The local draft still holds this work (pendingSave stays true), so
+      // it is recoverable — but say so instead of showing a blank status,
+      // which previously made a silently failing autosave look fine.
+      setSaveState("error");
       if (!opts?.silent) toast.error(err?.message ?? "Failed to save");
       return null;
     }
@@ -1416,8 +1544,36 @@ function LogWorkout({
       skipNextAutoSaveRef.current = false;
       return;
     }
+    // Durable copy first and synchronously: if the phone kills the tab
+    // before the debounce below fires, this is what brings the sets back.
+    writeWorkoutDraft(draftKey, {
+      pendingSave: true,
+      borg,
+      overall,
+      performedAt,
+      forms,
+    });
     const t = setTimeout(() => void save({ silent: true }), AUTOSAVE_DELAY_MS);
     return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [borg, overall, performedAt, JSON.stringify(forms), draftKey]);
+
+  // Leaving the app is the moment progress used to vanish, so flush on the
+  // way out. pagehide/hidden are the only notifications iOS reliably gives
+  // before freezing a tab, and the draft write above has already run, so
+  // this save is a best-effort head start rather than the safety net.
+  useEffect(() => {
+    function flush() {
+      if (!hydratedRef.current) return;
+      if (document.visibilityState !== "hidden") return;
+      void save({ silent: true });
+    }
+    document.addEventListener("visibilitychange", flush);
+    window.addEventListener("pagehide", flush);
+    return () => {
+      document.removeEventListener("visibilitychange", flush);
+      window.removeEventListener("pagehide", flush);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [borg, overall, performedAt, JSON.stringify(forms)]);
 
@@ -1477,12 +1633,16 @@ function LogWorkout({
           <h1 className="flex-1 text-xl font-bold">
             {session.name || session.day_label}
           </h1>
-          <span className="text-xs text-muted-foreground">
+          <span
+            className={`text-xs ${saveState === "error" ? "font-medium text-destructive" : "text-muted-foreground"}`}
+          >
             {saveState === "saving"
               ? "Saving…"
               : saveState === "saved"
                 ? "Saved"
-                : ""}
+                : saveState === "error"
+                  ? "Not synced — kept on this phone"
+                  : ""}
           </span>
           {finished && (
             <Badge className="bg-foreground text-background">Finished</Badge>
