@@ -482,6 +482,9 @@ export type Database = {
           reps_done: string;
           session_exercise_id: string;
           sets_json: Json | null;
+          swap_note: string | null;
+          swap_reason: string | null;
+          swapped_to_exercise_id: string | null;
           weight_done: string;
           workout_log_id: string;
         };
@@ -495,6 +498,9 @@ export type Database = {
           reps_done?: string;
           session_exercise_id: string;
           sets_json?: Json | null;
+          swap_note?: string | null;
+          swap_reason?: string | null;
+          swapped_to_exercise_id?: string | null;
           weight_done?: string;
           workout_log_id: string;
         };
@@ -508,6 +514,9 @@ export type Database = {
           reps_done?: string;
           session_exercise_id?: string;
           sets_json?: Json | null;
+          swap_note?: string | null;
+          swap_reason?: string | null;
+          swapped_to_exercise_id?: string | null;
           weight_done?: string;
           workout_log_id?: string;
         };
@@ -517,6 +526,13 @@ export type Database = {
             columns: ["session_exercise_id"];
             isOneToOne: false;
             referencedRelation: "session_exercises";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "exercise_logs_swapped_to_exercise_id_fkey";
+            columns: ["swapped_to_exercise_id"];
+            isOneToOne: false;
+            referencedRelation: "exercises";
             referencedColumns: ["id"];
           },
           {
@@ -1185,6 +1201,21 @@ export type Database = {
         Returns: Record<string, unknown>[];
       };
       plan_end_date: { Args: { _plan_id: string }; Returns: string };
+      stress_rank: { Args: { _level: string }; Returns: number };
+      suggest_exercise_swaps: {
+        Args: { _exercise_id: string; _reason: string };
+        Returns: {
+          changed_text: string;
+          dose_text: string;
+          equip_tier: string;
+          exercise_id: string;
+          name: string;
+          same_text: string;
+          skill_level: string;
+          tier: string;
+          video_url: string;
+        }[];
+      };
     };
     Enums: {
       app_role: "coach" | "athlete" | "admin";

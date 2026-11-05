@@ -1,5 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Check, TrendingUp, X } from "lucide-react";
+import { ExerciseVideoButton } from "@/components/coachdesk/ExerciseVideo";
+import { SWAP_REASON_LABEL } from "@/features/dashboard/AthleteDashboard";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -55,7 +57,9 @@ export function FeedbackDetail({
         .single();
       const { data: exs } = await supabase
         .from("exercise_logs")
-        .select("*, session_exercises(*, exercises(id, name_en))")
+        .select(
+          "*, session_exercises(*, exercises(id, name_en)), swapped:exercises!exercise_logs_swapped_to_exercise_id_fkey(id, name_en, video_url)",
+        )
         .eq("workout_log_id", id);
       return { log, exs: exs ?? [] };
     },
@@ -246,6 +250,21 @@ export function FeedbackDetail({
                 <div className="font-semibold">
                   {i + 1}. {se?.exercises?.name_en ?? "Exercise"}
                 </div>
+                {e.swapped && (
+                  <div className="mt-1.5 flex flex-wrap items-center gap-2 rounded-md border border-amber-500/40 bg-amber-500/10 px-2 py-1.5 text-xs">
+                    <span className="font-medium">
+                      Did {e.swapped.name_en} instead
+                    </span>
+                    <span className="text-muted-foreground">
+                      ({SWAP_REASON_LABEL[e.swap_reason] ?? e.swap_reason})
+                    </span>
+                    <ExerciseVideoButton
+                      url={e.swapped.video_url}
+                      name={e.swapped.name_en}
+                      size="label"
+                    />
+                  </div>
+                )}
                 <div className="mt-2 grid grid-cols-3 gap-3 text-sm">
                   <div>
                     <div className="text-xs text-muted-foreground">

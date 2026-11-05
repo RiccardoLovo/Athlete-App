@@ -45,6 +45,11 @@ import {
 } from "@/lib/coachdesk/periodization";
 import { getEmbedUrl } from "@/lib/coachdesk/video";
 import {
+  SwapButton,
+  SwapExerciseDialog,
+  type SwapChoice,
+} from "@/components/coachdesk/SwapExerciseDialog";
+import {
   DISCIPLINES as EXERCISE_DISCIPLINES,
   DISCIPLINE_ICON,
   describeIntervalRound,
@@ -833,7 +838,21 @@ type ExForm = {
   duration: string;
   pace: string;
   intervalActuals: string[];
+  /** Set when the athlete did something else instead. The prescription is
+   *  untouched; this rides along with the log. */
+  swap: SwapChoice | null;
 };
+export const SWAP_REASON_LABEL: Record<string, string> = {
+  equipment: "equipment taken",
+  space: "no space",
+  harder: "too hard today",
+  lumbar: "lower back",
+  knee: "knee",
+  achilles: "achilles or calf",
+  shoulder: "shoulder",
+  elbow: "elbow",
+};
+
 const EMPTY_EXFORM: ExForm = {
   sets: [],
   notes: "",
@@ -841,6 +860,7 @@ const EMPTY_EXFORM: ExForm = {
   duration: "",
   pace: "",
   intervalActuals: [],
+  swap: null,
 };
 
 // A workout in progress is held on the device as well as on the server.
@@ -1246,7 +1266,7 @@ function LogWorkout({
       const { data } = await supabase
         .from("exercise_logs")
         .select(
-          "id, session_exercise_id, weight_done, reps_done, notes, sets_json, distance_km, duration_min, pace",
+          "id, session_exercise_id, weight_done, reps_done, notes, sets_json, distance_km, duration_min, pace, swapped_to_exercise_id, swap_reason, swapped:exercises!exercise_logs_swapped_to_exercise_id_fkey(name_en)",
         )
         .eq("workout_log_id", existingLog!.id);
       return (data ?? []) as any[];
@@ -1270,6 +1290,11 @@ function LogWorkout({
   const [savedLogId, setSavedLogId] = useState<string | null>(null);
   const [watchUrl, setWatchUrl] = useState<string | null>(null);
   const [showAddExercise, setShowAddExercise] = useState(false);
+  const [swapFor, setSwapFor] = useState<{
+    id: string;
+    exerciseId: string;
+    name: string;
+  } | null>(null);
 
   function watchVideo(url: string) {
     const embed = getEmbedUrl(url);
@@ -1371,6 +1396,14 @@ function LogWorkout({
       });
 
       init[e.id] = {
+        swap:
+          el?.swapped_to_exercise_id && el?.swap_reason
+            ? {
+                exerciseId: el.swapped_to_exercise_id,
+                name: el.swapped?.name_en ?? "Another exercise",
+                reason: el.swap_reason,
+              }
+            : null,
         sets,
         notes: el?.notes ?? "",
         distance,
@@ -1482,6 +1515,8 @@ function LogWorkout({
           distance_km: distanceKm,
           duration_min: f.duration.trim() !== "" ? Number(f.duration) : null,
           pace: f.pace.trim() !== "" ? f.pace : null,
+          swapped_to_exercise_id: f.swap?.exerciseId ?? null,
+          swap_reason: f.swap?.reason ?? null,
         };
       });
       // Upsert in place rather than delete-then-insert: there must be no
@@ -1726,6 +1761,17 @@ function LogWorkout({
                       <PlayCircle className="h-4 w-4" />
                     </Button>
                   )}
+                  {!finished && e.exercise_id && (
+                    <SwapButton
+                      onClick={() =>
+                        setSwapFor({
+                          id: e.id,
+                          exerciseId: e.exercise_id,
+                          name: e.exercises?.name_en ?? "this exercise",
+                        })
+                      }
+                    />
+                  )}
                 </div>
                 {e.added_by_client && (
                   <Button
@@ -1739,6 +1785,28 @@ function LogWorkout({
                   </Button>
                 )}
               </div>
+              {forms[e.id]?.swap && (
+                <div className="mt-1 flex flex-wrap items-center gap-2 rounded-md border border-amber-500/40 bg-amber-500/10 px-2 py-1.5 text-xs">
+                  <span className="font-medium">
+                    Swapped for {forms[e.id]!.swap!.name}
+                  </span>
+                  <span className="text-muted-foreground">
+                    ({SWAP_REASON_LABEL[forms[e.id]!.swap!.reason]})
+                  </span>
+                  <button
+                    type="button"
+                    className="ml-auto underline underline-offset-2"
+                    onClick={() =>
+                      setForms((f) => ({
+                        ...f,
+                        [e.id]: { ...(f[e.id] ?? EMPTY_EXFORM), swap: null },
+                      }))
+                    }
+                  >
+                    Undo
+                  </button>
+                </div>
+              )}
               {summary && (
                 <p className="mt-0.5 text-xs text-muted-foreground">
                   {summary}
@@ -2010,6 +2078,26 @@ function LogWorkout({
           )}
         </DialogContent>
       </Dialog>
+
+      {swapFor && (
+        <SwapExerciseDialog
+          open
+          onOpenChange={(o) => !o && setSwapFor(null)}
+          exerciseId={swapFor.exerciseId}
+          exerciseName={swapFor.name}
+          onChoose={(choice) => {
+            setForms((f) => ({
+              ...f,
+              [swapFor.id]: {
+                ...(f[swapFor.id] ?? EMPTY_EXFORM),
+                swap: choice,
+              },
+            }));
+            setSwapFor(null);
+            toast.success(`Swapped to ${choice.name}`);
+          }}
+        />
+      )}
 
       <AddExerciseDialog
         open={showAddExercise}
