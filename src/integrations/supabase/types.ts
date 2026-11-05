@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.5";
+    PostgrestVersion: "14.18";
   };
   public: {
     Tables: {
@@ -57,6 +57,13 @@ export type Database = {
             columns: ["client_id"];
             isOneToOne: false;
             referencedRelation: "clients";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "client_attachments_workout_log_id_fkey";
+            columns: ["workout_log_id"];
+            isOneToOne: false;
+            referencedRelation: "workout_logs";
             referencedColumns: ["id"];
           },
         ];
@@ -106,44 +113,6 @@ export type Database = {
           },
         ];
       };
-      client_threshold_tests: {
-        Row: {
-          client_id: string;
-          coach_id: string;
-          created_at: string;
-          id: string;
-          metric: string;
-          tested_date: string;
-          value: number;
-        };
-        Insert: {
-          client_id: string;
-          coach_id: string;
-          created_at?: string;
-          id?: string;
-          metric: string;
-          tested_date?: string;
-          value: number;
-        };
-        Update: {
-          client_id?: string;
-          coach_id?: string;
-          created_at?: string;
-          id?: string;
-          metric?: string;
-          tested_date?: string;
-          value?: number;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "client_threshold_tests_client_id_fkey";
-            columns: ["client_id"];
-            isOneToOne: false;
-            referencedRelation: "clients";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
       client_invites: {
         Row: {
           client_id: string;
@@ -185,6 +154,44 @@ export type Database = {
             columns: ["coach_id"];
             isOneToOne: false;
             referencedRelation: "coaches";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      client_threshold_tests: {
+        Row: {
+          client_id: string;
+          coach_id: string;
+          created_at: string;
+          id: string;
+          metric: string;
+          tested_date: string;
+          value: number;
+        };
+        Insert: {
+          client_id: string;
+          coach_id: string;
+          created_at?: string;
+          id?: string;
+          metric: string;
+          tested_date?: string;
+          value: number;
+        };
+        Update: {
+          client_id?: string;
+          coach_id?: string;
+          created_at?: string;
+          id?: string;
+          metric?: string;
+          tested_date?: string;
+          value?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "client_threshold_tests_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "clients";
             referencedColumns: ["id"];
           },
         ];
@@ -301,6 +308,169 @@ export type Database = {
         };
         Relationships: [];
       };
+      exercise_annotation_flags: {
+        Row: {
+          created_at: string;
+          exercise_id: string;
+          field: string;
+          id: string;
+          kind: string;
+          note: string;
+        };
+        Insert: {
+          created_at?: string;
+          exercise_id: string;
+          field: string;
+          id?: string;
+          kind: string;
+          note: string;
+        };
+        Update: {
+          created_at?: string;
+          exercise_id?: string;
+          field?: string;
+          id?: string;
+          kind?: string;
+          note?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "exercise_annotation_flags_exercise_id_fkey";
+            columns: ["exercise_id"];
+            isOneToOne: false;
+            referencedRelation: "exercises";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      exercise_annotations: {
+        Row: {
+          admissible_intents: string[];
+          agonists: string[];
+          block: string;
+          created_at: string;
+          cues: string[];
+          dose_window: string;
+          equip_tier: string;
+          equipment: string[];
+          exercise_id: string;
+          family: string;
+          ground_contact: string | null;
+          joint_actions: string[];
+          length_bias: string | null;
+          modifiers: string[];
+          movement_pattern: string;
+          per_side: boolean;
+          plane: string;
+          position_note: string;
+          resistance_note: string | null;
+          skill_level: string;
+          space_required: string | null;
+          ssc: string;
+          stabilizers: string[];
+          stance: string;
+          stress_achilles: string;
+          stress_axial: string;
+          stress_elbow: string;
+          stress_flexion: string;
+          stress_impact: string;
+          stress_knee: string;
+          stress_landing: string;
+          stress_shoulder: string;
+          synergists: string[];
+          updated_at: string;
+          velocity: string | null;
+          video_source: string | null;
+          video_verified_at: string | null;
+        };
+        Insert: {
+          admissible_intents?: string[];
+          agonists?: string[];
+          block: string;
+          created_at?: string;
+          cues?: string[];
+          dose_window: string;
+          equip_tier: string;
+          equipment?: string[];
+          exercise_id: string;
+          family: string;
+          ground_contact?: string | null;
+          joint_actions?: string[];
+          length_bias?: string | null;
+          modifiers?: string[];
+          movement_pattern: string;
+          per_side?: boolean;
+          plane: string;
+          position_note: string;
+          resistance_note?: string | null;
+          skill_level: string;
+          space_required?: string | null;
+          ssc: string;
+          stabilizers?: string[];
+          stance: string;
+          stress_achilles: string;
+          stress_axial: string;
+          stress_elbow: string;
+          stress_flexion: string;
+          stress_impact: string;
+          stress_knee: string;
+          stress_landing: string;
+          stress_shoulder: string;
+          synergists?: string[];
+          updated_at?: string;
+          velocity?: string | null;
+          video_source?: string | null;
+          video_verified_at?: string | null;
+        };
+        Update: {
+          admissible_intents?: string[];
+          agonists?: string[];
+          block?: string;
+          created_at?: string;
+          cues?: string[];
+          dose_window?: string;
+          equip_tier?: string;
+          equipment?: string[];
+          exercise_id?: string;
+          family?: string;
+          ground_contact?: string | null;
+          joint_actions?: string[];
+          length_bias?: string | null;
+          modifiers?: string[];
+          movement_pattern?: string;
+          per_side?: boolean;
+          plane?: string;
+          position_note?: string;
+          resistance_note?: string | null;
+          skill_level?: string;
+          space_required?: string | null;
+          ssc?: string;
+          stabilizers?: string[];
+          stance?: string;
+          stress_achilles?: string;
+          stress_axial?: string;
+          stress_elbow?: string;
+          stress_flexion?: string;
+          stress_impact?: string;
+          stress_knee?: string;
+          stress_landing?: string;
+          stress_shoulder?: string;
+          synergists?: string[];
+          updated_at?: string;
+          velocity?: string | null;
+          video_source?: string | null;
+          video_verified_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "exercise_annotations_exercise_id_fkey";
+            columns: ["exercise_id"];
+            isOneToOne: true;
+            referencedRelation: "exercises";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       exercise_logs: {
         Row: {
           created_at: string;
@@ -358,9 +528,58 @@ export type Database = {
           },
         ];
       };
+      exercise_swaps: {
+        Row: {
+          changed_text: string;
+          created_at: string;
+          dose_text: string;
+          from_exercise_id: string;
+          id: string;
+          reason: string;
+          same_text: string;
+          to_exercise_id: string;
+        };
+        Insert: {
+          changed_text: string;
+          created_at?: string;
+          dose_text: string;
+          from_exercise_id: string;
+          id?: string;
+          reason: string;
+          same_text: string;
+          to_exercise_id: string;
+        };
+        Update: {
+          changed_text?: string;
+          created_at?: string;
+          dose_text?: string;
+          from_exercise_id?: string;
+          id?: string;
+          reason?: string;
+          same_text?: string;
+          to_exercise_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "exercise_swaps_from_exercise_id_fkey";
+            columns: ["from_exercise_id"];
+            isOneToOne: false;
+            referencedRelation: "exercises";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "exercise_swaps_to_exercise_id_fkey";
+            columns: ["to_exercise_id"];
+            isOneToOne: false;
+            referencedRelation: "exercises";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       exercises: {
         Row: {
           added_by_athlete: boolean;
+          bank_id: string | null;
           body_region: string | null;
           category: string;
           created_at: string;
@@ -385,6 +604,7 @@ export type Database = {
         };
         Insert: {
           added_by_athlete?: boolean;
+          bank_id?: string | null;
           body_region?: string | null;
           category: string;
           created_at?: string;
@@ -409,6 +629,7 @@ export type Database = {
         };
         Update: {
           added_by_athlete?: boolean;
+          bank_id?: string | null;
           body_region?: string | null;
           category?: string;
           created_at?: string;
@@ -610,83 +831,6 @@ export type Database = {
           },
         ];
       };
-      workout_blocks: {
-        Row: {
-          block_type: string;
-          created_at: string;
-          distance_km: number | null;
-          intensity_mode: string;
-          rest_mode: string;
-          rest_ratio: number | null;
-          rest_seconds: number | null;
-          target_unit: string | null;
-          double_peak: boolean | null;
-          duration_min: number | null;
-          id: string;
-          interval_count: number | null;
-          label: string | null;
-          notes: string | null;
-          order_index: number;
-          pace: string | null;
-          pct_threshold: number | null;
-          session_exercise_id: string;
-          target_mode: string | null;
-          zone: number | null;
-        };
-        Insert: {
-          block_type: string;
-          created_at?: string;
-          distance_km?: number | null;
-          intensity_mode?: string;
-          rest_mode?: string;
-          rest_ratio?: number | null;
-          rest_seconds?: number | null;
-          target_unit?: string | null;
-          double_peak?: boolean | null;
-          duration_min?: number | null;
-          id?: string;
-          interval_count?: number | null;
-          label?: string | null;
-          notes?: string | null;
-          order_index: number;
-          pace?: string | null;
-          pct_threshold?: number | null;
-          session_exercise_id: string;
-          target_mode?: string | null;
-          zone?: number | null;
-        };
-        Update: {
-          block_type?: string;
-          created_at?: string;
-          distance_km?: number | null;
-          intensity_mode?: string;
-          rest_mode?: string;
-          rest_ratio?: number | null;
-          rest_seconds?: number | null;
-          target_unit?: string | null;
-          double_peak?: boolean | null;
-          duration_min?: number | null;
-          id?: string;
-          interval_count?: number | null;
-          label?: string | null;
-          notes?: string | null;
-          order_index?: number;
-          pace?: string | null;
-          pct_threshold?: number | null;
-          session_exercise_id?: string;
-          target_mode?: string | null;
-          zone?: number | null;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "workout_blocks_session_exercise_id_fkey";
-            columns: ["session_exercise_id"];
-            isOneToOne: false;
-            referencedRelation: "session_exercises";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
       sessions: {
         Row: {
           block_id: string;
@@ -855,6 +999,83 @@ export type Database = {
         };
         Relationships: [];
       };
+      workout_blocks: {
+        Row: {
+          block_type: string;
+          created_at: string;
+          distance_km: number | null;
+          double_peak: boolean | null;
+          duration_min: number | null;
+          id: string;
+          intensity_mode: string;
+          interval_count: number | null;
+          label: string | null;
+          notes: string | null;
+          order_index: number;
+          pace: string | null;
+          pct_threshold: number | null;
+          rest_mode: string;
+          rest_ratio: number | null;
+          rest_seconds: number | null;
+          session_exercise_id: string;
+          target_mode: string | null;
+          target_unit: string | null;
+          zone: number | null;
+        };
+        Insert: {
+          block_type: string;
+          created_at?: string;
+          distance_km?: number | null;
+          double_peak?: boolean | null;
+          duration_min?: number | null;
+          id?: string;
+          intensity_mode?: string;
+          interval_count?: number | null;
+          label?: string | null;
+          notes?: string | null;
+          order_index: number;
+          pace?: string | null;
+          pct_threshold?: number | null;
+          rest_mode?: string;
+          rest_ratio?: number | null;
+          rest_seconds?: number | null;
+          session_exercise_id: string;
+          target_mode?: string | null;
+          target_unit?: string | null;
+          zone?: number | null;
+        };
+        Update: {
+          block_type?: string;
+          created_at?: string;
+          distance_km?: number | null;
+          double_peak?: boolean | null;
+          duration_min?: number | null;
+          id?: string;
+          intensity_mode?: string;
+          interval_count?: number | null;
+          label?: string | null;
+          notes?: string | null;
+          order_index?: number;
+          pace?: string | null;
+          pct_threshold?: number | null;
+          rest_mode?: string;
+          rest_ratio?: number | null;
+          rest_seconds?: number | null;
+          session_exercise_id?: string;
+          target_mode?: string | null;
+          target_unit?: string | null;
+          zone?: number | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "workout_blocks_session_exercise_id_fkey";
+            columns: ["session_exercise_id"];
+            isOneToOne: false;
+            referencedRelation: "session_exercises";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       workout_logs: {
         Row: {
           borg_scale: number;
@@ -918,11 +1139,19 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      athlete_owns_session_exercise: {
+        Args: { _se_id: string };
+        Returns: boolean;
+      };
       can_manage_session_exercise: {
         Args: { _se_id: string };
         Returns: boolean;
       };
       can_view_session_exercise: { Args: { _se_id: string }; Returns: boolean };
+      coach_owns_session_exercise: {
+        Args: { _se_id: string };
+        Returns: boolean;
+      };
       copy_week: {
         Args: {
           _source_block_id: string;
