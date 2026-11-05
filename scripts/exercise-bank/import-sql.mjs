@@ -96,6 +96,16 @@ UPDATE public.exercises e
    AND lower(regexp_replace(e.name_en, '[^a-zA-Z0-9]', '', 'g')) = b.norm_name;`);
 
 out.push(`
+-- 1b. A linked row that has no video of its own gets the bank's verified one.
+--     An existing video_url is never overwritten — the coach may have chosen it.
+UPDATE public.exercises e
+   SET video_url = b.video_url
+  FROM bank_import b
+ WHERE e.bank_id = b.bank_id
+   AND e.video_url IS NULL
+   AND b.video_url IS NOT NULL;`);
+
+out.push(`
 -- 2. Insert the rest.
 INSERT INTO public.exercises
   (name_en, name_it, discipline, category, body_region, muscle_group,

@@ -22,8 +22,10 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import type { Discipline } from "@/lib/coachdesk/prescription";
+import { restText } from "@/lib/coachdesk/rest";
 import {
   IntervalBuilder,
+  type IntervalRow,
   intervalsQuery,
   useLatestThreshold,
 } from "./IntervalBuilder";
@@ -309,6 +311,67 @@ export function WorkoutBlockBuilder({
   );
 }
 
+const EMPTY_ROUNDS: IntervalRow[] = [];
+
+const ROUND_UNIT: Record<string, string> = {
+  meters: "m",
+  seconds: "s",
+  minutes: "min",
+};
+
+/**
+ * Collapsed view of an intervals/pyramid block: one line per round, with the
+ * rest that follows it on its own line between them. Collapsing a block should
+ * still show the coach what the block actually is — a count was not enough.
+ */
+function CollapsedRounds({ rounds }: { rounds: IntervalRow[] }) {
+  if (!rounds.length) return null;
+
+  return (
+    <ol className="m-0 list-none space-y-0.5 border-t border-border px-2 py-1.5">
+      {rounds.map((r, i) => {
+        const unit = ROUND_UNIT[r.target_unit] ?? r.target_unit;
+        const target =
+          r.target_value != null ? `${r.target_value}${unit}` : "—";
+        const zone =
+          r.intensity || (r.hr_zone != null ? `Z${r.hr_zone}` : null);
+        const effort =
+          r.pace_per_km ||
+          (r.watts != null ? `${r.watts}W` : null) ||
+          (r.cadence != null ? `${r.cadence}rpm` : null);
+        const rest = restText(r);
+        return (
+          <li key={r.id}>
+            <div className="flex items-baseline gap-2 text-[11px]">
+              <span className="w-4 shrink-0 text-right tabular-nums text-muted-foreground">
+                {i + 1}
+              </span>
+              <span className="font-medium text-foreground">{target}</span>
+              {r.stroke && (
+                <span className="text-muted-foreground">{r.stroke}</span>
+              )}
+              {zone && <span className="text-foreground">{zone}</span>}
+              {effort && (
+                <span className="text-muted-foreground">{effort}</span>
+              )}
+            </div>
+            {rest && (
+              <div className="flex items-baseline gap-2 text-[11px] text-muted-foreground">
+                <span className="w-4 shrink-0" />
+                <span className="italic">
+                  {r.rest_type === "active"
+                    ? rest.replace("rest ", "active rest ")
+                    : rest}
+                </span>
+              </div>
+            )}
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
 function BlockEditor({
   block,
   discipline,
@@ -335,6 +398,17 @@ function BlockEditor({
   // Only intervals/pyramid collapse — they hold a whole round table, so
   // they can't fit on one line. Everything else edits inline in its row.
   const [open, setOpen] = useState(false);
+
+  // Fetched here rather than inside the collapsed list so the header can say
+  // "open to build rounds" only when there genuinely are none yet.
+  const { data: rounds = EMPTY_ROUNDS } = useQuery({
+    ...intervalsQuery({
+      sessionExerciseId: block.session_exercise_id,
+      workoutBlockId: block.id,
+    }),
+    enabled: isGenerated,
+  });
+  const hasRounds = rounds.length > 0;
 
   const controls = (
     <>
@@ -397,11 +471,13 @@ function BlockEditor({
             {BLOCK_LABELS[block.block_type]}
           </span>
           <span className="truncate text-[11px] text-muted-foreground">
-            {open ? "" : "open to build rounds"}
+            {open ? "" : hasRounds ? "" : "open to build rounds"}
           </span>
         </button>
         {controls}
       </div>
+
+      {!open && <CollapsedRounds rounds={rounds} />}
 
       {open && (
         <div className="border-t border-border px-2 py-2">

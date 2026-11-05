@@ -10,6 +10,7 @@ import {
   Download,
   Upload,
 } from "lucide-react";
+import { ExerciseVideoButton } from "@/components/coachdesk/ExerciseVideo";
 import { supabase } from "@/integrations/supabase/client";
 import {
   exercisesToCsv,
@@ -424,6 +425,11 @@ export function ExercisesPage() {
               <div className="flex-1 min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
                   <h3 className="font-semibold">{e.name_en}</h3>
+                  <ExerciseVideoButton
+                    url={e.video_url}
+                    name={e.name_en}
+                    size="label"
+                  />
                   <span className="text-xs text-muted-foreground italic">
                     {e.name_it}
                   </span>

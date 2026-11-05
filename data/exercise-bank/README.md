@@ -28,7 +28,23 @@ python3 -m venv .venv
 
 node ../../scripts/exercise-bank/audit.mjs        # gate: must exit 0
 node ../../scripts/exercise-bank/build-artifact.mjs
+
+# push the bank into Postgres (idempotent; safe to re-run after any edit)
+node ../../scripts/exercise-bank/import-sql.mjs > /tmp/import.sql
+supabase db query --linked -f /tmp/import.sql
 ```
+
+## Check the videos periodically
+
+```sh
+node ../../scripts/exercise-bank/verify-videos.mjs           # report
+node ../../scripts/exercise-bank/verify-videos.mjs --strict  # exit 1 on problems
+```
+
+Link rot is silent: a clip that goes private leaves an athlete staring at a
+dead player with no error raised anywhere. This re-checks every video against
+YouTube's oEmbed endpoint — still public, still the same channel, still a
+title consistent with the exercise — and names anything that drifted.
 
 Edit the JSON **or** the workbook, never both. Multi-value cells are
 pipe-delimited (` | `), not comma-delimited, because the values contain

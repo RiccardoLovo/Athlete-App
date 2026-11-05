@@ -184,7 +184,14 @@
         "id": "HvH5WZk0f90",
         "author": "Training & Testing"
       },
-      "block": "09-run-mechanics"
+      "block": "09-run-mechanics",
+      "flags": [
+        {
+          "field": "video",
+          "kind": "unverified",
+          "text": "Shares the ABC drill sequence clip with the straight-leg run and butt kicks. The sequence covers it, but it is not isolated — a dedicated clip would coach better."
+        }
+      ]
     },
     {
       "id": "high-knees",

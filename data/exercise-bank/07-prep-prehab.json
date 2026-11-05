@@ -1271,7 +1271,14 @@
         "id": "9EAPua7siUs",
         "author": "Dr. Daniel Birch"
       },
-      "block": "07-prep-prehab"
+      "block": "07-prep-prehab",
+      "flags": [
+        {
+          "field": "video",
+          "kind": "unverified",
+          "text": "Shares a general lower-leg variations clip with the single-leg raise and the tibialis raise rather than having a dedicated demonstration. The clip covers it, but an athlete following along alone has to find the right segment."
+        }
+      ]
     },
     {
       "id": "seated-calf-raise",

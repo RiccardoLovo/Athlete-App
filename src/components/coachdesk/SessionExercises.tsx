@@ -9,6 +9,7 @@ import {
   ArrowUp,
   ArrowDown,
 } from "lucide-react";
+import { ExerciseVideoButton } from "@/components/coachdesk/ExerciseVideo";
 import { supabase } from "@/integrations/supabase/client";
 import {
   type Discipline,
@@ -57,6 +58,7 @@ type SE = {
     template_type: "rsa" | "pyramid" | null;
     template_defaults: Record<string, unknown> | null;
     is_structured_container: boolean;
+    video_url: string | null;
   };
 };
 
@@ -77,7 +79,7 @@ export function SessionExercises({
       const { data } = await supabase
         .from("session_exercises")
         .select(
-          "*, exercises(name_en, discipline, stroke_default, structure_type, template_type, template_defaults, is_structured_container)",
+          "*, exercises(name_en, discipline, stroke_default, structure_type, template_type, template_defaults, is_structured_container, video_url)",
         )
         .eq("session_id", sessionId)
         .order("order_index");
@@ -323,6 +325,10 @@ export function ExerciseCard({
         <span className="flex-1 truncate text-xs font-semibold">
           {se.exercises?.name_en}
         </span>
+        <ExerciseVideoButton
+          url={se.exercises?.video_url}
+          name={se.exercises?.name_en}
+        />
         <button
           onClick={onMoveUp}
           disabled={!canMoveUp}
