@@ -1,0 +1,623 @@
+{
+  "block": "09-run-mechanics",
+  "title": "Running mechanics drills",
+  "reviewed": false,
+  "clinical_signoff": null,
+  "updated": "2026-10-27",
+  "vocab": {
+    "ssc": [
+      {
+        "id": "none",
+        "label": "No SSC",
+        "definition": "Dead start or paused. No elastic contribution; force comes from rate of development alone."
+      },
+      {
+        "id": "slow",
+        "label": "Slow SSC",
+        "definition": "Contact > 250 ms, large joint displacement. Countermovement assists the jump."
+      },
+      {
+        "id": "fast",
+        "label": "Fast SSC",
+        "definition": "Contact < 250 ms, small displacement. Trains tendon stiffness and reactive strength."
+      },
+      {
+        "id": "ecc",
+        "label": "Eccentric only",
+        "definition": "Deceleration and landing. No concentric phase to train."
+      },
+      {
+        "id": "n/a",
+        "label": "Not applicable",
+        "definition": "Grinding or isolation work where the stretch-shortening cycle is not the organizing variable."
+      },
+      {
+        "id": "n/a",
+        "label": "Not applicable",
+        "definition": "Grinding or isolation work where the stretch-shortening cycle is not the organizing variable."
+      }
+    ],
+    "swap_reason": [
+      {
+        "id": "equipment",
+        "label": "Equipment unavailable"
+      },
+      {
+        "id": "space",
+        "label": "No space"
+      },
+      {
+        "id": "harder",
+        "label": "Too hard today"
+      },
+      {
+        "id": "lumbar",
+        "label": "Lower back"
+      },
+      {
+        "id": "knee",
+        "label": "Knee"
+      },
+      {
+        "id": "achilles",
+        "label": "Achilles / calf"
+      },
+      {
+        "id": "shoulder",
+        "label": "Shoulder"
+      },
+      {
+        "id": "elbow",
+        "label": "Elbow"
+      }
+    ],
+    "stress_level": [
+      "low",
+      "mod",
+      "high"
+    ],
+    "skill": [
+      "entry",
+      "intermediate",
+      "advanced"
+    ],
+    "plane": [
+      "sagittal",
+      "frontal",
+      "transverse"
+    ],
+    "stance": [
+      "bilateral",
+      "unilateral",
+      "unilateral (split)",
+      "unilateral alternating"
+    ],
+    "provenance": [
+      "sourced",
+      "inferred",
+      "unverified"
+    ],
+    "length_bias": [
+      "lengthened",
+      "mid",
+      "shortened"
+    ],
+    "stress_field": [
+      "axial",
+      "flexion",
+      "impact",
+      "landing",
+      "achilles",
+      "knee",
+      "shoulder",
+      "elbow"
+    ],
+    "equip_tier": [
+      "none",
+      "home",
+      "minimal",
+      "gym",
+      "specialist"
+    ]
+  },
+  "exercises": [
+    {
+      "id": "ankling",
+      "name": "Ankling",
+      "aka": "ankle dribbles",
+      "family": "run-drill",
+      "modifiers": [
+        "bodyweight",
+        "minimal knee lift"
+      ],
+      "pattern": "run mechanics",
+      "plane": "sagittal",
+      "stance": "unilateral alternating",
+      "perSide": false,
+      "ssc": "fast",
+      "gct": "< 200 ms per contact",
+      "velocity": "high cadence, low amplitude",
+      "joints": [
+        "ankle plantarflexion / dorsiflexion (primary)",
+        "minimal knee and hip flexion"
+      ],
+      "agonists": [
+        "triceps surae",
+        "tibialis anterior"
+      ],
+      "synergists": [
+        "foot intrinsics",
+        "hip flexors (small)"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "foot and ankle"
+      ],
+      "position": "The lowest-amplitude running drill: the foot cycles directly under the hip with almost no knee lift, which trains the foot-strike position and ankle stiffness without the coordination load of a skip. The right first drill for almost anyone.",
+      "resistance": "Bodyweight.",
+      "lengthBias": "mid",
+      "intents": [
+        "run mechanics",
+        "ankle stiffness"
+      ],
+      "dose": "3–4 × 15–20 m",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [],
+      "equipTier": "none",
+      "space": "20 m runway",
+      "skill": "entry",
+      "cues": [
+        "Feet land under the hips, not in front",
+        "Quick and light — think hot coals",
+        "Barely lift the knees at all"
+      ],
+      "video": {
+        "id": "HvH5WZk0f90",
+        "author": "Training & Testing"
+      },
+      "block": "09-run-mechanics"
+    },
+    {
+      "id": "high-knees",
+      "name": "High Knees",
+      "aka": null,
+      "family": "run-drill",
+      "modifiers": [
+        "bodyweight",
+        "high knee lift",
+        "running cadence"
+      ],
+      "pattern": "run mechanics",
+      "plane": "sagittal",
+      "stance": "unilateral alternating",
+      "perSide": false,
+      "ssc": "fast",
+      "gct": "< 250 ms per contact",
+      "velocity": "high cadence",
+      "joints": [
+        "hip flexion (large, fast)",
+        "knee flexion",
+        "ankle plantarflexion"
+      ],
+      "agonists": [
+        "iliopsoas",
+        "rectus femoris",
+        "triceps surae"
+      ],
+      "synergists": [
+        "gluteus maximus (the drive down)",
+        "tibialis anterior",
+        "hip flexors"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "erector spinae",
+        "foot and ankle"
+      ],
+      "position": "Trains hip flexion speed and cadence together. The common error is leaning back to get the knees up, which trades the drill's purpose for height — the trunk position matters more than the knee height.",
+      "resistance": "Bodyweight.",
+      "lengthBias": "mid",
+      "intents": [
+        "run mechanics",
+        "hip flexion speed"
+      ],
+      "dose": "3–4 × 15–20 m",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "mod",
+        "landing": "low",
+        "achilles": "mod",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [],
+      "equipTier": "none",
+      "space": "20 m runway",
+      "skill": "entry",
+      "cues": [
+        "Stay tall — no leaning back",
+        "Cadence over knee height",
+        "Push the ground away each step"
+      ],
+      "video": {
+        "id": "_mBXP7fWfFc",
+        "author": "Lyfestyle Athletics"
+      },
+      "block": "09-run-mechanics"
+    },
+    {
+      "id": "a-skip",
+      "name": "A-Skip",
+      "aka": null,
+      "family": "run-drill",
+      "modifiers": [
+        "bodyweight",
+        "skip rhythm",
+        "knee drive"
+      ],
+      "pattern": "run mechanics",
+      "plane": "sagittal",
+      "stance": "unilateral alternating",
+      "perSide": false,
+      "ssc": "fast",
+      "gct": "< 250 ms per contact",
+      "velocity": "rhythmic, high",
+      "joints": [
+        "hip flexion then extension (cyclic)",
+        "knee flexion",
+        "ankle plantarflexion",
+        "opposite-arm drive"
+      ],
+      "agonists": [
+        "iliopsoas",
+        "rectus femoris",
+        "gluteus maximus",
+        "triceps surae"
+      ],
+      "synergists": [
+        "hamstrings",
+        "tibialis anterior",
+        "deltoids (arm drive)"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "gluteus medius",
+        "foot and ankle"
+      ],
+      "position": "Adds a skip rhythm to the knee drive, which forces the ground contact to be short and the limb cycle to be timed. Trains the recovery and drive phases of the stride as a coordinated unit rather than in isolation.",
+      "resistance": "Bodyweight.",
+      "lengthBias": "mid",
+      "intents": [
+        "run mechanics",
+        "coordination"
+      ],
+      "dose": "3–4 × 15–20 m",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "mod",
+        "landing": "low",
+        "achilles": "mod",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [],
+      "equipTier": "none",
+      "space": "20 m runway",
+      "skill": "intermediate",
+      "cues": [
+        "Knee up, then paw the ground down and back",
+        "Tall posture, arms driving opposite the legs",
+        "Short ground contact — do not sink"
+      ],
+      "video": {
+        "id": "5AfQrStwtos",
+        "author": "Lyfestyle Athletics"
+      },
+      "block": "09-run-mechanics"
+    },
+    {
+      "id": "b-skip",
+      "name": "B-Skip",
+      "aka": null,
+      "family": "run-drill",
+      "modifiers": [
+        "bodyweight",
+        "skip rhythm",
+        "active leg extension"
+      ],
+      "pattern": "run mechanics",
+      "plane": "sagittal",
+      "stance": "unilateral alternating",
+      "perSide": false,
+      "ssc": "fast",
+      "gct": "< 250 ms per contact",
+      "velocity": "rhythmic",
+      "joints": [
+        "hip flexion then knee extension then hip extension (cyclic)",
+        "ankle plantarflexion"
+      ],
+      "agonists": [
+        "hamstrings (the pawback)",
+        "gluteus maximus",
+        "iliopsoas"
+      ],
+      "synergists": [
+        "rectus femoris (the reach)",
+        "triceps surae",
+        "tibialis anterior"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "gluteus medius",
+        "erector spinae"
+      ],
+      "position": "Adds an active leg extension and pawback to the A-skip, which loads the hamstrings at long length at speed — the same tissue demand as the end of the swing phase in fast running, and the reason B-skips are both valuable and a common source of hamstring complaints when introduced too fast.",
+      "resistance": "Bodyweight.",
+      "lengthBias": "lengthened",
+      "intents": [
+        "run mechanics",
+        "hamstring coordination"
+      ],
+      "dose": "3–4 × 15–20 m",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "mod",
+        "landing": "low",
+        "achilles": "mod",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [],
+      "equipTier": "none",
+      "space": "20 m runway",
+      "skill": "advanced",
+      "cues": [
+        "Knee up, reach the foot out, then pull it down and back",
+        "Do not snap the knee straight — reach, then paw",
+        "Build in slowly; this one finds cold hamstrings"
+      ],
+      "video": {
+        "id": "Zy97yNE7WEE",
+        "author": "StrengthRunning"
+      },
+      "block": "09-run-mechanics"
+    },
+    {
+      "id": "straight-leg-run",
+      "name": "Straight Leg Run",
+      "aka": "stiff-leg shuffle",
+      "family": "run-drill",
+      "modifiers": [
+        "bodyweight",
+        "knees near-locked"
+      ],
+      "pattern": "run mechanics",
+      "plane": "sagittal",
+      "stance": "unilateral alternating",
+      "perSide": false,
+      "ssc": "fast",
+      "gct": "< 200 ms per contact",
+      "velocity": "high cadence",
+      "joints": [
+        "hip flexion and extension with the knee held extended",
+        "ankle plantarflexion"
+      ],
+      "agonists": [
+        "hamstrings",
+        "gluteus maximus",
+        "triceps surae"
+      ],
+      "synergists": [
+        "iliopsoas",
+        "tibialis anterior"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "erector spinae",
+        "foot and ankle"
+      ],
+      "position": "Locking the knee forces the hip to do all the work and the foot to strike under the body, so it isolates the pawback action and loads the hamstrings at long length with every contact. A sharp drill and an easy way to strain something if the athlete is not warm.",
+      "resistance": "Bodyweight.",
+      "lengthBias": "lengthened",
+      "intents": [
+        "run mechanics",
+        "hamstring coordination"
+      ],
+      "dose": "3 × 15–20 m",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "mod",
+        "landing": "low",
+        "achilles": "high",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [],
+      "equipTier": "none",
+      "space": "20 m runway",
+      "skill": "intermediate",
+      "cues": [
+        "Legs long, strike under the hip",
+        "Quick cycling, not big steps",
+        "Only when thoroughly warm"
+      ],
+      "video": {
+        "id": "HvH5WZk0f90",
+        "author": "Training & Testing",
+        "note": "covered within the ABC drill sequence"
+      },
+      "flags": [
+        {
+          "field": "video",
+          "kind": "unverified",
+          "text": "Shares a video with the ankling record — the clip runs through several ABC drills in sequence rather than isolating this one. Fine for a coach who knows what to look for, thin for an athlete following along alone."
+        }
+      ],
+      "block": "09-run-mechanics"
+    },
+    {
+      "id": "butt-kicks",
+      "name": "Butt Kicks",
+      "aka": "heel flicks",
+      "family": "run-drill",
+      "modifiers": [
+        "bodyweight",
+        "heel recovery"
+      ],
+      "pattern": "run mechanics",
+      "plane": "sagittal",
+      "stance": "unilateral alternating",
+      "perSide": false,
+      "ssc": "fast",
+      "gct": "< 250 ms per contact",
+      "velocity": "high cadence",
+      "joints": [
+        "knee flexion (fast, cyclic)",
+        "hip extension then flexion"
+      ],
+      "agonists": [
+        "hamstrings (knee flexion)"
+      ],
+      "synergists": [
+        "gastrocnemius",
+        "iliopsoas",
+        "gluteus maximus"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "erector spinae"
+      ],
+      "position": "Trains the heel recovery phase — the fast knee flexion that shortens the swing leg's lever so it can come through quickly. Should happen under the hip, not behind the body; kicking the backside while leaning forward is the usual error and trains nothing useful.",
+      "resistance": "Bodyweight.",
+      "lengthBias": "shortened",
+      "intents": [
+        "run mechanics",
+        "cadence"
+      ],
+      "dose": "3 × 15–20 m",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "mod",
+        "landing": "low",
+        "achilles": "mod",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [],
+      "equipTier": "none",
+      "space": "20 m runway",
+      "skill": "entry",
+      "cues": [
+        "Heel comes up under the hip, not behind you",
+        "Stay tall",
+        "Fast and light"
+      ],
+      "video": {
+        "id": "HvH5WZk0f90",
+        "author": "Training & Testing",
+        "note": "covered within the ABC drill sequence"
+      },
+      "flags": [
+        {
+          "field": "video",
+          "kind": "unverified",
+          "text": "Shares the ABC sequence video rather than having a dedicated clip. A candidate for filming your own, which would also let you demonstrate the under-the-hip position you want."
+        }
+      ],
+      "block": "09-run-mechanics"
+    }
+  ],
+  "swap_edges": [
+    {
+      "from": "b-skip",
+      "to": "a-skip",
+      "reason": "harder",
+      "same": "Skip-rhythm running drill with knee drive",
+      "changed": "No active leg extension, so much less hamstring demand and coordination",
+      "dose": "3–4 × 15–20 m"
+    },
+    {
+      "from": "a-skip",
+      "to": "high-knees",
+      "reason": "harder",
+      "same": "High-cadence knee drive",
+      "changed": "No skip rhythm to coordinate",
+      "dose": "3–4 × 15–20 m"
+    },
+    {
+      "from": "high-knees",
+      "to": "ankling",
+      "reason": "harder",
+      "same": "High-cadence running drill with short ground contact",
+      "changed": "Minimal knee lift, so the lowest coordination and amplitude of any drill here",
+      "dose": "3–4 × 15–20 m"
+    },
+    {
+      "from": "b-skip",
+      "to": "ankling",
+      "reason": "achilles",
+      "same": "Running mechanics drill with short contacts",
+      "changed": "Far lower amplitude and no long-length hamstring loading",
+      "dose": "3–4 × 15–20 m"
+    },
+    {
+      "from": "straight-leg-run",
+      "to": "ankling",
+      "reason": "achilles",
+      "same": "Low-amplitude high-cadence drill",
+      "changed": "Knees unlock, so the calf and hamstring loading drops sharply",
+      "dose": "3–4 × 15–20 m"
+    },
+    {
+      "from": "b-skip",
+      "to": "butt-kicks",
+      "reason": "harder",
+      "same": "Swing-phase running drill",
+      "changed": "Heel recovery only, with no reach or pawback",
+      "dose": "3 × 15–20 m"
+    },
+    {
+      "from": "straight-leg-run",
+      "to": "high-knees",
+      "reason": "harder",
+      "same": "High-cadence drill",
+      "changed": "Knees bend, so no long-lever hamstring loading",
+      "dose": "3–4 × 15–20 m"
+    },
+    {
+      "from": "bounding",
+      "to": "a-skip",
+      "reason": "harder",
+      "same": "Cyclic single-leg running-specific drill",
+      "changed": "On the spot amplitude, far lower impact and no maximal projection",
+      "dose": "3–4 × 15–20 m"
+    },
+    {
+      "from": "a-skip",
+      "to": "pogo",
+      "reason": "space",
+      "same": "Fast ground contacts, ankle stiffness",
+      "changed": "Stationary — 1 m² instead of a 20 m runway",
+      "dose": "3–5 × 10–20 contacts"
+    }
+  ]
+}

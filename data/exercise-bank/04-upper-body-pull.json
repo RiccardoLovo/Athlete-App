@@ -1,0 +1,1904 @@
+{
+  "block": "04-upper-body-pull",
+  "title": "Upper-body pull",
+  "reviewed": false,
+  "clinical_signoff": null,
+  "updated": "2026-10-27",
+  "vocab": {
+    "ssc": [
+      {
+        "id": "none",
+        "label": "No SSC",
+        "definition": "Dead start or paused. No elastic contribution; force comes from rate of development alone."
+      },
+      {
+        "id": "slow",
+        "label": "Slow SSC",
+        "definition": "Contact > 250 ms, large joint displacement. Countermovement assists the jump."
+      },
+      {
+        "id": "fast",
+        "label": "Fast SSC",
+        "definition": "Contact < 250 ms, small displacement. Trains tendon stiffness and reactive strength."
+      },
+      {
+        "id": "ecc",
+        "label": "Eccentric only",
+        "definition": "Deceleration and landing. No concentric phase to train."
+      },
+      {
+        "id": "n/a",
+        "label": "Not applicable",
+        "definition": "Grinding or isolation work where the stretch-shortening cycle is not the organizing variable."
+      },
+      {
+        "id": "n/a",
+        "label": "Not applicable",
+        "definition": "Grinding or isolation work where the stretch-shortening cycle is not the organizing variable."
+      }
+    ],
+    "swap_reason": [
+      {
+        "id": "equipment",
+        "label": "Equipment unavailable"
+      },
+      {
+        "id": "space",
+        "label": "No space"
+      },
+      {
+        "id": "harder",
+        "label": "Too hard today"
+      },
+      {
+        "id": "lumbar",
+        "label": "Lower back"
+      },
+      {
+        "id": "knee",
+        "label": "Knee"
+      },
+      {
+        "id": "achilles",
+        "label": "Achilles / calf"
+      },
+      {
+        "id": "shoulder",
+        "label": "Shoulder"
+      },
+      {
+        "id": "elbow",
+        "label": "Elbow"
+      }
+    ],
+    "stress_level": [
+      "low",
+      "mod",
+      "high"
+    ],
+    "skill": [
+      "entry",
+      "intermediate",
+      "advanced"
+    ],
+    "plane": [
+      "sagittal",
+      "frontal",
+      "transverse"
+    ],
+    "stance": [
+      "bilateral",
+      "unilateral",
+      "unilateral (split)",
+      "unilateral alternating"
+    ],
+    "provenance": [
+      "sourced",
+      "inferred",
+      "unverified"
+    ],
+    "length_bias": [
+      "lengthened",
+      "mid",
+      "shortened"
+    ],
+    "stress_field": [
+      "axial",
+      "flexion",
+      "impact",
+      "landing",
+      "achilles",
+      "knee",
+      "shoulder",
+      "elbow"
+    ],
+    "equip_tier": [
+      "none",
+      "home",
+      "minimal",
+      "gym",
+      "specialist"
+    ]
+  },
+  "exercises": [
+    {
+      "id": "pull-up",
+      "name": "Pull-up",
+      "aka": null,
+      "family": "pull-up",
+      "modifiers": [
+        "bodyweight",
+        "pronated grip"
+      ],
+      "pattern": "vertical pull",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "n/a",
+      "gct": "n/a",
+      "velocity": "controlled",
+      "joints": [
+        "shoulder adduction and extension (large)",
+        "elbow flexion",
+        "scapular depression and downward rotation"
+      ],
+      "agonists": [
+        "latissimus dorsi",
+        "teres major"
+      ],
+      "synergists": [
+        "biceps brachii",
+        "brachialis",
+        "lower trapezius",
+        "rhomboids",
+        "pectoralis major (sternal, lower range)"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "scapular stabilizers",
+        "grip"
+      ],
+      "position": "Closed chain, so the body moves to the bar and the trunk must resist swinging. Pronated grip puts the biceps at a mechanical disadvantage, which is what makes it harder than a chin-up and more lat-dominant.",
+      "resistance": "Bodyweight, loadable. Hardest at the bottom from a dead hang.",
+      "lengthBias": "lengthened",
+      "intents": [
+        "max strength",
+        "hypertrophy"
+      ],
+      "dose": "3\u20135 \u00d7 3\u201310",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "mod",
+        "elbow": "mod"
+      },
+      "equipment": [
+        "pull-up bar"
+      ],
+      "equipTier": "gym",
+      "space": "gym floor",
+      "skill": "intermediate",
+      "cues": [
+        "Start from a full dead hang",
+        "Lead with the elbows down and back",
+        "Chest to the bar, no kipping"
+      ],
+      "video": {
+        "id": "IxQDQ2jwS5Y",
+        "author": "Catalyst Athletics"
+      },
+      "block": "04-upper-body-pull"
+    },
+    {
+      "id": "chin-up",
+      "name": "Chin-up",
+      "aka": null,
+      "family": "pull-up",
+      "modifiers": [
+        "bodyweight",
+        "supinated grip"
+      ],
+      "pattern": "vertical pull",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "n/a",
+      "gct": "n/a",
+      "velocity": "controlled",
+      "joints": [
+        "shoulder adduction and extension",
+        "elbow flexion (large)",
+        "scapular depression"
+      ],
+      "agonists": [
+        "latissimus dorsi",
+        "biceps brachii"
+      ],
+      "synergists": [
+        "teres major",
+        "brachialis",
+        "lower trapezius",
+        "rhomboids"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "grip"
+      ],
+      "position": "Supination puts the biceps in its strongest line, so more load goes through the elbow flexors and most people manage more reps than a pull-up. Usually the kinder option for a shoulder, harsher for an elbow.",
+      "resistance": "Bodyweight, loadable.",
+      "lengthBias": "lengthened",
+      "intents": [
+        "max strength",
+        "hypertrophy"
+      ],
+      "dose": "3\u20135 \u00d7 3\u201310",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "mod"
+      },
+      "equipment": [
+        "pull-up bar"
+      ],
+      "equipTier": "gym",
+      "space": "gym floor",
+      "skill": "intermediate",
+      "cues": [
+        "Full hang, full range",
+        "Drive the elbows to the ribs",
+        "Control the lowering"
+      ],
+      "video": {
+        "id": "0PhzdeDENF0",
+        "author": "Catalyst Athletics"
+      },
+      "block": "04-upper-body-pull"
+    },
+    {
+      "id": "neutral-pull-up",
+      "name": "Neutral Grip Pull-Up",
+      "aka": null,
+      "family": "pull-up",
+      "modifiers": [
+        "bodyweight",
+        "neutral grip"
+      ],
+      "pattern": "vertical pull",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "n/a",
+      "gct": "n/a",
+      "velocity": "controlled",
+      "joints": [
+        "shoulder adduction and extension",
+        "elbow flexion",
+        "scapular depression"
+      ],
+      "agonists": [
+        "latissimus dorsi",
+        "brachialis",
+        "biceps brachii"
+      ],
+      "synergists": [
+        "teres major",
+        "lower trapezius",
+        "brachioradialis"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "grip"
+      ],
+      "position": "Palms facing lets the shoulder sit in its most neutral rotation, which is why it is usually the best-tolerated of the three grips. Brachialis contributes more than in either other version.",
+      "resistance": "Bodyweight, loadable.",
+      "lengthBias": "lengthened",
+      "intents": [
+        "max strength",
+        "hypertrophy"
+      ],
+      "dose": "3\u20135 \u00d7 3\u201310",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "mod"
+      },
+      "equipment": [
+        "pull-up bar with neutral handles"
+      ],
+      "equipTier": "gym",
+      "space": "gym floor",
+      "skill": "intermediate",
+      "cues": [
+        "Shoulders down out of the ears at the start",
+        "Elbows straight down, not flared",
+        "Full range both ways"
+      ],
+      "video": {
+        "id": "hDNy0jFYZvY",
+        "author": "Catalyst Athletics"
+      },
+      "block": "04-upper-body-pull"
+    },
+    {
+      "id": "lat-pulldown",
+      "name": "Lat Pulldown",
+      "aka": null,
+      "family": "lat-pulldown",
+      "modifiers": [
+        "cable",
+        "pronated grip"
+      ],
+      "pattern": "vertical pull",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "n/a",
+      "gct": "n/a",
+      "velocity": "controlled",
+      "joints": [
+        "shoulder adduction (large)",
+        "elbow flexion",
+        "scapular depression and downward rotation"
+      ],
+      "agonists": [
+        "latissimus dorsi",
+        "teres major"
+      ],
+      "synergists": [
+        "biceps brachii",
+        "lower trapezius",
+        "rhomboids"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "scapular stabilizers"
+      ],
+      "position": "Open chain, so the load is dialled rather than fixed at bodyweight \u2014 the standard way to train the pull-up pattern before a pull-up exists, and to overload it afterwards. The trunk does much less work than in a pull-up.",
+      "resistance": "Cable, constant. Hardest near full stretch.",
+      "lengthBias": "lengthened",
+      "intents": [
+        "hypertrophy",
+        "max strength"
+      ],
+      "dose": "3\u20134 \u00d7 8\u201312",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "mod",
+        "elbow": "low"
+      },
+      "equipment": [
+        "lat pulldown machine"
+      ],
+      "equipTier": "gym",
+      "space": "gym floor",
+      "skill": "entry",
+      "cues": [
+        "Chest up, slight lean back and hold it",
+        "Pull to the collarbone, elbows down",
+        "Let the shoulder blades rise at the top"
+      ],
+      "video": {
+        "id": "c2e_j4IdPBs",
+        "author": "Catalyst Athletics"
+      },
+      "block": "04-upper-body-pull"
+    },
+    {
+      "id": "neutral-lat-pulldown",
+      "name": "Neutral Grip Lat Pulldown",
+      "aka": null,
+      "family": "lat-pulldown",
+      "modifiers": [
+        "cable",
+        "neutral grip"
+      ],
+      "pattern": "vertical pull",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "n/a",
+      "gct": "n/a",
+      "velocity": "controlled",
+      "joints": [
+        "shoulder adduction and extension",
+        "elbow flexion",
+        "scapular depression"
+      ],
+      "agonists": [
+        "latissimus dorsi",
+        "teres major",
+        "brachialis"
+      ],
+      "synergists": [
+        "biceps brachii",
+        "lower trapezius"
+      ],
+      "stabilizers": [
+        "deep trunk"
+      ],
+      "position": "Neutral rotation at the shoulder with the load adjustable \u2014 the gentlest entry to vertical pulling, and the usual substitute when a pronated pulldown or pull-up bothers the shoulder.",
+      "resistance": "Cable, constant.",
+      "lengthBias": "lengthened",
+      "intents": [
+        "hypertrophy"
+      ],
+      "dose": "3\u20134 \u00d7 8\u201312",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [
+        "lat pulldown machine",
+        "neutral handle"
+      ],
+      "equipTier": "gym",
+      "space": "gym floor",
+      "skill": "entry",
+      "cues": [
+        "Pull to the upper chest",
+        "Elbows travel down the sides",
+        "Pause briefly at the bottom"
+      ],
+      "video": {
+        "id": "zTrAP_4YQ80",
+        "author": "Catalyst Athletics"
+      },
+      "block": "04-upper-body-pull"
+    },
+    {
+      "id": "wide-lat-pulldown",
+      "name": "Wide Grip Lat Pulldown",
+      "aka": null,
+      "family": "lat-pulldown",
+      "modifiers": [
+        "cable",
+        "wide pronated grip"
+      ],
+      "pattern": "vertical pull",
+      "plane": "frontal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "n/a",
+      "gct": "n/a",
+      "velocity": "controlled",
+      "joints": [
+        "shoulder adduction (frontal-plane bias)",
+        "elbow flexion (reduced range)",
+        "scapular depression"
+      ],
+      "agonists": [
+        "latissimus dorsi",
+        "teres major"
+      ],
+      "synergists": [
+        "rhomboids",
+        "lower trapezius",
+        "biceps brachii (less than narrower grips)"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "rotator cuff"
+      ],
+      "position": "A wider grip shortens the elbow's range and moves the pull toward pure adduction in the frontal plane, so the arms contribute less. It also demands more shoulder external rotation, which not every shoulder has.",
+      "resistance": "Cable, constant.",
+      "lengthBias": "lengthened",
+      "intents": [
+        "hypertrophy"
+      ],
+      "dose": "3 \u00d7 8\u201312",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "high",
+        "elbow": "low"
+      },
+      "equipment": [
+        "lat pulldown machine"
+      ],
+      "equipTier": "gym",
+      "space": "gym floor",
+      "skill": "entry",
+      "cues": [
+        "Just wider than shoulders is enough",
+        "Elbows down, not back",
+        "Do not pull behind the neck"
+      ],
+      "video": {
+        "id": "uAcQQ9jp2zk",
+        "author": "Catalyst Athletics"
+      },
+      "block": "04-upper-body-pull"
+    },
+    {
+      "id": "bent-row",
+      "name": "Bent Row",
+      "aka": "barbell row",
+      "family": "bent-row",
+      "modifiers": [
+        "barbell",
+        "hinged torso"
+      ],
+      "pattern": "horizontal pull",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "n/a",
+      "gct": "n/a",
+      "velocity": "controlled",
+      "joints": [
+        "shoulder extension (large)",
+        "elbow flexion",
+        "scapular retraction",
+        "trunk anti-flexion (maximal isometric)",
+        "hip held flexed"
+      ],
+      "agonists": [
+        "latissimus dorsi",
+        "rhomboids",
+        "middle trapezius"
+      ],
+      "synergists": [
+        "biceps brachii",
+        "posterior deltoid",
+        "teres major",
+        "erector spinae (isometric)"
+      ],
+      "stabilizers": [
+        "erector spinae (maximal)",
+        "deep trunk",
+        "hamstrings (position)",
+        "grip"
+      ],
+      "position": "The back muscles are working while the spine holds a loaded hinge, so the erectors pay twice. Excellent for upper-back mass and a poor choice for a flexion-sensitive lower back \u2014 the reason supported rows exist.",
+      "resistance": "External. Hardest at the chest.",
+      "lengthBias": "lengthened",
+      "intents": [
+        "max strength",
+        "hypertrophy"
+      ],
+      "dose": "3\u20134 \u00d7 6\u201310",
+      "stress": {
+        "axial": "mod",
+        "flexion": "high",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "mod"
+      },
+      "equipment": [
+        "barbell",
+        "plates"
+      ],
+      "equipTier": "gym",
+      "space": "gym floor",
+      "skill": "intermediate",
+      "cues": [
+        "Hinge to about 45\u00b0 and keep it there",
+        "Pull to the lower ribs",
+        "Stop the set when the torso starts rising"
+      ],
+      "video": {
+        "id": "D4eruYL5_Fc",
+        "author": "Catalyst Athletics"
+      },
+      "block": "04-upper-body-pull"
+    },
+    {
+      "id": "pendlay-row",
+      "name": "Pendlay Row",
+      "aka": "dead-stop row",
+      "family": "bent-row",
+      "modifiers": [
+        "barbell",
+        "from the floor each rep"
+      ],
+      "pattern": "horizontal pull",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "none",
+      "gct": "n/a \u2014 dead stop each rep",
+      "velocity": "explosive concentric",
+      "joints": [
+        "shoulder extension (large, fast)",
+        "elbow flexion",
+        "scapular retraction",
+        "trunk anti-flexion (maximal)"
+      ],
+      "agonists": [
+        "latissimus dorsi",
+        "rhomboids",
+        "middle trapezius"
+      ],
+      "synergists": [
+        "biceps brachii",
+        "posterior deltoid",
+        "erector spinae"
+      ],
+      "stabilizers": [
+        "erector spinae (maximal)",
+        "deep trunk",
+        "grip"
+      ],
+      "position": "The bar resets on the floor every rep, so there is no eccentric to rebound from and the torso stays nearly horizontal. More concentric power, more lumbar demand than a standard bent row.",
+      "resistance": "External, from a dead stop.",
+      "lengthBias": "lengthened",
+      "intents": [
+        "max strength",
+        "pulling power"
+      ],
+      "dose": "4\u20135 \u00d7 3\u20136",
+      "stress": {
+        "axial": "mod",
+        "flexion": "high",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "mod"
+      },
+      "equipment": [
+        "barbell",
+        "plates"
+      ],
+      "equipTier": "gym",
+      "space": "platform",
+      "skill": "advanced",
+      "cues": [
+        "Torso stays parallel to the floor",
+        "Full reset on the ground between reps",
+        "Explode the bar to the ribs"
+      ],
+      "video": {
+        "id": "cYVkgmPqRMw",
+        "author": "Catalyst Athletics"
+      },
+      "block": "04-upper-body-pull"
+    },
+    {
+      "id": "single-arm-db-row",
+      "name": "Single Arm Dumbbell Row",
+      "aka": null,
+      "family": "supported-row",
+      "modifiers": [
+        "dumbbell",
+        "bench supported"
+      ],
+      "pattern": "horizontal pull",
+      "plane": "sagittal",
+      "stance": "unilateral",
+      "perSide": true,
+      "ssc": "n/a",
+      "gct": "n/a",
+      "velocity": "controlled",
+      "joints": [
+        "shoulder extension (large)",
+        "elbow flexion",
+        "scapular retraction and protraction (free)"
+      ],
+      "agonists": [
+        "latissimus dorsi",
+        "rhomboids",
+        "middle trapezius"
+      ],
+      "synergists": [
+        "biceps brachii",
+        "posterior deltoid",
+        "teres major"
+      ],
+      "stabilizers": [
+        "deep trunk (anti-rotation)",
+        "supporting arm"
+      ],
+      "position": "Supporting the torso on a bench removes the spinal load almost entirely, so the back can be trained heavily without a flexion demand. The default row for a lumbar-limited programme, and it allows more scapular range than a barbell.",
+      "resistance": "External. Hardest at the top.",
+      "lengthBias": "lengthened",
+      "intents": [
+        "hypertrophy",
+        "max strength"
+      ],
+      "dose": "3\u20134 \u00d7 8\u201312 per side",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "mod"
+      },
+      "equipment": [
+        "dumbbell",
+        "bench"
+      ],
+      "equipTier": "minimal",
+      "space": "gym floor",
+      "skill": "entry",
+      "cues": [
+        "Let the shoulder blade reach forward at the bottom",
+        "Pull to the hip, not the shoulder",
+        "Keep the hips square to the floor"
+      ],
+      "video": {
+        "id": "IOy2k0Cb6Vo",
+        "author": "Catalyst Athletics"
+      },
+      "block": "04-upper-body-pull"
+    },
+    {
+      "id": "chainsaw-row",
+      "name": "Chainsaw Row",
+      "aka": null,
+      "family": "supported-row",
+      "modifiers": [
+        "dumbbell",
+        "hinged, hand-supported"
+      ],
+      "pattern": "horizontal pull",
+      "plane": "sagittal",
+      "stance": "unilateral (split)",
+      "perSide": true,
+      "ssc": "n/a",
+      "gct": "n/a",
+      "velocity": "controlled",
+      "joints": [
+        "shoulder extension (large)",
+        "elbow flexion",
+        "scapular retraction",
+        "trunk anti-rotation (isometric)"
+      ],
+      "agonists": [
+        "latissimus dorsi",
+        "rhomboids",
+        "middle trapezius"
+      ],
+      "synergists": [
+        "biceps brachii",
+        "posterior deltoid",
+        "erector spinae (moderate)"
+      ],
+      "stabilizers": [
+        "deep trunk (high, anti-rotation)",
+        "supporting arm",
+        "hamstrings"
+      ],
+      "position": "Hand on a bench and feet staggered: less spinal load than a bent row, more trunk work than a fully supported row. The middle option when a bent row is too much for the back but a bench row feels too passive.",
+      "resistance": "External. Hardest at the top.",
+      "lengthBias": "lengthened",
+      "intents": [
+        "hypertrophy",
+        "anti-rotation"
+      ],
+      "dose": "3 \u00d7 8\u201312 per side",
+      "stress": {
+        "axial": "low",
+        "flexion": "mod",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "mod"
+      },
+      "equipment": [
+        "dumbbell",
+        "bench"
+      ],
+      "equipTier": "minimal",
+      "space": "gym floor",
+      "skill": "intermediate",
+      "cues": [
+        "Hips level \u2014 do not open toward the working side",
+        "Long range, drag the dumbbell back",
+        "Support arm takes weight, not all of it"
+      ],
+      "video": {
+        "id": "eKti83wa9Rk",
+        "author": "Catalyst Athletics"
+      },
+      "block": "04-upper-body-pull"
+    },
+    {
+      "id": "inverted-row",
+      "name": "Inverted Row",
+      "aka": null,
+      "family": "inverted-row",
+      "modifiers": [
+        "bodyweight",
+        "bar"
+      ],
+      "pattern": "horizontal pull",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "n/a",
+      "gct": "n/a",
+      "velocity": "controlled",
+      "joints": [
+        "shoulder extension",
+        "elbow flexion",
+        "scapular retraction",
+        "trunk anti-extension (isometric)"
+      ],
+      "agonists": [
+        "latissimus dorsi",
+        "rhomboids",
+        "middle trapezius"
+      ],
+      "synergists": [
+        "biceps brachii",
+        "posterior deltoid",
+        "lower trapezius"
+      ],
+      "stabilizers": [
+        "deep trunk (high)",
+        "gluteus maximus",
+        "hamstrings (isometric)"
+      ],
+      "position": "A horizontal pull with the spine unloaded and the trunk working as a plank, difficulty set by body angle rather than plates. The counterpart to the push-up and the cleanest bodyweight back exercise there is.",
+      "resistance": "Bodyweight, angle-scaled.",
+      "lengthBias": "lengthened",
+      "intents": [
+        "hypertrophy",
+        "endurance",
+        "scapular control"
+      ],
+      "dose": "3\u20134 \u00d7 8\u201315",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [
+        "bar in a rack or low bar"
+      ],
+      "equipTier": "gym",
+      "space": "gym floor",
+      "skill": "entry",
+      "cues": [
+        "One line from heel to head",
+        "Chest to the bar, squeeze the blades",
+        "Raise the bar or bend the knees to make it easier"
+      ],
+      "video": {
+        "id": "jTaIMXRT6qY",
+        "author": "Catalyst Athletics"
+      },
+      "block": "04-upper-body-pull"
+    },
+    {
+      "id": "ring-row",
+      "name": "Ring Row",
+      "aka": null,
+      "family": "inverted-row",
+      "modifiers": [
+        "bodyweight",
+        "rings"
+      ],
+      "pattern": "horizontal pull",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "n/a",
+      "gct": "n/a",
+      "velocity": "controlled",
+      "joints": [
+        "shoulder extension with free rotation",
+        "elbow flexion",
+        "scapular retraction",
+        "trunk anti-extension"
+      ],
+      "agonists": [
+        "latissimus dorsi",
+        "rhomboids",
+        "middle trapezius"
+      ],
+      "synergists": [
+        "biceps brachii",
+        "posterior deltoid",
+        "rotator cuff (active)"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "rotator cuff (high)",
+        "gluteus maximus"
+      ],
+      "position": "Rings let the hands rotate through the pull, so the shoulder picks its own path and the cuff works to control an unstable handle. Kinder to a sore shoulder than a fixed bar, harder to load precisely.",
+      "resistance": "Bodyweight, angle-scaled.",
+      "lengthBias": "lengthened",
+      "intents": [
+        "hypertrophy",
+        "shoulder control"
+      ],
+      "dose": "3\u20134 \u00d7 8\u201315",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [
+        "rings"
+      ],
+      "equipTier": "minimal",
+      "space": "indoor, 3 m\u00b2",
+      "skill": "entry",
+      "cues": [
+        "Turn the palms up as you pull",
+        "Body straight, heels on the floor",
+        "Walk the feet forward to make it harder"
+      ],
+      "video": {
+        "id": "-SE-yLq8kFI",
+        "author": "Catalyst Athletics"
+      },
+      "block": "04-upper-body-pull"
+    },
+    {
+      "id": "single-arm-ring-row",
+      "name": "Single Arm Ring Row",
+      "aka": null,
+      "family": "inverted-row",
+      "modifiers": [
+        "bodyweight",
+        "rings",
+        "one arm"
+      ],
+      "pattern": "horizontal pull",
+      "plane": "sagittal",
+      "stance": "unilateral",
+      "perSide": true,
+      "ssc": "n/a",
+      "gct": "n/a",
+      "velocity": "controlled",
+      "joints": [
+        "shoulder extension",
+        "elbow flexion",
+        "trunk anti-rotation (maximal isometric)"
+      ],
+      "agonists": [
+        "latissimus dorsi",
+        "rhomboids"
+      ],
+      "synergists": [
+        "biceps brachii",
+        "posterior deltoid",
+        "obliques"
+      ],
+      "stabilizers": [
+        "deep trunk (maximal)",
+        "obliques",
+        "gluteus maximus"
+      ],
+      "position": "One arm doubles the load and adds a rotational demand the trunk must refuse. More an anti-rotation exercise with a rowing component than a pure back exercise.",
+      "resistance": "Bodyweight, unilateral, angle-scaled.",
+      "lengthBias": "lengthened",
+      "intents": [
+        "anti-rotation",
+        "unilateral pulling"
+      ],
+      "dose": "3 \u00d7 5\u201310 per side",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "mod"
+      },
+      "equipment": [
+        "rings"
+      ],
+      "equipTier": "minimal",
+      "space": "indoor, 3 m\u00b2",
+      "skill": "advanced",
+      "cues": [
+        "Shoulders stay square to the ceiling",
+        "Do not let the torso twist",
+        "Walk the feet back to regress"
+      ],
+      "video": {
+        "id": "dxniJ0qH-OI",
+        "author": "Catalyst Athletics"
+      },
+      "block": "04-upper-body-pull"
+    },
+    {
+      "id": "low-cable-row",
+      "name": "Low Cable Row",
+      "aka": "seated row",
+      "family": "cable-row",
+      "modifiers": [
+        "cable",
+        "seated"
+      ],
+      "pattern": "horizontal pull",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "n/a",
+      "gct": "n/a",
+      "velocity": "controlled",
+      "joints": [
+        "shoulder extension",
+        "elbow flexion",
+        "scapular retraction and protraction (full range)"
+      ],
+      "agonists": [
+        "latissimus dorsi",
+        "rhomboids",
+        "middle trapezius"
+      ],
+      "synergists": [
+        "biceps brachii",
+        "posterior deltoid",
+        "lower trapezius"
+      ],
+      "stabilizers": [
+        "erector spinae (moderate isometric)",
+        "deep trunk"
+      ],
+      "position": "Seated and braced, with constant cable tension through a long scapular range. Most of the back work of a bent row with a fraction of the lumbar cost, which makes it a workhorse rather than a compromise.",
+      "resistance": "Cable, constant. Hardest at full retraction.",
+      "lengthBias": "mid",
+      "intents": [
+        "hypertrophy"
+      ],
+      "dose": "3\u20134 \u00d7 8\u201312",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [
+        "cable row machine"
+      ],
+      "equipTier": "gym",
+      "space": "gym floor",
+      "skill": "entry",
+      "cues": [
+        "Let the arms reach forward fully at the start",
+        "Pull to the navel, elbows past the ribs",
+        "Torso nearly still \u2014 do not rock"
+      ],
+      "video": {
+        "id": "HN5cmvySDrI",
+        "author": "Catalyst Athletics"
+      },
+      "block": "04-upper-body-pull"
+    },
+    {
+      "id": "cable-t-bar-row",
+      "name": "Cable T-Bar Row",
+      "aka": null,
+      "family": "cable-row",
+      "modifiers": [
+        "cable",
+        "neutral grip",
+        "hinged"
+      ],
+      "pattern": "horizontal pull",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "n/a",
+      "gct": "n/a",
+      "velocity": "controlled",
+      "joints": [
+        "shoulder extension",
+        "elbow flexion",
+        "scapular retraction",
+        "trunk anti-flexion (isometric)"
+      ],
+      "agonists": [
+        "latissimus dorsi",
+        "rhomboids",
+        "middle trapezius"
+      ],
+      "synergists": [
+        "biceps brachii",
+        "brachialis",
+        "posterior deltoid",
+        "erector spinae"
+      ],
+      "stabilizers": [
+        "erector spinae (high)",
+        "deep trunk",
+        "hamstrings"
+      ],
+      "position": "Standing and hinged like a bent row but with cable tension rather than a bar, so the resistance is constant and the load easier to dial. Still a loaded hinge, so the lumbar demand is real.",
+      "resistance": "Cable, constant.",
+      "lengthBias": "lengthened",
+      "intents": [
+        "hypertrophy",
+        "max strength"
+      ],
+      "dose": "3\u20134 \u00d7 8\u201312",
+      "stress": {
+        "axial": "low",
+        "flexion": "mod",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "mod"
+      },
+      "equipment": [
+        "cable machine",
+        "neutral handle"
+      ],
+      "equipTier": "gym",
+      "space": "gym floor",
+      "skill": "intermediate",
+      "cues": [
+        "Hinge and hold the torso angle",
+        "Drive the elbows past the ribs",
+        "Chest stays proud"
+      ],
+      "video": {
+        "id": "zYlzFIQfpRA",
+        "author": "Catalyst Athletics"
+      },
+      "block": "04-upper-body-pull"
+    },
+    {
+      "id": "straight-arm-pulldown",
+      "name": "Straight Arm Pulldown",
+      "aka": null,
+      "family": "lat-isolation",
+      "modifiers": [
+        "cable",
+        "elbow near-fixed"
+      ],
+      "pattern": "vertical pull",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "n/a",
+      "gct": "n/a",
+      "velocity": "controlled",
+      "joints": [
+        "shoulder extension (isolated, large)",
+        "elbow held near-extended",
+        "scapular depression"
+      ],
+      "agonists": [
+        "latissimus dorsi",
+        "teres major"
+      ],
+      "synergists": [
+        "pectoralis major (sternal head)",
+        "triceps long head (shoulder extension)",
+        "lower trapezius"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "scapular stabilizers"
+      ],
+      "position": "Takes the elbow flexors out, so the lat is trained purely as a shoulder extensor. For a swimmer this is the closest gym movement to the catch and pull-through, and it is the way to load the lat when the biceps or elbow is the limiting factor in every other pull.",
+      "resistance": "Cable, constant. Hardest with the arms forward.",
+      "lengthBias": "lengthened",
+      "intents": [
+        "hypertrophy",
+        "isolation",
+        "swim-specific pulling"
+      ],
+      "dose": "3 \u00d7 10\u201315",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [
+        "cable machine"
+      ],
+      "equipTier": "gym",
+      "space": "gym floor",
+      "skill": "entry",
+      "cues": [
+        "Small fixed bend at the elbow, keep it there",
+        "Sweep the arms down to the thighs",
+        "Hinge forward slightly and stay there"
+      ],
+      "video": {
+        "id": "ev7LG1QG05U",
+        "author": "Catalyst Athletics"
+      },
+      "block": "04-upper-body-pull"
+    },
+    {
+      "id": "rear-delt-fly",
+      "name": "Rear Delt Fly",
+      "aka": null,
+      "family": "rear-delt",
+      "modifiers": [
+        "dumbbells",
+        "hinged"
+      ],
+      "pattern": "horizontal pull",
+      "plane": "transverse",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "n/a",
+      "gct": "n/a",
+      "velocity": "controlled",
+      "joints": [
+        "shoulder horizontal abduction (isolated)",
+        "scapular retraction"
+      ],
+      "agonists": [
+        "posterior deltoid"
+      ],
+      "synergists": [
+        "infraspinatus",
+        "teres minor",
+        "rhomboids",
+        "middle trapezius"
+      ],
+      "stabilizers": [
+        "erector spinae (isometric)",
+        "deep trunk"
+      ],
+      "position": "Horizontal abduction with the elbow nearly straight, which removes the lats and isolates the posterior delt and external rotators \u2014 the muscles that pressing volume tends to leave behind.",
+      "resistance": "External. Hardest at horizontal.",
+      "lengthBias": "shortened",
+      "intents": [
+        "hypertrophy",
+        "shoulder balance"
+      ],
+      "dose": "3 \u00d7 12\u201320, light",
+      "stress": {
+        "axial": "low",
+        "flexion": "mod",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [
+        "dumbbells"
+      ],
+      "equipTier": "minimal",
+      "space": "indoor, 1 m\u00b2",
+      "skill": "entry",
+      "cues": [
+        "Thumbs up, lead with the pinkies out",
+        "Very light \u2014 technique fails fast",
+        "Do not turn it into a row"
+      ],
+      "video": {
+        "id": "7Vi3nikf65I",
+        "author": "Catalyst Athletics"
+      },
+      "block": "04-upper-body-pull"
+    },
+    {
+      "id": "head-supported-rear-delt-row",
+      "name": "Head Supported Rear Delt Row",
+      "aka": null,
+      "family": "rear-delt",
+      "modifiers": [
+        "dumbbells",
+        "head supported"
+      ],
+      "pattern": "horizontal pull",
+      "plane": "transverse",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "n/a",
+      "gct": "n/a",
+      "velocity": "controlled",
+      "joints": [
+        "shoulder horizontal abduction",
+        "elbow flexion",
+        "scapular retraction"
+      ],
+      "agonists": [
+        "posterior deltoid",
+        "rhomboids"
+      ],
+      "synergists": [
+        "infraspinatus",
+        "middle trapezius",
+        "biceps brachii"
+      ],
+      "stabilizers": [
+        "deep trunk (low \u2014 head takes the load)"
+      ],
+      "position": "Resting the forehead on a support removes the isometric hinge, so the lower back does nothing and all the effort goes to the upper back. The rear-delt exercise to use when the back is the limiting factor.",
+      "resistance": "External. Hardest at full retraction.",
+      "lengthBias": "mid",
+      "intents": [
+        "hypertrophy",
+        "shoulder balance"
+      ],
+      "dose": "3 \u00d7 10\u201315",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [
+        "dumbbells",
+        "bench or rack to rest on"
+      ],
+      "equipTier": "minimal",
+      "space": "gym floor",
+      "skill": "entry",
+      "cues": [
+        "Let the head take your weight",
+        "Elbows wide, pull to the ribs",
+        "Pause at the top"
+      ],
+      "video": {
+        "id": "ZwuKoFW3958",
+        "author": "Catalyst Athletics"
+      },
+      "block": "04-upper-body-pull"
+    },
+    {
+      "id": "incline-rear-delt-fly",
+      "name": "Incline Bench Rear Delt Fly",
+      "aka": null,
+      "family": "rear-delt",
+      "modifiers": [
+        "dumbbells",
+        "chest supported"
+      ],
+      "pattern": "horizontal pull",
+      "plane": "transverse",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "n/a",
+      "gct": "n/a",
+      "velocity": "controlled",
+      "joints": [
+        "shoulder horizontal abduction (isolated)",
+        "scapular retraction"
+      ],
+      "agonists": [
+        "posterior deltoid"
+      ],
+      "synergists": [
+        "infraspinatus",
+        "teres minor",
+        "rhomboids"
+      ],
+      "stabilizers": [
+        "minimal \u2014 the bench does the stabilizing"
+      ],
+      "position": "Chest on the bench removes every compensation including the hinge, so there is nowhere to cheat the weight up from. Strictest of the rear-delt variants and the lowest spinal cost.",
+      "resistance": "External. Hardest at horizontal.",
+      "lengthBias": "shortened",
+      "intents": [
+        "hypertrophy",
+        "isolation"
+      ],
+      "dose": "3 \u00d7 12\u201320, light",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [
+        "dumbbells",
+        "incline bench"
+      ],
+      "equipTier": "minimal",
+      "space": "gym floor",
+      "skill": "entry",
+      "cues": [
+        "Chest stays on the pad",
+        "Arms sweep out, not back",
+        "Stop when you need momentum"
+      ],
+      "video": {
+        "id": "_U9gStEINYE",
+        "author": "Catalyst Athletics"
+      },
+      "block": "04-upper-body-pull"
+    },
+    {
+      "id": "db-curl",
+      "name": "Dumbbell Curl",
+      "aka": null,
+      "family": "biceps-curl",
+      "modifiers": [
+        "dumbbells",
+        "supinated",
+        "standing"
+      ],
+      "pattern": "elbow flexion",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "n/a",
+      "gct": "n/a",
+      "velocity": "controlled",
+      "joints": [
+        "elbow flexion (isolated)",
+        "forearm supination"
+      ],
+      "agonists": [
+        "biceps brachii"
+      ],
+      "synergists": [
+        "brachialis",
+        "brachioradialis"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "scapular stabilizers"
+      ],
+      "position": "The biceps long head crosses the shoulder, so shoulder position sets its length \u2014 standing with the arms at the side leaves it at moderate length, and taking the arms behind the body on an incline lengthens it. Another biarticular muscle where two 'biceps' exercises are not equivalent.",
+      "resistance": "External. Hardest with the forearm horizontal.",
+      "lengthBias": "mid",
+      "intents": [
+        "hypertrophy",
+        "isolation"
+      ],
+      "dose": "3 \u00d7 8\u201312",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "mod"
+      },
+      "equipment": [
+        "dumbbells"
+      ],
+      "equipTier": "minimal",
+      "space": "indoor, 1 m\u00b2",
+      "skill": "entry",
+      "cues": [
+        "Elbows stay at the ribs",
+        "Supinate as you curl",
+        "Lower all the way"
+      ],
+      "video": {
+        "id": "plU7Ca7Fke8",
+        "author": "Catalyst Athletics"
+      },
+      "block": "04-upper-body-pull"
+    },
+    {
+      "id": "hammer-curl",
+      "name": "Hammer Curl",
+      "aka": null,
+      "family": "biceps-curl",
+      "modifiers": [
+        "dumbbells",
+        "neutral grip"
+      ],
+      "pattern": "elbow flexion",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "n/a",
+      "gct": "n/a",
+      "velocity": "controlled",
+      "joints": [
+        "elbow flexion (isolated, neutral forearm)"
+      ],
+      "agonists": [
+        "brachialis",
+        "brachioradialis"
+      ],
+      "synergists": [
+        "biceps brachii (reduced mechanical advantage)"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "grip"
+      ],
+      "position": "A neutral forearm takes the biceps out of its strongest line and shifts work to the brachialis and brachioradialis. Usually the better-tolerated curl for a sore elbow or wrist.",
+      "resistance": "External.",
+      "lengthBias": "mid",
+      "intents": [
+        "hypertrophy"
+      ],
+      "dose": "3 \u00d7 8\u201312",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [
+        "dumbbells"
+      ],
+      "equipTier": "minimal",
+      "space": "indoor, 1 m\u00b2",
+      "skill": "entry",
+      "cues": [
+        "Palms face each other throughout",
+        "No swinging",
+        "Full range"
+      ],
+      "video": {
+        "id": "W0xVe5jdnOU",
+        "author": "Catalyst Athletics"
+      },
+      "block": "04-upper-body-pull"
+    },
+    {
+      "id": "ez-curl",
+      "name": "EZ Curl",
+      "aka": null,
+      "family": "biceps-curl",
+      "modifiers": [
+        "EZ bar",
+        "semi-supinated"
+      ],
+      "pattern": "elbow flexion",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "n/a",
+      "gct": "n/a",
+      "velocity": "controlled",
+      "joints": [
+        "elbow flexion (isolated)",
+        "forearm part-supinated"
+      ],
+      "agonists": [
+        "biceps brachii",
+        "brachialis"
+      ],
+      "synergists": [
+        "brachioradialis"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "wrists"
+      ],
+      "position": "The angled bar lets the wrists sit between pronation and supination, which most elbows and wrists prefer to a straight bar while still allowing both arms to be loaded together.",
+      "resistance": "External.",
+      "lengthBias": "mid",
+      "intents": [
+        "hypertrophy"
+      ],
+      "dose": "3 \u00d7 8\u201312",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "mod"
+      },
+      "equipment": [
+        "EZ bar"
+      ],
+      "equipTier": "gym",
+      "space": "gym floor",
+      "skill": "entry",
+      "cues": [
+        "Elbows pinned to the sides",
+        "Wrists neutral, not cocked back",
+        "Control the lowering"
+      ],
+      "video": {
+        "id": "OgO6cWoezNc",
+        "author": "Catalyst Athletics"
+      },
+      "block": "04-upper-body-pull"
+    },
+    {
+      "id": "zottman-curl",
+      "name": "Zottman Curl",
+      "aka": null,
+      "family": "biceps-curl",
+      "modifiers": [
+        "dumbbells",
+        "supinate up, pronate down"
+      ],
+      "pattern": "elbow flexion",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "n/a",
+      "gct": "n/a",
+      "velocity": "slow eccentric",
+      "joints": [
+        "elbow flexion (supinated concentric)",
+        "elbow extension (pronated eccentric)",
+        "forearm pronation and supination"
+      ],
+      "agonists": [
+        "biceps brachii (up)",
+        "brachioradialis and wrist extensors (down)"
+      ],
+      "synergists": [
+        "brachialis",
+        "forearm pronators and supinators"
+      ],
+      "stabilizers": [
+        "grip",
+        "wrist extensors",
+        "deep trunk"
+      ],
+      "position": "Curling supinated and lowering pronated trains the forearm extensors eccentrically in the same rep \u2014 one of very few exercises that loads the pronation\u2013supination function directly. Useful for grip and elbow resilience rather than biceps size.",
+      "resistance": "External. Eccentric is the hard part.",
+      "lengthBias": "mid",
+      "intents": [
+        "forearm and grip resilience",
+        "hypertrophy"
+      ],
+      "dose": "2\u20133 \u00d7 8\u201312, light",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "mod"
+      },
+      "equipment": [
+        "dumbbells"
+      ],
+      "equipTier": "minimal",
+      "space": "indoor, 1 m\u00b2",
+      "skill": "intermediate",
+      "cues": [
+        "Rotate at the top, not on the way up",
+        "Lower slowly with the palms down",
+        "Much lighter than a normal curl"
+      ],
+      "video": {
+        "id": "kc-LGcbozhI",
+        "author": "Catalyst Athletics"
+      },
+      "block": "04-upper-body-pull"
+    }
+  ],
+  "swap_edges": [
+    {
+      "from": "lat-pulldown",
+      "to": "pull-up",
+      "reason": "equipment",
+      "same": "Vertical pull, lat and teres major emphasis",
+      "changed": "Bodyweight and closed chain, so the trunk works too",
+      "dose": "Load becomes reps \u2014 3\u20135 \u00d7 3\u201310"
+    },
+    {
+      "from": "bent-row",
+      "to": "single-arm-db-row",
+      "reason": "equipment",
+      "same": "Horizontal pull for lats and mid-back",
+      "changed": "One dumbbell and a bench instead of a loaded barbell",
+      "dose": "3\u20134 \u00d7 8\u201312 per side"
+    },
+    {
+      "from": "low-cable-row",
+      "to": "ring-row",
+      "reason": "equipment",
+      "same": "Horizontal pull through a long scapular range",
+      "changed": "Bodyweight on rings; difficulty set by body angle",
+      "dose": "3\u20134 \u00d7 8\u201315"
+    },
+    {
+      "from": "lat-pulldown",
+      "to": "straight-arm-pulldown",
+      "reason": "equipment",
+      "same": "Lat emphasis with cable tension",
+      "changed": "Isolated shoulder extension; no pulldown station needed",
+      "dose": "3 \u00d7 10\u201315"
+    },
+    {
+      "from": "bent-row",
+      "to": "single-arm-db-row",
+      "reason": "lumbar",
+      "same": "Horizontal pull, lats and rhomboids, lengthened bias",
+      "changed": "Torso supported on a bench \u2014 the loaded hinge is gone",
+      "dose": "3\u20134 \u00d7 8\u201312 per side"
+    },
+    {
+      "from": "bent-row",
+      "to": "low-cable-row",
+      "reason": "lumbar",
+      "same": "Horizontal pull for the mid-back",
+      "changed": "Seated and braced instead of holding a loaded hinge",
+      "dose": "3\u20134 \u00d7 8\u201312"
+    },
+    {
+      "from": "bent-row",
+      "to": "inverted-row",
+      "reason": "lumbar",
+      "same": "Horizontal pull, scapular retraction",
+      "changed": "Bodyweight with the spine unloaded; trunk works as a plank",
+      "dose": "3\u20134 \u00d7 8\u201315"
+    },
+    {
+      "from": "pendlay-row",
+      "to": "chainsaw-row",
+      "reason": "lumbar",
+      "same": "Unilateral-capable horizontal pull, long range",
+      "changed": "Hand supported, so much less spinal demand",
+      "dose": "3 \u00d7 8\u201312 per side"
+    },
+    {
+      "from": "rear-delt-fly",
+      "to": "incline-rear-delt-fly",
+      "reason": "lumbar",
+      "same": "Posterior deltoid isolation",
+      "changed": "Chest supported \u2014 the isometric hinge is removed entirely",
+      "dose": "3 \u00d7 12\u201320"
+    },
+    {
+      "from": "cable-t-bar-row",
+      "to": "low-cable-row",
+      "reason": "lumbar",
+      "same": "Cable horizontal pull, constant tension",
+      "changed": "Seated rather than hinged",
+      "dose": "3\u20134 \u00d7 8\u201312"
+    },
+    {
+      "from": "pull-up",
+      "to": "neutral-pull-up",
+      "reason": "shoulder",
+      "same": "Bodyweight vertical pull",
+      "changed": "Neutral grip lets the shoulder sit in its least provocative rotation",
+      "dose": "3\u20135 \u00d7 3\u201310"
+    },
+    {
+      "from": "lat-pulldown",
+      "to": "neutral-lat-pulldown",
+      "reason": "shoulder",
+      "same": "Loaded vertical pull",
+      "changed": "Neutral grip and adjustable load",
+      "dose": "3\u20134 \u00d7 8\u201312"
+    },
+    {
+      "from": "wide-lat-pulldown",
+      "to": "neutral-lat-pulldown",
+      "reason": "shoulder",
+      "same": "Vertical pull, lat emphasis",
+      "changed": "Removes the wide-grip external rotation demand",
+      "dose": "3\u20134 \u00d7 8\u201312"
+    },
+    {
+      "from": "chin-up",
+      "to": "straight-arm-pulldown",
+      "reason": "elbow",
+      "same": "Lat and teres major loading",
+      "changed": "Elbow flexors removed \u2014 the lat works purely as a shoulder extensor",
+      "dose": "3 \u00d7 10\u201315"
+    },
+    {
+      "from": "db-curl",
+      "to": "hammer-curl",
+      "reason": "elbow",
+      "same": "Elbow flexion isolation",
+      "changed": "Neutral forearm, usually better tolerated by elbow and wrist",
+      "dose": "3 \u00d7 8\u201312"
+    },
+    {
+      "from": "ez-curl",
+      "to": "hammer-curl",
+      "reason": "elbow",
+      "same": "Elbow flexion isolation",
+      "changed": "Dumbbells let each wrist find its own rotation",
+      "dose": "3 \u00d7 8\u201312"
+    },
+    {
+      "from": "bent-row",
+      "to": "straight-arm-pulldown",
+      "reason": "elbow",
+      "same": "Lat emphasis",
+      "changed": "No elbow flexion under load at all",
+      "dose": "3 \u00d7 10\u201315"
+    },
+    {
+      "from": "pull-up",
+      "to": "lat-pulldown",
+      "reason": "harder",
+      "same": "Vertical pull pattern, same muscles",
+      "changed": "Load is dialled below bodyweight",
+      "dose": "3\u20134 \u00d7 8\u201312"
+    },
+    {
+      "from": "pull-up",
+      "to": "inverted-row",
+      "reason": "harder",
+      "same": "Pulling with scapular retraction",
+      "changed": "Horizontal, and difficulty set by body angle",
+      "dose": "3\u20134 \u00d7 8\u201315"
+    },
+    {
+      "from": "single-arm-ring-row",
+      "to": "ring-row",
+      "reason": "harder",
+      "same": "Bodyweight row on rings",
+      "changed": "Both arms, so half the load and no anti-rotation demand",
+      "dose": "3\u20134 \u00d7 8\u201315"
+    },
+    {
+      "from": "low-cable-row",
+      "to": "inverted-row",
+      "reason": "space",
+      "same": "Horizontal pull",
+      "changed": "No machine \u2014 a bar in a rack, or rings",
+      "dose": "3\u20134 \u00d7 8\u201315"
+    }
+  ]
+}

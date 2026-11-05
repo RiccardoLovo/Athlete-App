@@ -20,3 +20,7 @@ supabase/.temp/
 .idea/
 .vercel
 .env*
+
+# Python bytecode from the exercise-bank scripts
+__pycache__/
+*.pyc

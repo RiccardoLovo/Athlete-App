@@ -1,0 +1,1726 @@
+{
+  "block": "01-lower-body-plyometrics",
+  "title": "Lower-body plyometrics & landings",
+  "reviewed": false,
+  "clinical_signoff": null,
+  "updated": "2026-10-27",
+  "vocab": {
+    "ssc": [
+      {
+        "id": "none",
+        "label": "No SSC",
+        "definition": "Dead start or paused. No elastic contribution; force comes from rate of development alone."
+      },
+      {
+        "id": "slow",
+        "label": "Slow SSC",
+        "definition": "Contact > 250 ms, large joint displacement. Countermovement assists the jump."
+      },
+      {
+        "id": "fast",
+        "label": "Fast SSC",
+        "definition": "Contact < 250 ms, small displacement. Trains tendon stiffness and reactive strength."
+      },
+      {
+        "id": "ecc",
+        "label": "Eccentric only",
+        "definition": "Deceleration and landing. No concentric phase to train."
+      },
+      {
+        "id": "n/a",
+        "label": "Not applicable",
+        "definition": "Grinding or isolation work where the stretch-shortening cycle is not the organizing variable."
+      },
+      {
+        "id": "n/a",
+        "label": "Not applicable",
+        "definition": "Grinding or isolation work where the stretch-shortening cycle is not the organizing variable."
+      }
+    ],
+    "swap_reason": [
+      {
+        "id": "equipment",
+        "label": "Equipment unavailable"
+      },
+      {
+        "id": "space",
+        "label": "No space"
+      },
+      {
+        "id": "harder",
+        "label": "Too hard today"
+      },
+      {
+        "id": "lumbar",
+        "label": "Lower back"
+      },
+      {
+        "id": "knee",
+        "label": "Knee"
+      },
+      {
+        "id": "achilles",
+        "label": "Achilles / calf"
+      },
+      {
+        "id": "shoulder",
+        "label": "Shoulder"
+      },
+      {
+        "id": "elbow",
+        "label": "Elbow"
+      }
+    ],
+    "stress_level": [
+      "low",
+      "mod",
+      "high"
+    ],
+    "skill": [
+      "entry",
+      "intermediate",
+      "advanced"
+    ],
+    "plane": [
+      "sagittal",
+      "frontal",
+      "transverse"
+    ],
+    "stance": [
+      "bilateral",
+      "unilateral",
+      "unilateral (split)",
+      "unilateral alternating"
+    ],
+    "provenance": [
+      "sourced",
+      "inferred",
+      "unverified"
+    ],
+    "length_bias": [
+      "lengthened",
+      "mid",
+      "shortened"
+    ],
+    "stress_field": [
+      "axial",
+      "flexion",
+      "impact",
+      "landing",
+      "achilles",
+      "knee",
+      "shoulder",
+      "elbow"
+    ],
+    "equip_tier": [
+      "none",
+      "home",
+      "minimal",
+      "gym",
+      "specialist"
+    ]
+  },
+  "exercises": [
+    {
+      "id": "sbj-planted",
+      "name": "Seated Box Jump",
+      "aka": "feet planted",
+      "family": "seated-jump",
+      "modifiers": [
+        "target box",
+        "feet planted"
+      ],
+      "pattern": "vertical jump",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "none",
+      "gct": "n/a \u2014 no prior ground contact",
+      "velocity": "maximal concentric",
+      "joints": [
+        "knee extension (large, fast)",
+        "hip extension (large, fast)",
+        "ankle plantarflexion (moderate)"
+      ],
+      "agonists": [
+        "vastus lateralis / medialis / intermedius",
+        "gluteus maximus"
+      ],
+      "synergists": [
+        "rectus femoris",
+        "gastrocnemius",
+        "soleus",
+        "adductor magnus (hip ext)"
+      ],
+      "stabilizers": [
+        "erector spinae (isometric, low)",
+        "deep trunk"
+      ],
+      "position": "Hip deeply flexed, thigh ~horizontal at start. The rectus femoris is biarticular and already shortened across the flexed hip, so it suffers active insufficiency and the monoarticular vasti dominate knee extension \u2014 the same reason squats grow the vasti preferentially. This is why it is not interchangeable with a standing jump despite an identical muscle list.",
+      "resistance": "Bodyweight. Peak demand at initiation; no elastic return available.",
+      "lengthBias": null,
+      "intents": [
+        "concentric RFD"
+      ],
+      "dose": "3\u20136 \u00d7 3\u20135, full recovery, end of session",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "mod",
+        "landing": "mod",
+        "achilles": "low",
+        "knee": "mod",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [
+        "low box or bench (seat)",
+        "target box"
+      ],
+      "equipTier": "minimal",
+      "space": "indoor, 2 m\u00b2",
+      "skill": "entry",
+      "cues": [
+        "Minimal rocking of the trunk",
+        "Hands loose at chest to remove arm swing",
+        "Seat height so thighs sit roughly horizontal"
+      ],
+      "video": {
+        "id": "yhBwqIvXHgw",
+        "author": "Catalyst Athletics"
+      },
+      "block": "01-lower-body-plyometrics"
+    },
+    {
+      "id": "sbj-elevated",
+      "name": "Seated Box Jump",
+      "aka": "feet elevated, stomp entry",
+      "family": "seated-jump",
+      "modifiers": [
+        "target box",
+        "feet elevated",
+        "stomp entry"
+      ],
+      "pattern": "vertical jump",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "fast",
+      "gct": "target < 250 ms from plant to take-off",
+      "velocity": "maximal reactive",
+      "joints": [
+        "rapid ankle/knee eccentric load on plant",
+        "knee extension (fast)",
+        "hip extension (fast)",
+        "ankle plantarflexion (high)"
+      ],
+      "agonists": [
+        "vasti",
+        "gluteus maximus",
+        "triceps surae"
+      ],
+      "synergists": [
+        "rectus femoris",
+        "hamstrings (co-contraction on plant)"
+      ],
+      "stabilizers": [
+        "erector spinae (isometric, rapid, moderate)",
+        "deep trunk"
+      ],
+      "position": "Feet lifted, then planted aggressively. The plant creates an eccentric pre-load, so this behaves as a low-amplitude depth jump \u2014 the source library describes it in exactly those terms.",
+      "resistance": "Bodyweight. Demand concentrated in the first 100\u2013200 ms after plant.",
+      "lengthBias": null,
+      "intents": [
+        "reactive strength"
+      ],
+      "dose": "3\u20135 \u00d7 3, full recovery, early in session when fresh",
+      "stress": {
+        "axial": "low",
+        "flexion": "mod",
+        "impact": "high",
+        "landing": "high",
+        "achilles": "high",
+        "knee": "mod",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [
+        "low box or bench (seat)",
+        "target box"
+      ],
+      "equipTier": "minimal",
+      "space": "indoor, 2 m\u00b2",
+      "skill": "intermediate",
+      "cues": [
+        "Plant hard, leave immediately",
+        "Do not sink \u2014 the ground time is the exercise",
+        "Stop the set the moment contact time lengthens"
+      ],
+      "video": {
+        "id": "yhBwqIvXHgw",
+        "author": "Catalyst Athletics",
+        "note": "same page, documented as the alternative method"
+      },
+      "flags": [
+        {
+          "field": "video",
+          "kind": "unverified",
+          "text": "This video is shared with the feet-planted record. The elevated-feet method is described in the source text but may not be what the footage shows, so treat this record as having no demonstrating video until someone watches it."
+        }
+      ],
+      "block": "01-lower-body-plyometrics"
+    },
+    {
+      "id": "seated-vert",
+      "name": "Seated Vertical Jump",
+      "aka": null,
+      "family": "seated-jump",
+      "modifiers": [
+        "no target",
+        "feet planted"
+      ],
+      "pattern": "vertical jump",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "maximal concentric",
+      "joints": [
+        "knee extension (large, fast)",
+        "hip extension (large, fast)",
+        "ankle plantarflexion (moderate)"
+      ],
+      "agonists": [
+        "vasti",
+        "gluteus maximus"
+      ],
+      "synergists": [
+        "rectus femoris",
+        "triceps surae"
+      ],
+      "stabilizers": [
+        "erector spinae (isometric, low)"
+      ],
+      "position": "As the seated box jump, but landing comes back to the floor rather than onto a box \u2014 slightly higher landing cost, one less piece of equipment.",
+      "resistance": "Bodyweight; concentric only.",
+      "lengthBias": null,
+      "intents": [
+        "concentric RFD"
+      ],
+      "dose": "3\u20136 \u00d7 3\u20135, full recovery",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "mod",
+        "landing": "mod",
+        "achilles": "low",
+        "knee": "mod",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [
+        "low box or bench"
+      ],
+      "equipTier": "minimal",
+      "space": "indoor, 2 m\u00b2",
+      "skill": "entry",
+      "cues": [
+        "No rocking",
+        "Land soft, reset fully between reps"
+      ],
+      "video": {
+        "id": "3x_mz9qztMI",
+        "author": "Catalyst Athletics"
+      },
+      "block": "01-lower-body-plyometrics"
+    },
+    {
+      "id": "pause-box-jump",
+      "name": "Pause Box Jump",
+      "aka": null,
+      "family": "box-jump",
+      "modifiers": [
+        "pause at depth"
+      ],
+      "pattern": "vertical jump",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "none",
+      "gct": "pause \u2265 2 s dissipates elastic energy",
+      "velocity": "maximal concentric",
+      "joints": [
+        "knee extension (large)",
+        "hip extension (large)",
+        "ankle plantarflexion"
+      ],
+      "agonists": [
+        "vasti",
+        "gluteus maximus"
+      ],
+      "synergists": [
+        "rectus femoris",
+        "triceps surae",
+        "adductor magnus"
+      ],
+      "stabilizers": [
+        "erector spinae (isometric, moderate)",
+        "deep trunk"
+      ],
+      "position": "Standing start, self-selected depth, held. Trunk more upright than the seated version and the hip less flexed \u2014 closer to a real jumping position while still removing the elastic contribution.",
+      "resistance": "Bodyweight; concentric only after the pause.",
+      "lengthBias": null,
+      "intents": [
+        "concentric RFD"
+      ],
+      "dose": "3\u20135 \u00d7 3\u20135, full recovery",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "mod",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [
+        "box"
+      ],
+      "equipTier": "minimal",
+      "space": "indoor, 2 m\u00b2",
+      "skill": "entry",
+      "cues": [
+        "Hold the bottom still \u2014 no bounce out of it",
+        "Step down between reps, never jump down"
+      ],
+      "video": {
+        "id": "OupSuT2VFTk",
+        "author": "Catalyst Athletics"
+      },
+      "block": "01-lower-body-plyometrics"
+    },
+    {
+      "id": "pause-vert",
+      "name": "Pause Vertical Jump",
+      "aka": null,
+      "family": "vertical-jump",
+      "modifiers": [
+        "pause at depth"
+      ],
+      "pattern": "vertical jump",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "none",
+      "gct": "pause dissipates elastic energy",
+      "velocity": "maximal concentric",
+      "joints": [
+        "knee extension (large)",
+        "hip extension (large)",
+        "ankle plantarflexion"
+      ],
+      "agonists": [
+        "vasti",
+        "gluteus maximus"
+      ],
+      "synergists": [
+        "rectus femoris",
+        "triceps surae"
+      ],
+      "stabilizers": [
+        "erector spinae (isometric, moderate)"
+      ],
+      "position": "Standing, descend, hold, jump. The zero-equipment way to train concentric RFD.",
+      "resistance": "Bodyweight; concentric only.",
+      "lengthBias": null,
+      "intents": [
+        "concentric RFD"
+      ],
+      "dose": "3\u20135 \u00d7 3\u20135, full recovery",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "mod",
+        "landing": "mod",
+        "achilles": "low",
+        "knee": "mod",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [],
+      "equipTier": "none",
+      "space": "indoor, 1 m\u00b2",
+      "skill": "entry",
+      "cues": [
+        "Freeze at depth",
+        "Jump without re-dipping"
+      ],
+      "video": {
+        "id": "ZkuUPp57ky4",
+        "author": "Catalyst Athletics"
+      },
+      "block": "01-lower-body-plyometrics"
+    },
+    {
+      "id": "vert-jump",
+      "name": "Vertical Jump",
+      "aka": "countermovement jump, CMJ",
+      "family": "vertical-jump",
+      "modifiers": [
+        "countermovement"
+      ],
+      "pattern": "vertical jump",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "slow",
+      "gct": "> 250 ms, large joint displacement",
+      "velocity": "maximal",
+      "joints": [
+        "hip/knee/ankle eccentric then concentric, large amplitude"
+      ],
+      "agonists": [
+        "vasti",
+        "gluteus maximus",
+        "triceps surae"
+      ],
+      "synergists": [
+        "rectus femoris",
+        "hamstrings",
+        "adductor magnus"
+      ],
+      "stabilizers": [
+        "erector spinae",
+        "deep trunk"
+      ],
+      "position": "Free countermovement depth. The reference athletic jump and the usual benchmark test.",
+      "resistance": "Bodyweight; elastic contribution available.",
+      "lengthBias": null,
+      "intents": [
+        "max jump output",
+        "slow SSC"
+      ],
+      "dose": "3\u20136 \u00d7 3\u20135, full recovery; also used as a daily readiness test",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "mod",
+        "landing": "mod",
+        "achilles": "mod",
+        "knee": "mod",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [],
+      "equipTier": "none",
+      "space": "indoor, 1 m\u00b2",
+      "skill": "entry",
+      "cues": [
+        "Arms free",
+        "Dip to whatever depth jumps highest, not a fixed depth"
+      ],
+      "video": {
+        "id": "85FvMEHl3Vo",
+        "author": "Catalyst Athletics"
+      },
+      "block": "01-lower-body-plyometrics"
+    },
+    {
+      "id": "box-jump",
+      "name": "Box Jump",
+      "aka": null,
+      "family": "box-jump",
+      "modifiers": [
+        "countermovement"
+      ],
+      "pattern": "vertical jump",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "slow",
+      "gct": "> 250 ms",
+      "velocity": "maximal",
+      "joints": [
+        "hip/knee/ankle eccentric then concentric, large amplitude"
+      ],
+      "agonists": [
+        "vasti",
+        "gluteus maximus",
+        "triceps surae"
+      ],
+      "synergists": [
+        "rectus femoris",
+        "hamstrings"
+      ],
+      "stabilizers": [
+        "erector spinae",
+        "deep trunk"
+      ],
+      "position": "Lands on the box, which is the point: take-off is trained at full output while landing cost stays low. The safest way to express maximal jump intent repeatedly.",
+      "resistance": "Bodyweight.",
+      "lengthBias": null,
+      "intents": [
+        "max jump output",
+        "slow SSC"
+      ],
+      "dose": "3\u20136 \u00d7 3\u20135, full recovery",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "mod",
+        "knee": "mod",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [
+        "box"
+      ],
+      "equipTier": "minimal",
+      "space": "indoor, 2 m\u00b2",
+      "skill": "entry",
+      "cues": [
+        "Step down, never jump down \u2014 that is where box jumps hurt people",
+        "Land tall on the box, not in a deep squat"
+      ],
+      "video": {
+        "id": "d2z2_rRkpAo",
+        "author": "Catalyst Athletics"
+      },
+      "block": "01-lower-body-plyometrics"
+    },
+    {
+      "id": "depth-jump",
+      "name": "Depth Jump",
+      "aka": null,
+      "family": "depth-jump",
+      "modifiers": [
+        "drop then rebound"
+      ],
+      "pattern": "vertical jump",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "fast",
+      "gct": "130\u2013300 ms at 20\u201360 cm drop",
+      "velocity": "maximal reactive",
+      "joints": [
+        "rapid eccentric at ankle/knee/hip then immediate concentric"
+      ],
+      "agonists": [
+        "triceps surae",
+        "vasti",
+        "gluteus maximus"
+      ],
+      "synergists": [
+        "hamstrings (co-contraction)",
+        "rectus femoris"
+      ],
+      "stabilizers": [
+        "erector spinae (rapid isometric, high)",
+        "deep trunk"
+      ],
+      "position": "Larger centre-of-mass displacement on contact than a drop jump, so it demands less leg stiffness but more absorption. Drop height is the dose; past about 60 cm contact time lengthens and it stops being a fast-SSC drill.",
+      "resistance": "Bodyweight plus the drop.",
+      "lengthBias": null,
+      "intents": [
+        "reactive strength"
+      ],
+      "dose": "3\u20135 \u00d7 3\u20135, full recovery, fresh only; drop 20\u201360 cm",
+      "stress": {
+        "axial": "low",
+        "flexion": "mod",
+        "impact": "high",
+        "landing": "high",
+        "achilles": "high",
+        "knee": "high",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [
+        "box"
+      ],
+      "equipTier": "minimal",
+      "space": "indoor, 3 m\u00b2",
+      "skill": "advanced",
+      "cues": [
+        "Step off, do not jump off",
+        "Minimum ground time \u2014 the number to watch is contact, not height",
+        "Stop on the first slow rep"
+      ],
+      "video": {
+        "id": "GeN0S3XCZnM",
+        "author": "Catalyst Athletics"
+      },
+      "block": "01-lower-body-plyometrics"
+    },
+    {
+      "id": "depth-drop",
+      "name": "Depth Drop",
+      "aka": "drop landing",
+      "family": "depth-jump",
+      "modifiers": [
+        "landing only"
+      ],
+      "pattern": "landing",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "ecc",
+      "gct": "n/a \u2014 no concentric phase",
+      "velocity": "maximal eccentric",
+      "joints": [
+        "hip/knee/ankle eccentric absorption"
+      ],
+      "agonists": [
+        "vasti (eccentric)",
+        "gluteus maximus (eccentric)",
+        "triceps surae (eccentric)"
+      ],
+      "synergists": [
+        "hamstrings",
+        "tibialis anterior"
+      ],
+      "stabilizers": [
+        "erector spinae (rapid isometric, high)",
+        "deep trunk"
+      ],
+      "position": "The teaching step for everything fast-SSC: absorb the drop and hold it. No rebound, so output is not the goal and landing quality is coachable.",
+      "resistance": "Bodyweight plus the drop.",
+      "lengthBias": null,
+      "intents": [
+        "eccentric strength",
+        "landing mechanics"
+      ],
+      "dose": "3\u20135 \u00d7 3\u20135, full recovery; drop 20\u201350 cm",
+      "stress": {
+        "axial": "low",
+        "flexion": "mod",
+        "impact": "high",
+        "landing": "high",
+        "achilles": "mod",
+        "knee": "mod",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [
+        "box"
+      ],
+      "equipTier": "minimal",
+      "space": "indoor, 2 m\u00b2",
+      "skill": "entry",
+      "cues": [
+        "Land and freeze \u2014 hold the position for a beat",
+        "Knees track over toes, hips back",
+        "Quiet feet"
+      ],
+      "video": {
+        "id": "GZLyZCqF8BQ",
+        "author": "Catalyst Athletics"
+      },
+      "block": "01-lower-body-plyometrics"
+    },
+    {
+      "id": "tuck-jump",
+      "name": "Tuck Jump",
+      "aka": null,
+      "family": "repeat-jump",
+      "modifiers": [
+        "knees to chest in flight"
+      ],
+      "pattern": "vertical jump",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "fast",
+      "gct": "short, repeated",
+      "velocity": "high, cyclic",
+      "joints": [
+        "knee/hip extension on take-off",
+        "hip flexion in flight",
+        "ankle plantarflexion"
+      ],
+      "agonists": [
+        "vasti",
+        "gluteus maximus",
+        "triceps surae"
+      ],
+      "synergists": [
+        "iliopsoas and rectus femoris (flight-phase hip flexion)",
+        "hamstrings"
+      ],
+      "stabilizers": [
+        "erector spinae",
+        "deep trunk (high \u2014 repeated flexion demand)"
+      ],
+      "position": "Repeated contacts with an active hip-flexion pull in flight, so the hip flexors work concentrically in a way no other jump here does.",
+      "resistance": "Bodyweight.",
+      "lengthBias": null,
+      "intents": [
+        "reactive strength",
+        "repeat jump ability"
+      ],
+      "dose": "3\u20135 \u00d7 5\u20138 continuous, long rest between sets",
+      "stress": {
+        "axial": "low",
+        "flexion": "mod",
+        "impact": "high",
+        "landing": "high",
+        "achilles": "high",
+        "knee": "mod",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [],
+      "equipTier": "none",
+      "space": "indoor, 1 m\u00b2",
+      "skill": "intermediate",
+      "cues": [
+        "Knees to chest, not heels to backside",
+        "Keep the trunk upright",
+        "Land and leave"
+      ],
+      "video": {
+        "id": "1XYeIUTmBc8",
+        "author": "Catalyst Athletics"
+      },
+      "block": "01-lower-body-plyometrics"
+    },
+    {
+      "id": "broad-jump",
+      "name": "Broad Jump",
+      "aka": "standing long jump",
+      "family": "horizontal-jump",
+      "modifiers": [
+        "countermovement",
+        "bilateral take-off"
+      ],
+      "pattern": "horizontal jump",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "slow",
+      "gct": "> 250 ms",
+      "velocity": "maximal",
+      "joints": [
+        "hip extension (very large)",
+        "knee extension (large)",
+        "ankle plantarflexion"
+      ],
+      "agonists": [
+        "gluteus maximus",
+        "hamstrings",
+        "vasti"
+      ],
+      "synergists": [
+        "adductor magnus",
+        "triceps surae",
+        "erector spinae (trunk projection)"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "erector spinae"
+      ],
+      "position": "Horizontal projection shifts the work toward hip extension and the hamstrings relative to a vertical jump \u2014 the reason it is not a like-for-like swap for a CMJ even though both are bilateral countermovement jumps.",
+      "resistance": "Bodyweight.",
+      "lengthBias": null,
+      "intents": [
+        "max horizontal output",
+        "slow SSC"
+      ],
+      "dose": "3\u20136 \u00d7 2\u20134, full recovery",
+      "stress": {
+        "axial": "low",
+        "flexion": "mod",
+        "impact": "mod",
+        "landing": "high",
+        "achilles": "mod",
+        "knee": "mod",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [],
+      "equipTier": "home",
+      "space": "4 m runout, soft surface preferred",
+      "skill": "entry",
+      "cues": [
+        "Reach the hips through, not just up",
+        "Land both feet, absorb \u2014 do not chase distance into a stumble"
+      ],
+      "video": {
+        "id": "AOkmLTD8J24",
+        "author": "Catalyst Athletics"
+      },
+      "block": "01-lower-body-plyometrics"
+    },
+    {
+      "id": "back-squat-jump",
+      "name": "Back Squat Jump",
+      "aka": "loaded jump squat",
+      "family": "loaded-jump",
+      "modifiers": [
+        "barbell, back rack",
+        "full depth"
+      ],
+      "pattern": "vertical jump",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "slow",
+      "gct": "> 250 ms",
+      "velocity": "high, load-limited",
+      "joints": [
+        "hip extension (large)",
+        "knee extension (large)",
+        "ankle plantarflexion"
+      ],
+      "agonists": [
+        "vasti",
+        "gluteus maximus"
+      ],
+      "synergists": [
+        "adductor magnus",
+        "hamstrings",
+        "triceps surae"
+      ],
+      "stabilizers": [
+        "erector spinae (high \u2014 axial load plus landing)",
+        "deep trunk"
+      ],
+      "position": "Bar on the back means the spine carries the load on take-off and again on landing. This is the archetype of a drill a lumbar-limited athlete should not be given, and the one your own swap exists to avoid.",
+      "resistance": "External, axial. Typically 20\u201330% 1RM; velocity falls off fast above that.",
+      "lengthBias": null,
+      "intents": [
+        "speed-strength"
+      ],
+      "dose": "4\u20136 \u00d7 3\u20135 at 20\u201330% 1RM, full recovery",
+      "stress": {
+        "axial": "high",
+        "flexion": "mod",
+        "impact": "high",
+        "landing": "high",
+        "achilles": "mod",
+        "knee": "mod",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [
+        "barbell",
+        "rack",
+        "plates"
+      ],
+      "equipTier": "gym",
+      "space": "platform",
+      "skill": "advanced",
+      "cues": [
+        "Bar tight, trunk braced",
+        "Absorb the landing with the hips",
+        "Drop the load before form does"
+      ],
+      "video": {
+        "id": "NF8iXaH8i_E",
+        "author": "Catalyst Athletics"
+      },
+      "block": "01-lower-body-plyometrics"
+    },
+    {
+      "id": "quarter-squat-jump",
+      "name": "Quarter Back Squat Jump",
+      "aka": null,
+      "family": "loaded-jump",
+      "modifiers": [
+        "barbell, back rack",
+        "quarter depth"
+      ],
+      "pattern": "vertical jump",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "slow",
+      "gct": "shorter than full depth",
+      "velocity": "very high",
+      "joints": [
+        "knee extension (moderate range, fast)",
+        "hip extension (moderate)",
+        "ankle plantarflexion (high)"
+      ],
+      "agonists": [
+        "vasti",
+        "gluteus maximus",
+        "triceps surae"
+      ],
+      "synergists": [
+        "rectus femoris",
+        "hamstrings"
+      ],
+      "stabilizers": [
+        "erector spinae (high)",
+        "deep trunk"
+      ],
+      "position": "Shallow range keeps bar velocity high and shifts emphasis toward the knee extensors and calves. Same axial-load problem as the full version.",
+      "resistance": "External, axial. Tolerates more load than full depth.",
+      "lengthBias": null,
+      "intents": [
+        "speed-strength"
+      ],
+      "dose": "4\u20136 \u00d7 3\u20135, full recovery",
+      "stress": {
+        "axial": "high",
+        "flexion": "mod",
+        "impact": "high",
+        "landing": "mod",
+        "achilles": "mod",
+        "knee": "mod",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [
+        "barbell",
+        "rack",
+        "plates"
+      ],
+      "equipTier": "gym",
+      "space": "platform",
+      "skill": "advanced",
+      "cues": [
+        "Quarter depth, no deeper",
+        "Fast down, faster up"
+      ],
+      "video": {
+        "id": "pCyUhE3N8HA",
+        "author": "Catalyst Athletics"
+      },
+      "block": "01-lower-body-plyometrics"
+    },
+    {
+      "id": "kneeling-jump",
+      "name": "Kneeling Jump to Stand",
+      "aka": "knee jump, kneeling jump squat",
+      "family": "kneeling-jump",
+      "modifiers": [
+        "bilateral",
+        "bodyweight"
+      ],
+      "pattern": "vertical jump",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "none",
+      "gct": "dead start from knees",
+      "velocity": "maximal concentric",
+      "joints": [
+        "hip extension (very large, fast)",
+        "knee extension (on landing)",
+        "minimal ankle contribution at take-off"
+      ],
+      "agonists": [
+        "gluteus maximus",
+        "hamstrings"
+      ],
+      "synergists": [
+        "vasti (landing)",
+        "adductor magnus",
+        "erector spinae (hip drive)"
+      ],
+      "stabilizers": [
+        "deep trunk (high)",
+        "erector spinae"
+      ],
+      "position": "Shins on the ground removes the ankle from take-off entirely, so hip extension does nearly all the work. A genuinely different stimulus from any standing jump, not a regression of one.",
+      "resistance": "Bodyweight.",
+      "lengthBias": null,
+      "intents": [
+        "concentric RFD",
+        "hip extension power"
+      ],
+      "dose": "3\u20135 \u00d7 3\u20135, full recovery",
+      "stress": {
+        "axial": "low",
+        "flexion": "mod",
+        "impact": "mod",
+        "landing": "mod",
+        "achilles": "low",
+        "knee": "mod",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [
+        "padded surface"
+      ],
+      "equipTier": "home",
+      "space": "indoor, 2 m\u00b2",
+      "skill": "intermediate",
+      "cues": [
+        "Sit back to load the hips, then throw them through",
+        "Arms swing hard",
+        "Land in a quarter squat, feet flat"
+      ],
+      "video": {
+        "id": "4qK55avGyy4",
+        "author": "Rehab My Patient"
+      },
+      "block": "01-lower-body-plyometrics"
+    },
+    {
+      "id": "half-kneeling-db-jump",
+      "name": "Half-Kneeling DB Jump to Stand",
+      "aka": "your lower-back substitute",
+      "family": "kneeling-jump",
+      "modifiers": [
+        "unilateral lead",
+        "dumbbells in hands"
+      ],
+      "pattern": "vertical jump",
+      "plane": "sagittal",
+      "stance": "unilateral (split)",
+      "perSide": true,
+      "ssc": "none",
+      "gct": "dead start",
+      "velocity": "maximal concentric",
+      "joints": [
+        "hip extension (lead leg, large, fast)",
+        "knee extension (lead leg)",
+        "trunk anti-rotation (isometric)"
+      ],
+      "agonists": [
+        "gluteus maximus (lead)",
+        "vasti (lead)"
+      ],
+      "synergists": [
+        "hamstrings",
+        "adductor magnus",
+        "gluteus medius (frontal-plane control)"
+      ],
+      "stabilizers": [
+        "deep trunk (high, asymmetric)",
+        "erector spinae",
+        "quadratus lumborum"
+      ],
+      "position": "Dumbbells hang at the sides, so the load pulls down through the shoulders rather than compressing the spine from above \u2014 the opposite of a barbell on the back. One leg leads, which adds a frontal-plane control demand absent from every bilateral drill here.",
+      "resistance": "External, offset, held low. Grip-limited rather than strength-limited.",
+      "lengthBias": null,
+      "intents": [
+        "concentric RFD",
+        "hip extension power"
+      ],
+      "dose": "3\u20134 \u00d7 3\u20135 per side, full recovery",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "mod",
+        "achilles": "low",
+        "knee": "mod",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [
+        "dumbbells",
+        "padded surface"
+      ],
+      "equipTier": "minimal",
+      "space": "indoor, 2 m\u00b2",
+      "skill": "intermediate",
+      "cues": [
+        "Dumbbells hang passive \u2014 do not shrug them",
+        "Drive through the lead heel",
+        "Match the rep count on both sides"
+      ],
+      "video": null,
+      "note": "No public demonstration found that matches this variant. This is the clearest case for filming your own \u2014 the drill is yours and the library does not have it.",
+      "block": "01-lower-body-plyometrics"
+    },
+    {
+      "id": "pogo",
+      "name": "Pogo Hops",
+      "aka": "ankle hops",
+      "family": "pogo",
+      "modifiers": [
+        "bilateral",
+        "vertical"
+      ],
+      "pattern": "repeat hop",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "fast",
+      "gct": "< 200 ms",
+      "velocity": "high, cyclic",
+      "joints": [
+        "ankle plantarflexion / dorsiflexion (primary)",
+        "knee and hip held near-rigid"
+      ],
+      "agonists": [
+        "gastrocnemius",
+        "soleus"
+      ],
+      "synergists": [
+        "tibialis posterior",
+        "intrinsic foot",
+        "vasti (isometric)"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "erector spinae (low)"
+      ],
+      "position": "Deliberately stiff knees and hips so the ankle and Achilles take the load. The entry point to all fast-SSC work and the cheapest way to train tendon stiffness.",
+      "resistance": "Bodyweight.",
+      "lengthBias": null,
+      "intents": [
+        "reactive strength",
+        "ankle stiffness"
+      ],
+      "dose": "3\u20135 \u00d7 10\u201320 contacts, moderate rest",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "mod",
+        "landing": "mod",
+        "achilles": "high",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [],
+      "equipTier": "none",
+      "space": "indoor, 1 m\u00b2",
+      "skill": "entry",
+      "cues": [
+        "Knees almost locked",
+        "Bounce off the forefoot, heels never settle",
+        "Think height per contact, not reps"
+      ],
+      "video": {
+        "id": "zKqcL6HSTE4",
+        "author": "Rehab My Patient"
+      },
+      "block": "01-lower-body-plyometrics"
+    },
+    {
+      "id": "lateral-pogo",
+      "name": "Lateral Pogo Hops",
+      "aka": null,
+      "family": "pogo",
+      "modifiers": [
+        "bilateral",
+        "lateral"
+      ],
+      "pattern": "repeat hop",
+      "plane": "frontal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "fast",
+      "gct": "< 200 ms",
+      "velocity": "high, cyclic",
+      "joints": [
+        "ankle plantarflexion with frontal-plane control",
+        "hip abduction / adduction (small)"
+      ],
+      "agonists": [
+        "gastrocnemius",
+        "soleus"
+      ],
+      "synergists": [
+        "peroneals",
+        "gluteus medius",
+        "tibialis posterior"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "gluteus medius"
+      ],
+      "position": "Same ankle-stiffness stimulus moved into the frontal plane, which brings the peroneals and glute medius in. The lateral entry drill before skater hops.",
+      "resistance": "Bodyweight.",
+      "lengthBias": null,
+      "intents": [
+        "reactive strength",
+        "frontal-plane stiffness"
+      ],
+      "dose": "3\u20135 \u00d7 10\u201320 contacts, moderate rest",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "mod",
+        "landing": "mod",
+        "achilles": "high",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [],
+      "equipTier": "none",
+      "space": "indoor, 2 m line",
+      "skill": "entry",
+      "cues": [
+        "Stiff knees",
+        "Travel side to side, not up",
+        "Keep the shoulders square to the front"
+      ],
+      "video": {
+        "id": "PXcLn_gPiCc",
+        "author": "Rehab My Patient"
+      },
+      "block": "01-lower-body-plyometrics"
+    },
+    {
+      "id": "skater-hops",
+      "name": "Lateral Skater Hops",
+      "aka": "speed skaters",
+      "family": "lateral-bound",
+      "modifiers": [
+        "unilateral",
+        "lateral projection"
+      ],
+      "pattern": "lateral bound",
+      "plane": "frontal",
+      "stance": "unilateral",
+      "perSide": true,
+      "ssc": "slow",
+      "gct": "> 250 ms when held, shorter when cyclic",
+      "velocity": "high",
+      "joints": [
+        "hip abduction then adduction",
+        "hip extension",
+        "knee extension",
+        "ankle eversion control"
+      ],
+      "agonists": [
+        "gluteus maximus",
+        "gluteus medius",
+        "vasti"
+      ],
+      "synergists": [
+        "adductors (push-off)",
+        "peroneals",
+        "triceps surae"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "gluteus medius (landing leg)"
+      ],
+      "position": "Single-leg lateral projection and single-leg absorption. The frontal-plane hip work here has no bilateral sagittal equivalent, so it is rarely a true substitute for a vertical drill.",
+      "resistance": "Bodyweight.",
+      "lengthBias": null,
+      "intents": [
+        "lateral power",
+        "frontal-plane deceleration"
+      ],
+      "dose": "3\u20134 \u00d7 4\u20136 per side, moderate rest",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "mod",
+        "landing": "mod",
+        "achilles": "mod",
+        "knee": "mod",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [],
+      "equipTier": "none",
+      "space": "3 m lateral",
+      "skill": "intermediate",
+      "cues": [
+        "Land and hold briefly before the next push",
+        "Knee tracks over the foot, never collapsing in",
+        "Push away sideways, not upward"
+      ],
+      "video": {
+        "id": "gS4F_YrwZVs",
+        "author": "Mike | J2FIT Strength & Conditioning"
+      },
+      "block": "01-lower-body-plyometrics"
+    },
+    {
+      "id": "bounding",
+      "name": "Alternate Leg Bounding",
+      "aka": "bounds",
+      "family": "horizontal-bound",
+      "modifiers": [
+        "alternating",
+        "cyclic"
+      ],
+      "pattern": "horizontal bound",
+      "plane": "sagittal",
+      "stance": "unilateral alternating",
+      "perSide": false,
+      "ssc": "fast",
+      "gct": "< 250 ms per contact",
+      "velocity": "high, cyclic",
+      "joints": [
+        "hip extension (large, fast)",
+        "hip flexion (drive leg)",
+        "ankle plantarflexion",
+        "knee extension"
+      ],
+      "agonists": [
+        "gluteus maximus",
+        "hamstrings",
+        "triceps surae"
+      ],
+      "synergists": [
+        "iliopsoas (drive knee)",
+        "vasti",
+        "adductor magnus"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "erector spinae"
+      ],
+      "position": "Closest drill here to running mechanics \u2014 alternating single-leg contacts with horizontal projection. The hamstrings work hard at long length, which is both the training value and the injury risk.",
+      "resistance": "Bodyweight.",
+      "lengthBias": null,
+      "intents": [
+        "reactive strength",
+        "horizontal power",
+        "sprint transfer"
+      ],
+      "dose": "4\u20136 \u00d7 20\u201330 m, full recovery",
+      "stress": {
+        "axial": "low",
+        "flexion": "mod",
+        "impact": "mod",
+        "landing": "mod",
+        "achilles": "high",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [],
+      "equipTier": "home",
+      "space": "30 m runway, grass or track",
+      "skill": "advanced",
+      "cues": [
+        "Cover ground, do not hang in the air",
+        "Drive the knee through, strike under the hip",
+        "Stop the set when stride shortens"
+      ],
+      "video": {
+        "id": "nTwTgnkFsNk",
+        "author": "Rehab My Patient"
+      },
+      "block": "01-lower-body-plyometrics"
+    },
+    {
+      "id": "sl-hurdle-hop",
+      "name": "Single-Leg Mini-Hurdle Hop",
+      "aka": null,
+      "family": "hurdle-hop",
+      "modifiers": [
+        "unilateral",
+        "low hurdle"
+      ],
+      "pattern": "repeat hop",
+      "plane": "sagittal",
+      "stance": "unilateral",
+      "perSide": true,
+      "ssc": "fast",
+      "gct": "< 250 ms",
+      "velocity": "high, cyclic",
+      "joints": [
+        "ankle plantarflexion",
+        "knee extension (small range)",
+        "hip extension (small)"
+      ],
+      "agonists": [
+        "triceps surae",
+        "vasti"
+      ],
+      "synergists": [
+        "gluteus maximus",
+        "gluteus medius",
+        "peroneals"
+      ],
+      "stabilizers": [
+        "gluteus medius (high \u2014 single-leg landing)",
+        "deep trunk"
+      ],
+      "position": "Single-leg fast-SSC with an obstacle forcing minimum height. Exposes left\u2013right asymmetry better than anything else in the set.",
+      "resistance": "Bodyweight.",
+      "lengthBias": null,
+      "intents": [
+        "reactive strength",
+        "unilateral stiffness"
+      ],
+      "dose": "3\u20134 \u00d7 5\u20138 contacts per side, moderate rest",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "mod",
+        "landing": "mod",
+        "achilles": "high",
+        "knee": "mod",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [
+        "mini hurdles"
+      ],
+      "equipTier": "gym",
+      "space": "5 m line",
+      "skill": "intermediate",
+      "cues": [
+        "Same leg throughout the set",
+        "Minimum ground time over each hurdle",
+        "Compare sides \u2014 stop if one lags badly"
+      ],
+      "video": {
+        "id": "TxtjHt8AZA0",
+        "author": "Simple Speed Coach"
+      },
+      "block": "01-lower-body-plyometrics"
+    },
+    {
+      "id": "high-hurdle-sl-hop",
+      "name": "High Hurdle Single-Leg Hops",
+      "aka": null,
+      "family": "hurdle-hop",
+      "modifiers": [
+        "unilateral",
+        "high hurdle"
+      ],
+      "pattern": "repeat hop",
+      "plane": "sagittal",
+      "stance": "unilateral",
+      "perSide": true,
+      "ssc": "slow",
+      "gct": "> 250 ms \u2014 height forces a longer contact",
+      "velocity": "high",
+      "joints": [
+        "hip extension (large)",
+        "knee extension (large)",
+        "ankle plantarflexion"
+      ],
+      "agonists": [
+        "gluteus maximus",
+        "vasti",
+        "triceps surae"
+      ],
+      "synergists": [
+        "hamstrings",
+        "gluteus medius"
+      ],
+      "stabilizers": [
+        "gluteus medius (high)",
+        "deep trunk"
+      ],
+      "position": "Raising the hurdle pushes contact time past the fast-SSC threshold, which makes this a different quality from the mini-hurdle version despite looking like the same drill with a bigger obstacle.",
+      "resistance": "Bodyweight.",
+      "lengthBias": null,
+      "intents": [
+        "unilateral jump output"
+      ],
+      "dose": "3\u20134 \u00d7 4\u20136 contacts per side, full recovery",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "high",
+        "landing": "high",
+        "achilles": "high",
+        "knee": "mod",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [
+        "hurdles"
+      ],
+      "equipTier": "gym",
+      "space": "5 m line",
+      "skill": "advanced",
+      "cues": [
+        "Clear the hurdle, then reset if needed",
+        "Stick each landing on one leg",
+        "Height is the goal, not speed"
+      ],
+      "video": {
+        "id": "dOezLxJy6Is",
+        "author": "Rehab My Patient"
+      },
+      "flags": [
+        {
+          "field": "ssc",
+          "kind": "inferred",
+          "text": "The slow-SSC classification is reasoning, not a sourced measurement: clearing a higher obstacle needs more impulse, which usually means longer contact. No study was found for obstacle height specifically, and the nearest evidence runs the other way \u2014 raising drop-jump height 30\u219260 cm shortened contact (0.155\u21920.141 s). Measure contact time before trusting this one."
+        }
+      ],
+      "block": "01-lower-body-plyometrics"
+    },
+    {
+      "id": "sl-standing-jump",
+      "name": "Single-Leg Standing Jump",
+      "aka": null,
+      "family": "vertical-jump",
+      "modifiers": [
+        "unilateral",
+        "countermovement"
+      ],
+      "pattern": "vertical jump",
+      "plane": "sagittal",
+      "stance": "unilateral",
+      "perSide": true,
+      "ssc": "slow",
+      "gct": "> 250 ms",
+      "velocity": "maximal",
+      "joints": [
+        "hip extension",
+        "knee extension",
+        "ankle plantarflexion",
+        "frontal-plane hip control"
+      ],
+      "agonists": [
+        "vasti",
+        "gluteus maximus"
+      ],
+      "synergists": [
+        "triceps surae",
+        "hamstrings",
+        "gluteus medius"
+      ],
+      "stabilizers": [
+        "gluteus medius (high)",
+        "deep trunk"
+      ],
+      "position": "The unilateral reference jump. Useful as both a drill and an asymmetry test, since a side-to-side gap shows up immediately.",
+      "resistance": "Bodyweight.",
+      "lengthBias": null,
+      "intents": [
+        "max unilateral output",
+        "slow SSC"
+      ],
+      "dose": "3\u20135 \u00d7 3\u20135 per side, full recovery",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "mod",
+        "landing": "mod",
+        "achilles": "mod",
+        "knee": "mod",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [],
+      "equipTier": "none",
+      "space": "indoor, 1 m\u00b2",
+      "skill": "intermediate",
+      "cues": [
+        "Free leg stays quiet \u2014 no swinging it for momentum",
+        "Land on the same leg and hold",
+        "Record both sides"
+      ],
+      "video": {
+        "id": "rD3t89W7bxA",
+        "author": "Elevate Yourself"
+      },
+      "block": "01-lower-body-plyometrics"
+    }
+  ],
+  "swap_edges": [
+    {
+      "from": "sbj-elevated",
+      "to": "half-kneeling-db-jump",
+      "reason": "lumbar",
+      "same": "Dead-start triple extension, maximal concentric intent",
+      "changed": "No drop-impact through the spine; load hangs from the hands; one leg leads",
+      "dose": "3\u20135 \u00d7 3 becomes 3\u20134 \u00d7 3\u20135 per side"
+    },
+    {
+      "from": "sbj-elevated",
+      "to": "pogo",
+      "reason": "lumbar",
+      "same": "Fast SSC, reactive intent",
+      "changed": "Impact magnitude much lower per contact; ankle-dominant instead of whole-leg",
+      "dose": "Reps rise \u2014 3\u20135 \u00d7 10\u201320 contacts"
+    },
+    {
+      "from": "sbj-elevated",
+      "to": "sbj-planted",
+      "reason": "achilles",
+      "same": "Same movement, same position, same equipment",
+      "changed": "Removes the stomp, so no elastic pre-load and far less Achilles demand",
+      "dose": "Unchanged"
+    },
+    {
+      "from": "back-squat-jump",
+      "to": "kneeling-jump",
+      "reason": "lumbar",
+      "same": "Hip-extension-dominant jump, speed intent",
+      "changed": "No axial load at all; ankle removed from take-off",
+      "dose": "Loses external load \u2014 3\u20135 \u00d7 3\u20135 bodyweight"
+    },
+    {
+      "from": "back-squat-jump",
+      "to": "half-kneeling-db-jump",
+      "reason": "lumbar",
+      "same": "Loaded jump, concentric emphasis",
+      "changed": "Load moves from the spine to the hands; unilateral",
+      "dose": "% 1RM no longer applies \u2014 prescribe to effort, per side"
+    },
+    {
+      "from": "back-squat-jump",
+      "to": "vert-jump",
+      "reason": "equipment",
+      "same": "Bilateral vertical jump, slow SSC",
+      "changed": "Unloaded, so speed-strength becomes max output",
+      "dose": "Drop the load; 3\u20136 \u00d7 3\u20135"
+    },
+    {
+      "from": "depth-jump",
+      "to": "depth-drop",
+      "reason": "harder",
+      "same": "Same drop, same landing demand",
+      "changed": "Removes the rebound \u2014 eccentric only, so no reactive quality",
+      "dose": "Unchanged; lower the box"
+    },
+    {
+      "from": "depth-jump",
+      "to": "pogo",
+      "reason": "harder",
+      "same": "Fast SSC, reactive intent",
+      "changed": "Far lower impact per contact; ankle-dominant",
+      "dose": "3\u20135 \u00d7 10\u201320 contacts"
+    },
+    {
+      "from": "depth-jump",
+      "to": "box-jump",
+      "reason": "knee",
+      "same": "Bilateral vertical jump, maximal intent",
+      "changed": "Slow SSC instead of fast; landing cost near zero on the box",
+      "dose": "Unchanged"
+    },
+    {
+      "from": "box-jump",
+      "to": "vert-jump",
+      "reason": "equipment",
+      "same": "Bilateral countermovement jump, slow SSC",
+      "changed": "Lands on the floor, so landing cost rises",
+      "dose": "Unchanged"
+    },
+    {
+      "from": "bounding",
+      "to": "pogo",
+      "reason": "space",
+      "same": "Fast SSC, cyclic contacts",
+      "changed": "No horizontal projection, so sprint transfer is lost",
+      "dose": "Distance becomes contacts \u2014 3\u20135 \u00d7 10\u201320"
+    },
+    {
+      "from": "bounding",
+      "to": "sl-hurdle-hop",
+      "reason": "space",
+      "same": "Fast SSC on a single leg",
+      "changed": "Vertical instead of horizontal; 5 m instead of 30 m",
+      "dose": "3\u20134 \u00d7 5\u20138 per side"
+    },
+    {
+      "from": "skater-hops",
+      "to": "lateral-pogo",
+      "reason": "harder",
+      "same": "Frontal plane, lateral stiffness",
+      "changed": "Bilateral instead of single-leg; much smaller displacement",
+      "dose": "3\u20135 \u00d7 10\u201320 contacts"
+    }
+  ]
+}

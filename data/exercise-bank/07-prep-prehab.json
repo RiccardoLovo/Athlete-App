@@ -1,0 +1,2477 @@
+{
+  "block": "07-prep-prehab",
+  "title": "Prep, prehab & lower leg",
+  "reviewed": false,
+  "clinical_signoff": null,
+  "updated": "2026-10-27",
+  "vocab": {
+    "ssc": [
+      {
+        "id": "none",
+        "label": "No SSC",
+        "definition": "Dead start or paused. No elastic contribution; force comes from rate of development alone."
+      },
+      {
+        "id": "slow",
+        "label": "Slow SSC",
+        "definition": "Contact > 250 ms, large joint displacement. Countermovement assists the jump."
+      },
+      {
+        "id": "fast",
+        "label": "Fast SSC",
+        "definition": "Contact < 250 ms, small displacement. Trains tendon stiffness and reactive strength."
+      },
+      {
+        "id": "ecc",
+        "label": "Eccentric only",
+        "definition": "Deceleration and landing. No concentric phase to train."
+      },
+      {
+        "id": "n/a",
+        "label": "Not applicable",
+        "definition": "Grinding or isolation work where the stretch-shortening cycle is not the organizing variable."
+      },
+      {
+        "id": "n/a",
+        "label": "Not applicable",
+        "definition": "Grinding or isolation work where the stretch-shortening cycle is not the organizing variable."
+      }
+    ],
+    "swap_reason": [
+      {
+        "id": "equipment",
+        "label": "Equipment unavailable"
+      },
+      {
+        "id": "space",
+        "label": "No space"
+      },
+      {
+        "id": "harder",
+        "label": "Too hard today"
+      },
+      {
+        "id": "lumbar",
+        "label": "Lower back"
+      },
+      {
+        "id": "knee",
+        "label": "Knee"
+      },
+      {
+        "id": "achilles",
+        "label": "Achilles / calf"
+      },
+      {
+        "id": "shoulder",
+        "label": "Shoulder"
+      },
+      {
+        "id": "elbow",
+        "label": "Elbow"
+      }
+    ],
+    "stress_level": [
+      "low",
+      "mod",
+      "high"
+    ],
+    "skill": [
+      "entry",
+      "intermediate",
+      "advanced"
+    ],
+    "plane": [
+      "sagittal",
+      "frontal",
+      "transverse"
+    ],
+    "stance": [
+      "bilateral",
+      "unilateral",
+      "unilateral (split)",
+      "unilateral alternating"
+    ],
+    "provenance": [
+      "sourced",
+      "inferred",
+      "unverified"
+    ],
+    "length_bias": [
+      "lengthened",
+      "mid",
+      "shortened"
+    ],
+    "stress_field": [
+      "axial",
+      "flexion",
+      "impact",
+      "landing",
+      "achilles",
+      "knee",
+      "shoulder",
+      "elbow"
+    ],
+    "equip_tier": [
+      "none",
+      "home",
+      "minimal",
+      "gym",
+      "specialist"
+    ]
+  },
+  "exercises": [
+    {
+      "id": "copenhagen-plank",
+      "name": "Copenhagen Plank",
+      "aka": null,
+      "family": "copenhagen",
+      "modifiers": [
+        "bodyweight",
+        "top leg supported",
+        "isometric"
+      ],
+      "pattern": "hip adduction",
+      "plane": "frontal",
+      "stance": "unilateral",
+      "perSide": true,
+      "ssc": "none",
+      "gct": "n/a — sustained hold",
+      "velocity": "none (isometric)",
+      "joints": [
+        "hip adduction (isometric, top leg)",
+        "trunk anti-lateral-flexion"
+      ],
+      "agonists": [
+        "adductor longus",
+        "adductor brevis",
+        "adductor magnus"
+      ],
+      "synergists": [
+        "obliques",
+        "gluteus medius (bottom side)",
+        "pectineus",
+        "gracilis"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "quadratus lumborum",
+        "rotator cuff"
+      ],
+      "position": "The only common exercise that loads the adductors isometrically at a useful intensity. Adductor strength is the single best-evidenced protection against groin problems in change-of-direction and cycling-heavy athletes, and almost nothing else in a gym trains it directly.",
+      "resistance": "Bodyweight, lever-scaled by where the top leg rests.",
+      "lengthBias": "mid",
+      "intents": [
+        "isometric strength",
+        "groin resilience"
+      ],
+      "dose": "3 × 15–30 s per side",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "mod",
+        "elbow": "low"
+      },
+      "equipment": [
+        "bench or box"
+      ],
+      "equipTier": "home",
+      "space": "floor",
+      "skill": "intermediate",
+      "cues": [
+        "Support at the knee first, the ankle later",
+        "Hips stacked, lift the bottom hip up",
+        "Stop at the first twinge in the groin — this area does not forgive"
+      ],
+      "video": {
+        "id": "VfjAmomtVa0",
+        "author": "Catalyst Athletics"
+      },
+      "block": "07-prep-prehab"
+    },
+    {
+      "id": "copenhagen-kick",
+      "name": "Copenhagen Kick",
+      "aka": null,
+      "family": "copenhagen",
+      "modifiers": [
+        "bodyweight",
+        "dynamic bottom leg"
+      ],
+      "pattern": "hip adduction",
+      "plane": "frontal",
+      "stance": "unilateral",
+      "perSide": true,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "controlled",
+      "joints": [
+        "hip adduction (isometric, top leg)",
+        "hip flexion / extension (bottom leg, dynamic)"
+      ],
+      "agonists": [
+        "adductors (top leg)",
+        "hip flexors (bottom leg)"
+      ],
+      "synergists": [
+        "obliques",
+        "gluteus medius",
+        "rectus femoris"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "quadratus lumborum"
+      ],
+      "position": "Holds the Copenhagen position while the free leg moves, adding a dynamic component to a static adductor hold. A progression of the plank, not a substitute for it.",
+      "resistance": "Bodyweight.",
+      "lengthBias": "mid",
+      "intents": [
+        "groin resilience",
+        "hip control"
+      ],
+      "dose": "3 × 6–10 per side",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "mod",
+        "elbow": "low"
+      },
+      "equipment": [
+        "bench or box"
+      ],
+      "equipTier": "home",
+      "space": "floor",
+      "skill": "advanced",
+      "cues": [
+        "Hold the plank shape — only the bottom leg moves",
+        "Small range to start",
+        "Build the static hold first"
+      ],
+      "video": {
+        "id": "4NNOrKyboqo",
+        "author": "Catalyst Athletics"
+      },
+      "block": "07-prep-prehab"
+    },
+    {
+      "id": "butterfly-adduction",
+      "name": "Butterfly Adduction",
+      "aka": null,
+      "family": "iso-adduction",
+      "modifiers": [
+        "supine",
+        "isometric squeeze"
+      ],
+      "pattern": "hip adduction",
+      "plane": "frontal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "none",
+      "gct": "n/a — sustained squeeze",
+      "velocity": "none (isometric)",
+      "joints": [
+        "hip adduction (isometric, hips externally rotated)"
+      ],
+      "agonists": [
+        "adductors (short head emphasis)",
+        "gracilis"
+      ],
+      "synergists": [
+        "pectineus"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "pelvic floor"
+      ],
+      "position": "Supine with the hips turned out, so the adductors squeeze from a shortened, externally rotated position. The gentlest adductor entry there is — the one to use when a Copenhagen is far too much, which after a groin problem it usually is.",
+      "resistance": "Isometric, self-generated or against a ball.",
+      "lengthBias": "shortened",
+      "intents": [
+        "activation",
+        "groin resilience"
+      ],
+      "dose": "3 × 20–45 s, or 10 × 5 s squeezes",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [],
+      "equipTier": "none",
+      "space": "floor",
+      "skill": "entry",
+      "cues": [
+        "Squeeze gradually, do not snap into it",
+        "Lower back stays flat",
+        "Pain-free intensity only"
+      ],
+      "video": {
+        "id": "wP5HIPBimBs",
+        "author": "Catalyst Athletics"
+      },
+      "block": "07-prep-prehab"
+    },
+    {
+      "id": "standing-band-adduction",
+      "name": "Standing Banded Hip Adduction",
+      "aka": null,
+      "family": "band-hip",
+      "modifiers": [
+        "band",
+        "standing",
+        "dynamic"
+      ],
+      "pattern": "hip adduction",
+      "plane": "frontal",
+      "stance": "unilateral",
+      "perSide": true,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "controlled",
+      "joints": [
+        "hip adduction (dynamic, through range)",
+        "standing-leg stability"
+      ],
+      "agonists": [
+        "adductor magnus",
+        "adductor longus"
+      ],
+      "synergists": [
+        "gracilis",
+        "pectineus",
+        "gluteus medius (standing side)"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "gluteus medius (standing leg)",
+        "foot and ankle"
+      ],
+      "position": "Dynamic adduction through range with the hip loaded in standing, which is how adduction is actually used in gait. Also trains the standing leg's abductors isometrically at the same time.",
+      "resistance": "Band. Hardest at full adduction.",
+      "lengthBias": "shortened",
+      "intents": [
+        "groin resilience",
+        "hip control"
+      ],
+      "dose": "3 × 12–20 per side",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [
+        "band"
+      ],
+      "equipTier": "home",
+      "space": "indoor, 2 m²",
+      "skill": "entry",
+      "cues": [
+        "Stand tall, do not hitch the hip",
+        "Pull the leg across and control it back",
+        "Hold something for balance if needed"
+      ],
+      "video": {
+        "id": "mX4EVBcATFo",
+        "author": "Catalyst Athletics"
+      },
+      "block": "07-prep-prehab"
+    },
+    {
+      "id": "half-kneeling-adductor-rock",
+      "name": "Half Kneeling Adductor Rock",
+      "aka": null,
+      "family": "adductor-mobility",
+      "modifiers": [
+        "bodyweight",
+        "rocking"
+      ],
+      "pattern": "hip adduction",
+      "plane": "frontal",
+      "stance": "unilateral",
+      "perSide": true,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "slow, rhythmic",
+      "joints": [
+        "hip abduction with adductor lengthening",
+        "knee extension (straight leg)"
+      ],
+      "agonists": [
+        "adductors (lengthening, eccentric control)"
+      ],
+      "synergists": [
+        "gracilis",
+        "hamstrings",
+        "gluteus medius"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "supporting arm"
+      ],
+      "position": "Loads the adductors at long length under control rather than strengthening them short. The mobility end of the same family — useful before a session, not instead of the strengthening work.",
+      "resistance": "Bodyweight, gravity-assisted.",
+      "lengthBias": "lengthened",
+      "intents": [
+        "mobility under load",
+        "warm-up"
+      ],
+      "dose": "2 × 8–12 slow rocks per side",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [],
+      "equipTier": "none",
+      "space": "floor",
+      "skill": "entry",
+      "cues": [
+        "Straight leg's toes point forward or up",
+        "Rock gently — no bouncing into the stretch",
+        "Keep the back long"
+      ],
+      "video": {
+        "id": "p7nB9K2d5Wg",
+        "author": "Catalyst Athletics"
+      },
+      "block": "07-prep-prehab"
+    },
+    {
+      "id": "clamshell",
+      "name": "Clamshell",
+      "aka": null,
+      "family": "clamshell",
+      "modifiers": [
+        "side-lying",
+        "band optional"
+      ],
+      "pattern": "hip rotation",
+      "plane": "transverse",
+      "stance": "unilateral",
+      "perSide": true,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "controlled",
+      "joints": [
+        "hip external rotation (dynamic)",
+        "hip abduction (small)"
+      ],
+      "agonists": [
+        "gluteus medius (posterior fibres)",
+        "gluteus maximus (upper fibres)"
+      ],
+      "synergists": [
+        "piriformis and deep external rotators",
+        "tensor fasciae latae"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "quadratus lumborum"
+      ],
+      "position": "Trains hip external rotation with the pelvis supported, which is the posterior glute medius — the part that controls the knee falling inward in running and cycling. Low load, so it is activation rather than strength work.",
+      "resistance": "Bodyweight or band.",
+      "lengthBias": "shortened",
+      "intents": [
+        "activation",
+        "hip control"
+      ],
+      "dose": "2–3 × 12–20 per side",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [],
+      "equipTier": "none",
+      "space": "floor",
+      "skill": "entry",
+      "cues": [
+        "Pelvis stays still — do not roll backward",
+        "Open from the hip, not the lower back",
+        "Add a band once it is easy"
+      ],
+      "video": {
+        "id": "wRlgcPJ-F-w",
+        "author": "Catalyst Athletics"
+      },
+      "block": "07-prep-prehab"
+    },
+    {
+      "id": "side-plank-clamshell",
+      "name": "Side Plank Clamshell",
+      "aka": null,
+      "family": "clamshell",
+      "modifiers": [
+        "side plank position",
+        "band optional"
+      ],
+      "pattern": "hip rotation",
+      "plane": "transverse",
+      "stance": "unilateral",
+      "perSide": true,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "controlled",
+      "joints": [
+        "hip external rotation (top leg, dynamic)",
+        "trunk anti-lateral-flexion (isometric)",
+        "hip abduction (bottom leg, isometric)"
+      ],
+      "agonists": [
+        "gluteus medius (both sides)",
+        "deep external rotators"
+      ],
+      "synergists": [
+        "obliques",
+        "quadratus lumborum",
+        "gluteus maximus"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "rotator cuff",
+        "gluteus medius (bottom, high)"
+      ],
+      "position": "Combines the clamshell with a side plank, so the bottom glute medius works isometrically while the top one rotates. Twice the hip work for the same set and a real trunk demand on top.",
+      "resistance": "Bodyweight or band.",
+      "lengthBias": "shortened",
+      "intents": [
+        "hip control",
+        "lateral trunk endurance"
+      ],
+      "dose": "3 × 10–15 per side",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "mod",
+        "elbow": "low"
+      },
+      "equipment": [],
+      "equipTier": "none",
+      "space": "floor",
+      "skill": "intermediate",
+      "cues": [
+        "Build the side plank first, then open the knee",
+        "Hips stay stacked",
+        "Bottom hip pushes up throughout"
+      ],
+      "video": {
+        "id": "r-vXg-q0d-E",
+        "author": "Catalyst Athletics"
+      },
+      "block": "07-prep-prehab"
+    },
+    {
+      "id": "monster-walk",
+      "name": "Monster Walk",
+      "aka": "banded lateral walk",
+      "family": "band-walk",
+      "modifiers": [
+        "band at the knees or ankles",
+        "walking"
+      ],
+      "pattern": "hip abduction",
+      "plane": "frontal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "slow, continuous",
+      "joints": [
+        "hip abduction (repeated, against band)",
+        "knee held in slight flexion",
+        "trunk stability"
+      ],
+      "agonists": [
+        "gluteus medius",
+        "gluteus minimus"
+      ],
+      "synergists": [
+        "tensor fasciae latae",
+        "gluteus maximus (upper fibres)",
+        "vasti (half-squat hold)"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "foot and ankle"
+      ],
+      "position": "Repeated abduction under continuous band tension in a half-squat, so the glute medius works while the knee is loaded — much closer to its job in running than a side-lying drill. The staple pre-run activation exercise.",
+      "resistance": "Band, continuous.",
+      "lengthBias": "mid",
+      "intents": [
+        "activation",
+        "hip endurance"
+      ],
+      "dose": "2–3 × 10–20 steps each direction",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "mod",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [
+        "band"
+      ],
+      "equipTier": "home",
+      "space": "5 m walkway",
+      "skill": "entry",
+      "cues": [
+        "Stay in a quarter squat throughout",
+        "Push out against the band, do not swing the leg",
+        "Toes forward, no duck-walking"
+      ],
+      "video": {
+        "id": "UX-hIEbWpCA",
+        "author": "Catalyst Athletics"
+      },
+      "block": "07-prep-prehab"
+    },
+    {
+      "id": "band-side-shuffle",
+      "name": "Band Side Shuffle",
+      "aka": null,
+      "family": "band-walk",
+      "modifiers": [
+        "band",
+        "lateral shuffle"
+      ],
+      "pattern": "hip abduction",
+      "plane": "frontal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "moderate",
+      "joints": [
+        "hip abduction (repeated, faster)",
+        "ankle and knee control in the frontal plane"
+      ],
+      "agonists": [
+        "gluteus medius"
+      ],
+      "synergists": [
+        "tensor fasciae latae",
+        "gluteus maximus",
+        "peroneals"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "foot and ankle"
+      ],
+      "position": "A faster monster walk, so the glute medius works closer to the speed of real locomotion. Bridges activation work and lateral movement.",
+      "resistance": "Band.",
+      "lengthBias": "mid",
+      "intents": [
+        "activation",
+        "lateral movement prep"
+      ],
+      "dose": "3 × 10–15 m each direction",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "mod",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [
+        "band"
+      ],
+      "equipTier": "home",
+      "space": "10 m walkway",
+      "skill": "entry",
+      "cues": [
+        "Low athletic stance",
+        "Feet never click together",
+        "Chest up, hips level"
+      ],
+      "video": {
+        "id": "DoMfsqgLbmI",
+        "author": "Catalyst Athletics"
+      },
+      "block": "07-prep-prehab"
+    },
+    {
+      "id": "standing-band-abduction",
+      "name": "Standing Banded Hip Abduction",
+      "aka": null,
+      "family": "band-hip",
+      "modifiers": [
+        "band",
+        "standing",
+        "single leg"
+      ],
+      "pattern": "hip abduction",
+      "plane": "frontal",
+      "stance": "unilateral",
+      "perSide": true,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "controlled",
+      "joints": [
+        "hip abduction (dynamic, moving leg)",
+        "hip abduction (isometric, standing leg)"
+      ],
+      "agonists": [
+        "gluteus medius"
+      ],
+      "synergists": [
+        "gluteus minimus",
+        "tensor fasciae latae"
+      ],
+      "stabilizers": [
+        "gluteus medius (standing leg, high)",
+        "deep trunk",
+        "foot and ankle"
+      ],
+      "position": "Trains both hips at once — one abducts dynamically while the other holds the pelvis level isometrically. The standing leg is usually working harder than the moving one, which is the part people miss.",
+      "resistance": "Band.",
+      "lengthBias": "shortened",
+      "intents": [
+        "hip control",
+        "activation"
+      ],
+      "dose": "3 × 12–20 per side",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [
+        "band"
+      ],
+      "equipTier": "home",
+      "space": "indoor, 2 m²",
+      "skill": "entry",
+      "cues": [
+        "Pelvis dead level — no hip hitching",
+        "Lift to about 30°, no higher",
+        "Stand tall, do not lean away"
+      ],
+      "video": {
+        "id": "F0_JFhGqY8Q",
+        "author": "Catalyst Athletics"
+      },
+      "block": "07-prep-prehab"
+    },
+    {
+      "id": "bird-dog",
+      "name": "Bird Dog",
+      "aka": null,
+      "family": "bird-dog",
+      "modifiers": [
+        "quadruped",
+        "opposite limbs"
+      ],
+      "pattern": "anti-rotation",
+      "plane": "transverse",
+      "stance": "bilateral",
+      "perSide": true,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "slow",
+      "joints": [
+        "trunk anti-rotation and anti-extension (isometric)",
+        "hip extension",
+        "shoulder flexion"
+      ],
+      "agonists": [
+        "erector spinae",
+        "multifidus",
+        "gluteus maximus"
+      ],
+      "synergists": [
+        "obliques",
+        "posterior deltoid",
+        "transversus abdominis"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "quadratus lumborum",
+        "scapular stabilizers"
+      ],
+      "position": "Quadruped with opposite limbs extended, so the spine resists both rotation and extension at near-zero load. The standard entry point for lumbar motor control precisely because the spinal cost is negligible — almost always safe to prescribe.",
+      "resistance": "Bodyweight, limb lever.",
+      "lengthBias": "mid",
+      "intents": [
+        "motor control",
+        "postural endurance"
+      ],
+      "dose": "2–3 × 8–12 per side, slow",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [],
+      "equipTier": "none",
+      "space": "floor",
+      "skill": "entry",
+      "cues": [
+        "Reach long rather than high",
+        "A glass of water on your lower back should not spill",
+        "Pause at full extension"
+      ],
+      "video": {
+        "id": "DBWdijCeSIM",
+        "author": "Catalyst Athletics"
+      },
+      "block": "07-prep-prehab"
+    },
+    {
+      "id": "spanish-squat",
+      "name": "Spanish Squat",
+      "aka": null,
+      "family": "spanish-squat",
+      "modifiers": [
+        "band behind the knees",
+        "isometric or dynamic"
+      ],
+      "pattern": "squat",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "slow or isometric",
+      "joints": [
+        "knee extension (isometric, against band)",
+        "hip held flexed"
+      ],
+      "agonists": [
+        "vasti"
+      ],
+      "synergists": [
+        "gluteus maximus (light)",
+        "hamstrings (co-contraction)"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "foot and ankle"
+      ],
+      "position": "A band behind the knees pulls the tibia backward, so the quadriceps can be loaded heavily with an upright trunk and very little forward knee travel. The standard way to load a quad through a patellar tendon problem, because the position reduces the compressive component while keeping the muscle demand.",
+      "resistance": "Band. Loaded in a near-isometric knee position.",
+      "lengthBias": "mid",
+      "intents": [
+        "isometric strength",
+        "tendon loading"
+      ],
+      "dose": "4–5 × 30–45 s holds",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [
+        "heavy band",
+        "anchor"
+      ],
+      "equipTier": "home",
+      "space": "indoor, 2 m²",
+      "skill": "entry",
+      "cues": [
+        "Lean back into the band and stay upright",
+        "Shins close to vertical",
+        "Hold at about 60° of knee bend"
+      ],
+      "video": {
+        "id": "5dX0Y4tw8Dc",
+        "author": "Catalyst Athletics"
+      },
+      "block": "07-prep-prehab"
+    },
+    {
+      "id": "tke",
+      "name": "Terminal Knee Extension",
+      "aka": "TKE",
+      "family": "tke",
+      "modifiers": [
+        "band",
+        "standing",
+        "end-range"
+      ],
+      "pattern": "knee extension",
+      "plane": "sagittal",
+      "stance": "unilateral",
+      "perSide": true,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "controlled",
+      "joints": [
+        "knee extension (final 30° only)"
+      ],
+      "agonists": [
+        "vastus medialis",
+        "vasti"
+      ],
+      "synergists": [
+        "gluteus maximus (light)"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "foot and ankle"
+      ],
+      "position": "Loads only the last part of knee extension, which is where quadriceps control is most often lost after a knee problem and where the vastus medialis contributes most. Tiny range, very low load, specific purpose.",
+      "resistance": "Band. Hardest at full extension.",
+      "lengthBias": "shortened",
+      "intents": [
+        "activation",
+        "knee control"
+      ],
+      "dose": "3 × 15–25 per side",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [
+        "band",
+        "anchor"
+      ],
+      "equipTier": "home",
+      "space": "indoor, 2 m²",
+      "skill": "entry",
+      "cues": [
+        "Only the last part of the range",
+        "Squeeze the quad at lockout",
+        "Keep the heel down"
+      ],
+      "video": {
+        "id": "F1uLWqROsaE",
+        "author": "Catalyst Athletics"
+      },
+      "block": "07-prep-prehab"
+    },
+    {
+      "id": "petersen-step-up",
+      "name": "Petersen Step Up",
+      "aka": null,
+      "family": "step-up",
+      "modifiers": [
+        "low step",
+        "heel elevated",
+        "calf and VMO bias"
+      ],
+      "pattern": "single-leg squat",
+      "plane": "sagittal",
+      "stance": "unilateral",
+      "perSide": true,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "slow, controlled",
+      "joints": [
+        "knee extension (small range)",
+        "ankle plantarflexion (end range)"
+      ],
+      "agonists": [
+        "vastus medialis",
+        "vasti",
+        "gastrocnemius"
+      ],
+      "synergists": [
+        "soleus",
+        "gluteus maximus (light)"
+      ],
+      "stabilizers": [
+        "foot and ankle (high)",
+        "gluteus medius",
+        "deep trunk"
+      ],
+      "position": "A very low step performed up on the toes, combining terminal knee extension with calf work. Common in knee and Achilles rehab because both the range and the load are small and controllable.",
+      "resistance": "Bodyweight, small range.",
+      "lengthBias": "shortened",
+      "intents": [
+        "knee control",
+        "calf endurance"
+      ],
+      "dose": "3 × 10–20 per side",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "mod",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [
+        "low step or plate"
+      ],
+      "equipTier": "home",
+      "space": "floor",
+      "skill": "entry",
+      "cues": [
+        "Stay up on the toes throughout",
+        "Small step — 5–10 cm is plenty",
+        "Slow both directions"
+      ],
+      "video": {
+        "id": "Fpnk0TPRpzg",
+        "author": "Catalyst Athletics"
+      },
+      "block": "07-prep-prehab"
+    },
+    {
+      "id": "poliquin-step-up",
+      "name": "Poliquin Step Up",
+      "aka": null,
+      "family": "step-up",
+      "modifiers": [
+        "low step",
+        "toes elevated"
+      ],
+      "pattern": "single-leg squat",
+      "plane": "sagittal",
+      "stance": "unilateral",
+      "perSide": true,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "slow",
+      "joints": [
+        "knee extension (small range, dorsiflexed foot)"
+      ],
+      "agonists": [
+        "vastus medialis",
+        "vasti"
+      ],
+      "synergists": [
+        "tibialis anterior",
+        "gluteus maximus (light)"
+      ],
+      "stabilizers": [
+        "foot and ankle",
+        "gluteus medius",
+        "deep trunk"
+      ],
+      "position": "The mirror of the Petersen: toes raised instead of heels, which puts the ankle in dorsiflexion and shifts the work toward the quadriceps and tibialis anterior. The pair of them cover both ends of the ankle's contribution.",
+      "resistance": "Bodyweight, small range.",
+      "lengthBias": "shortened",
+      "intents": [
+        "knee control",
+        "quad activation"
+      ],
+      "dose": "3 × 10–20 per side",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "mod",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [
+        "low step or plate"
+      ],
+      "equipTier": "home",
+      "space": "floor",
+      "skill": "entry",
+      "cues": [
+        "Toes up on the plate, heel down",
+        "Small controlled range",
+        "Keep the knee tracking over the foot"
+      ],
+      "video": {
+        "id": "VJWAb94U4SM",
+        "author": "Catalyst Athletics"
+      },
+      "block": "07-prep-prehab"
+    },
+    {
+      "id": "step-through",
+      "name": "Step Through",
+      "aka": null,
+      "family": "step-up",
+      "modifiers": [
+        "bodyweight",
+        "controlled reach"
+      ],
+      "pattern": "single-leg squat",
+      "plane": "sagittal",
+      "stance": "unilateral",
+      "perSide": true,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "slow, controlled",
+      "joints": [
+        "knee extension (standing leg, eccentric then concentric)",
+        "hip extension",
+        "reaching leg hip flexion"
+      ],
+      "agonists": [
+        "vasti (standing leg)",
+        "gluteus maximus"
+      ],
+      "synergists": [
+        "gluteus medius",
+        "hamstrings",
+        "soleus"
+      ],
+      "stabilizers": [
+        "gluteus medius (very high)",
+        "deep trunk",
+        "foot and ankle"
+      ],
+      "position": "Single-leg control through a reach, so the standing leg works eccentrically while balance is challenged in multiple directions. Bridges rehab-style control work and genuine single-leg strength.",
+      "resistance": "Bodyweight.",
+      "lengthBias": "mid",
+      "intents": [
+        "knee control",
+        "balance"
+      ],
+      "dose": "3 × 6–10 per side",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "mod",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [
+        "step or box"
+      ],
+      "equipTier": "home",
+      "space": "indoor, 2 m²",
+      "skill": "intermediate",
+      "cues": [
+        "Reach with the free foot, do not put weight on it",
+        "Pelvis level",
+        "Slow and quiet"
+      ],
+      "video": {
+        "id": "c_z7kLZsCy4",
+        "author": "Catalyst Athletics"
+      },
+      "block": "07-prep-prehab"
+    },
+    {
+      "id": "standing-calf-raise",
+      "name": "Standing Calf Raise",
+      "aka": null,
+      "family": "calf-raise",
+      "modifiers": [
+        "knee extended",
+        "gastrocnemius bias"
+      ],
+      "pattern": "ankle plantarflexion",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "controlled",
+      "joints": [
+        "ankle plantarflexion (full range)",
+        "knee held extended"
+      ],
+      "agonists": [
+        "gastrocnemius"
+      ],
+      "synergists": [
+        "soleus",
+        "tibialis posterior",
+        "peroneals"
+      ],
+      "stabilizers": [
+        "foot intrinsics",
+        "deep trunk"
+      ],
+      "position": "The gastrocnemius crosses the knee as well as the ankle, so a straight knee keeps it long and makes it the primary plantarflexor. Bend the knee and it slackens and the soleus takes over — the same biarticular logic as the rectus femoris and the triceps long head.",
+      "resistance": "Bodyweight or loaded. Hardest at the top.",
+      "lengthBias": "lengthened",
+      "intents": [
+        "hypertrophy",
+        "calf strength"
+      ],
+      "dose": "3–4 × 10–20, full range",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "mod",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [
+        "step or edge"
+      ],
+      "equipTier": "home",
+      "space": "floor",
+      "skill": "entry",
+      "cues": [
+        "Full stretch at the bottom, full squeeze at the top",
+        "Knees straight throughout",
+        "Slow down — most people bounce these"
+      ],
+      "video": {
+        "id": "9EAPua7siUs",
+        "author": "Dr. Daniel Birch"
+      },
+      "block": "07-prep-prehab"
+    },
+    {
+      "id": "seated-calf-raise",
+      "name": "Seated Calf Raise",
+      "aka": "bent-knee heel raise",
+      "family": "calf-raise",
+      "modifiers": [
+        "knee flexed",
+        "soleus bias"
+      ],
+      "pattern": "ankle plantarflexion",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "controlled",
+      "joints": [
+        "ankle plantarflexion",
+        "knee held flexed ~90°"
+      ],
+      "agonists": [
+        "soleus"
+      ],
+      "synergists": [
+        "tibialis posterior",
+        "peroneals",
+        "gastrocnemius (reduced)"
+      ],
+      "stabilizers": [
+        "foot intrinsics"
+      ],
+      "position": "Bending the knee slackens the gastrocnemius, leaving the soleus to do the work. For runners this matters more than the standing version — the soleus takes the largest single load in running and is routinely undertrained because everyone does straight-knee raises.",
+      "resistance": "Loaded across the knees, or machine.",
+      "lengthBias": "mid",
+      "intents": [
+        "hypertrophy",
+        "soleus endurance"
+      ],
+      "dose": "3–4 × 12–20",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "mod",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [
+        "bench",
+        "weight or machine"
+      ],
+      "equipTier": "minimal",
+      "space": "gym floor",
+      "skill": "entry",
+      "cues": [
+        "Knee at about 90° and keep it there",
+        "Full range, slow at the bottom",
+        "Higher reps than the standing version"
+      ],
+      "video": {
+        "id": "Lv9rklLUp2k",
+        "author": "www.sportsinjuryclinic.net"
+      },
+      "block": "07-prep-prehab"
+    },
+    {
+      "id": "sl-calf-raise",
+      "name": "Single-Leg Calf Raise",
+      "aka": null,
+      "family": "calf-raise",
+      "modifiers": [
+        "one leg",
+        "knee extended"
+      ],
+      "pattern": "ankle plantarflexion",
+      "plane": "sagittal",
+      "stance": "unilateral",
+      "perSide": true,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "controlled",
+      "joints": [
+        "ankle plantarflexion (full range, single leg)"
+      ],
+      "agonists": [
+        "gastrocnemius",
+        "soleus"
+      ],
+      "synergists": [
+        "tibialis posterior",
+        "peroneals",
+        "flexor hallucis longus"
+      ],
+      "stabilizers": [
+        "foot intrinsics (high)",
+        "gluteus medius",
+        "deep trunk"
+      ],
+      "position": "Running is a series of single-leg plantarflexions, so this is the closest loading match to the sport and the clearest place to find a left–right calf deficit. Bodyweight on one leg is roughly the load a bilateral raise with half bodyweight added would give.",
+      "resistance": "Bodyweight, unilateral.",
+      "lengthBias": "lengthened",
+      "intents": [
+        "calf strength",
+        "running resilience"
+      ],
+      "dose": "3 × 10–25 per side",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "mod",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [
+        "step or edge"
+      ],
+      "equipTier": "home",
+      "space": "floor",
+      "skill": "entry",
+      "cues": [
+        "Full range off the edge of a step",
+        "Do not use the wall for lift, only balance",
+        "Compare sides and record the gap"
+      ],
+      "video": {
+        "id": "9EAPua7siUs",
+        "author": "Dr. Daniel Birch",
+        "note": "variation shown within the same demonstration"
+      },
+      "flags": [
+        {
+          "field": "video",
+          "kind": "unverified",
+          "text": "Shares a video with the standing calf raise. The clip covers several variations, so the single-leg version may not be isolated clearly enough to coach from. A dedicated clip would be better — a candidate for filming your own."
+        }
+      ],
+      "block": "07-prep-prehab"
+    },
+    {
+      "id": "eccentric-heel-drop",
+      "name": "Eccentric Heel Drop",
+      "aka": "Alfredson protocol",
+      "family": "calf-raise",
+      "modifiers": [
+        "eccentric only",
+        "off a step"
+      ],
+      "pattern": "ankle plantarflexion",
+      "plane": "sagittal",
+      "stance": "unilateral",
+      "perSide": true,
+      "ssc": "ecc",
+      "gct": "n/a",
+      "velocity": "slow eccentric",
+      "joints": [
+        "ankle plantarflexion lowering into dorsiflexion (eccentric, below neutral)"
+      ],
+      "agonists": [
+        "gastrocnemius (eccentric)",
+        "soleus (eccentric)"
+      ],
+      "synergists": [
+        "tibialis posterior",
+        "Achilles tendon (the target tissue)"
+      ],
+      "stabilizers": [
+        "foot intrinsics",
+        "gluteus medius"
+      ],
+      "position": "Lowering below neutral on one leg, with the other leg doing the lifting. The eccentric-only loading pattern used in the long-standing Achilles tendinopathy protocols — the point is heel drop range and slowness, not the number of reps.",
+      "resistance": "Bodyweight, eccentric, loadable with a pack.",
+      "lengthBias": "lengthened",
+      "intents": [
+        "eccentric strength",
+        "tendon loading"
+      ],
+      "dose": "3 × 15 per side, twice daily in rehab protocols",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "high",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [
+        "step"
+      ],
+      "equipTier": "home",
+      "space": "floor",
+      "skill": "entry",
+      "cues": [
+        "Rise with both legs, lower with one",
+        "Drop the heel below the step and pause",
+        "Some discomfort is expected in rehab; sharp pain is not"
+      ],
+      "video": {
+        "id": "d7ZsskaHtfg",
+        "author": "BSR Physical Therapy"
+      },
+      "flags": [
+        {
+          "field": "dose",
+          "kind": "sourced",
+          "text": "The 3 × 15 twice-daily figure is the classic eccentric loading protocol for Achilles tendinopathy as demonstrated by the source. It is a rehabilitation dose prescribed by a clinician, not a general training dose — the bank records it as published rather than recommending it for a healthy athlete."
+        }
+      ],
+      "block": "07-prep-prehab"
+    },
+    {
+      "id": "iso-calf-hold",
+      "name": "Isometric Single-Leg Calf Raise Hold",
+      "aka": null,
+      "family": "calf-raise",
+      "modifiers": [
+        "isometric",
+        "single leg"
+      ],
+      "pattern": "ankle plantarflexion",
+      "plane": "sagittal",
+      "stance": "unilateral",
+      "perSide": true,
+      "ssc": "none",
+      "gct": "n/a — sustained hold",
+      "velocity": "none (isometric)",
+      "joints": [
+        "ankle plantarflexion (isometric, near end range)"
+      ],
+      "agonists": [
+        "gastrocnemius",
+        "soleus"
+      ],
+      "synergists": [
+        "tibialis posterior",
+        "flexor hallucis longus"
+      ],
+      "stabilizers": [
+        "foot intrinsics (high)",
+        "gluteus medius"
+      ],
+      "position": "Isometric holds are often better tolerated than dynamic loading in an irritable tendon, and give a way to keep loading the calf when raises hurt. The lowest-irritation calf option in the block.",
+      "resistance": "Bodyweight, isometric.",
+      "lengthBias": "shortened",
+      "intents": [
+        "isometric strength",
+        "tendon loading"
+      ],
+      "dose": "5 × 30–45 s per side",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [],
+      "equipTier": "none",
+      "space": "floor",
+      "skill": "entry",
+      "cues": [
+        "Rise to the top and hold still",
+        "Balance with a fingertip on a wall, not weight",
+        "Stop the hold when the heel starts dropping"
+      ],
+      "video": {
+        "id": "x1LhV2nj01Q",
+        "author": "Movement As Medicine"
+      },
+      "block": "07-prep-prehab"
+    },
+    {
+      "id": "tibialis-raise",
+      "name": "Tibialis Raise",
+      "aka": "toe raise",
+      "family": "tibialis",
+      "modifiers": [
+        "bodyweight",
+        "wall supported"
+      ],
+      "pattern": "ankle dorsiflexion",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "controlled",
+      "joints": [
+        "ankle dorsiflexion (dynamic, full range)"
+      ],
+      "agonists": [
+        "tibialis anterior"
+      ],
+      "synergists": [
+        "extensor hallucis longus",
+        "extensor digitorum longus",
+        "peroneus tertius"
+      ],
+      "stabilizers": [
+        "deep trunk"
+      ],
+      "position": "The only exercise here that trains the front of the shin, which decelerates the foot at every running footstrike and is implicated in shin pain when it cannot keep up. Everything else in the block loads the back of the lower leg.",
+      "resistance": "Bodyweight, lever-scaled by foot distance from the wall.",
+      "lengthBias": "mid",
+      "intents": [
+        "shin resilience",
+        "ankle control"
+      ],
+      "dose": "3 × 15–25",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [
+        "a wall"
+      ],
+      "equipTier": "none",
+      "space": "floor",
+      "skill": "entry",
+      "cues": [
+        "Lean back against the wall, feet forward",
+        "Pull the toes up as high as possible",
+        "Walk the feet out to make it harder"
+      ],
+      "video": {
+        "id": "9EAPua7siUs",
+        "author": "Dr. Daniel Birch",
+        "note": "shown among the lower-leg variations"
+      },
+      "flags": [
+        {
+          "field": "video",
+          "kind": "unverified",
+          "text": "Attached to a general lower-leg variations video rather than a dedicated tibialis raise demonstration. Needs either a better source or your own clip before an athlete uses it unsupervised."
+        }
+      ],
+      "block": "07-prep-prehab"
+    },
+    {
+      "id": "band-external-rotation",
+      "name": "Band External Rotation",
+      "aka": null,
+      "family": "cuff",
+      "modifiers": [
+        "band",
+        "elbow at the side"
+      ],
+      "pattern": "shoulder external rotation",
+      "plane": "transverse",
+      "stance": "bilateral",
+      "perSide": true,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "controlled",
+      "joints": [
+        "shoulder external rotation (isolated)",
+        "elbow held at 90°"
+      ],
+      "agonists": [
+        "infraspinatus",
+        "teres minor"
+      ],
+      "synergists": [
+        "posterior deltoid",
+        "supraspinatus"
+      ],
+      "stabilizers": [
+        "scapular retractors",
+        "deep trunk"
+      ],
+      "position": "Directly loads the external rotators, which pressing and pulling volume leaves behind and which keep the humeral head centred. Low load, high specificity — the first thing to add when overhead work starts to niggle.",
+      "resistance": "Band. Hardest at full rotation.",
+      "lengthBias": "shortened",
+      "intents": [
+        "activation",
+        "shoulder resilience"
+      ],
+      "dose": "2–3 × 12–20 per side, light",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [
+        "band"
+      ],
+      "equipTier": "home",
+      "space": "indoor, 1 m²",
+      "skill": "entry",
+      "cues": [
+        "Elbow pinned to the ribs",
+        "Rotate the forearm out, do not swing the body",
+        "Light band — this is not a strength lift"
+      ],
+      "video": {
+        "id": "aePkwVQ1yLw",
+        "author": "Catalyst Athletics"
+      },
+      "block": "07-prep-prehab"
+    },
+    {
+      "id": "band-pull-apart",
+      "name": "Band Pull Apart",
+      "aka": null,
+      "family": "scap",
+      "modifiers": [
+        "band",
+        "arms forward"
+      ],
+      "pattern": "horizontal pull",
+      "plane": "transverse",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "controlled",
+      "joints": [
+        "shoulder horizontal abduction",
+        "scapular retraction"
+      ],
+      "agonists": [
+        "rhomboids",
+        "middle trapezius",
+        "posterior deltoid"
+      ],
+      "synergists": [
+        "infraspinatus",
+        "lower trapezius"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "scapular stabilizers"
+      ],
+      "position": "High-repetition scapular retraction with no spinal load and no equipment beyond a band. The cheapest counterweight there is to a lot of pressing.",
+      "resistance": "Band. Hardest at full retraction.",
+      "lengthBias": "shortened",
+      "intents": [
+        "activation",
+        "shoulder balance",
+        "endurance"
+      ],
+      "dose": "2–3 × 15–25",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [
+        "band"
+      ],
+      "equipTier": "home",
+      "space": "indoor, 1 m²",
+      "skill": "entry",
+      "cues": [
+        "Arms straight, pull to the chest line",
+        "Squeeze the blades together, pause",
+        "Do not shrug"
+      ],
+      "video": {
+        "id": "Xg58d9lDWME",
+        "author": "Catalyst Athletics"
+      },
+      "block": "07-prep-prehab"
+    },
+    {
+      "id": "face-pull",
+      "name": "Face Pull",
+      "aka": null,
+      "family": "scap",
+      "modifiers": [
+        "cable or band",
+        "high anchor"
+      ],
+      "pattern": "horizontal pull",
+      "plane": "transverse",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "controlled",
+      "joints": [
+        "shoulder horizontal abduction with external rotation",
+        "scapular retraction"
+      ],
+      "agonists": [
+        "posterior deltoid",
+        "rhomboids",
+        "middle trapezius"
+      ],
+      "synergists": [
+        "infraspinatus",
+        "teres minor",
+        "lower trapezius"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "scapular stabilizers"
+      ],
+      "position": "Combines retraction with external rotation in one movement, which is why it does more for shoulder health per set than either in isolation. The single most useful accessory for an athlete doing a lot of overhead or pressing work.",
+      "resistance": "Cable or band. Hardest at the end position.",
+      "lengthBias": "shortened",
+      "intents": [
+        "shoulder balance",
+        "hypertrophy"
+      ],
+      "dose": "3 × 12–20",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [
+        "cable machine or band"
+      ],
+      "equipTier": "home",
+      "space": "indoor, 2 m²",
+      "skill": "entry",
+      "cues": [
+        "Pull to the forehead, elbows high",
+        "Finish with the knuckles facing back",
+        "Light enough to hold the end position"
+      ],
+      "video": {
+        "id": "UnSEJGBotEM",
+        "author": "Catalyst Athletics"
+      },
+      "block": "07-prep-prehab"
+    },
+    {
+      "id": "wall-slide",
+      "name": "Wall Slide",
+      "aka": null,
+      "family": "wall-slide",
+      "modifiers": [
+        "bodyweight",
+        "against a wall"
+      ],
+      "pattern": "scapular control",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "slow",
+      "joints": [
+        "shoulder flexion to overhead",
+        "scapular upward rotation and protraction",
+        "thoracic extension"
+      ],
+      "agonists": [
+        "serratus anterior",
+        "lower trapezius"
+      ],
+      "synergists": [
+        "upper trapezius",
+        "deltoids"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "rotator cuff"
+      ],
+      "position": "Trains the scapula to rotate upward as the arm goes overhead, which is the mechanism that fails when overhead range is limited. The wall gives feedback the athlete can feel — if the ribs flare or the back arches, the movement is coming from the spine instead.",
+      "resistance": "Bodyweight, friction.",
+      "lengthBias": "mid",
+      "intents": [
+        "scapular control",
+        "overhead range"
+      ],
+      "dose": "2–3 × 8–12, slow",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [
+        "a wall"
+      ],
+      "equipTier": "none",
+      "space": "a wall",
+      "skill": "entry",
+      "cues": [
+        "Lower back stays flat against the wall",
+        "Reach up and slightly out at the top",
+        "Stop where the ribs start to flare"
+      ],
+      "video": {
+        "id": "rdYvqHTRc8M",
+        "author": "Catalyst Athletics"
+      },
+      "block": "07-prep-prehab"
+    },
+    {
+      "id": "banded-wall-slide",
+      "name": "Banded Wall Slide",
+      "aka": null,
+      "family": "wall-slide",
+      "modifiers": [
+        "band at the wrists",
+        "against a wall"
+      ],
+      "pattern": "scapular control",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "slow",
+      "joints": [
+        "shoulder flexion to overhead with external rotation demand",
+        "scapular upward rotation"
+      ],
+      "agonists": [
+        "serratus anterior",
+        "lower trapezius"
+      ],
+      "synergists": [
+        "infraspinatus",
+        "posterior deltoid",
+        "upper trapezius"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "rotator cuff"
+      ],
+      "position": "Adding a band at the wrists forces external rotation to be maintained while sliding overhead, so the cuff works alongside the scapular muscles. A progression of the wall slide rather than a different exercise.",
+      "resistance": "Bodyweight plus band.",
+      "lengthBias": "mid",
+      "intents": [
+        "scapular control",
+        "shoulder resilience"
+      ],
+      "dose": "2–3 × 8–12",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [
+        "band",
+        "a wall"
+      ],
+      "equipTier": "home",
+      "space": "a wall",
+      "skill": "intermediate",
+      "cues": [
+        "Push out against the band the whole way",
+        "Back flat on the wall",
+        "Slow and deliberate"
+      ],
+      "video": {
+        "id": "CRHD-DmV_A4",
+        "author": "Catalyst Athletics"
+      },
+      "block": "07-prep-prehab"
+    },
+    {
+      "id": "scap-pull-up",
+      "name": "Scap Pull Up",
+      "aka": null,
+      "family": "scap",
+      "modifiers": [
+        "hanging",
+        "scapula only"
+      ],
+      "pattern": "scapular control",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "slow",
+      "joints": [
+        "scapular depression and retraction (isolated)",
+        "elbows held straight"
+      ],
+      "agonists": [
+        "lower trapezius",
+        "latissimus dorsi (scapular action)"
+      ],
+      "synergists": [
+        "rhomboids",
+        "teres major",
+        "serratus anterior"
+      ],
+      "stabilizers": [
+        "grip",
+        "deep trunk",
+        "rotator cuff"
+      ],
+      "position": "A pull-up with the elbows locked, so only the scapula moves — the first part of a pull-up that most people skip by starting with the arms. Teaches the hang-to-pull transition and builds the shoulder position a pull-up needs.",
+      "resistance": "Bodyweight.",
+      "lengthBias": "lengthened",
+      "intents": [
+        "scapular control",
+        "pull-up prerequisite"
+      ],
+      "dose": "3 × 6–12",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "mod",
+        "elbow": "low"
+      },
+      "equipment": [
+        "pull-up bar"
+      ],
+      "equipTier": "gym",
+      "space": "gym floor",
+      "skill": "entry",
+      "cues": [
+        "Elbows stay locked throughout",
+        "Pull the shoulders down away from the ears",
+        "Small movement — a few centimetres is correct"
+      ],
+      "video": {
+        "id": "fAHEz25TRKU",
+        "author": "Catalyst Athletics"
+      },
+      "block": "07-prep-prehab"
+    },
+    {
+      "id": "scap-push-up",
+      "name": "Scap Push Up",
+      "aka": null,
+      "family": "scap",
+      "modifiers": [
+        "bodyweight",
+        "scapula only"
+      ],
+      "pattern": "scapular control",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "slow",
+      "joints": [
+        "scapular protraction and retraction (isolated)",
+        "elbows held straight"
+      ],
+      "agonists": [
+        "serratus anterior"
+      ],
+      "synergists": [
+        "rhomboids",
+        "middle trapezius",
+        "pectoralis minor"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "rotator cuff"
+      ],
+      "position": "The push-up mirror of the scap pull-up, isolating serratus anterior protraction. The serratus is the muscle a bench press cannot reach because the bench pins the scapula, so this fills a specific gap.",
+      "resistance": "Bodyweight.",
+      "lengthBias": "mid",
+      "intents": [
+        "scapular control",
+        "activation"
+      ],
+      "dose": "3 × 8–15",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [],
+      "equipTier": "none",
+      "space": "floor",
+      "skill": "entry",
+      "cues": [
+        "Elbows locked — only the shoulder blades move",
+        "Push the floor away at the top",
+        "From the knees if the trunk sags"
+      ],
+      "video": {
+        "id": "WLXjk2Z1b7Y",
+        "author": "Catalyst Athletics"
+      },
+      "block": "07-prep-prehab"
+    },
+    {
+      "id": "iyt",
+      "name": "IYT",
+      "aka": null,
+      "family": "prone-raise",
+      "modifiers": [
+        "prone or incline",
+        "three positions"
+      ],
+      "pattern": "scapular control",
+      "plane": "transverse",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "slow, controlled",
+      "joints": [
+        "shoulder flexion and abduction at three angles",
+        "scapular retraction and upward rotation"
+      ],
+      "agonists": [
+        "lower trapezius (I)",
+        "middle trapezius (T)",
+        "serratus and lower trapezius (Y)"
+      ],
+      "synergists": [
+        "posterior deltoid",
+        "rhomboids",
+        "infraspinatus"
+      ],
+      "stabilizers": [
+        "erector spinae (isometric)",
+        "deep trunk"
+      ],
+      "position": "Three arm angles hit different parts of the trapezius in one sequence — the I, Y and T positions bias lower, lower-and-serratus, and middle trapezius respectively. The most efficient way to cover the whole scapular complex in a single set.",
+      "resistance": "Bodyweight or very light plates.",
+      "lengthBias": "shortened",
+      "intents": [
+        "scapular control",
+        "postural endurance"
+      ],
+      "dose": "2–3 × 8–12 of each position, very light",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [
+        "bench, or floor"
+      ],
+      "equipTier": "none",
+      "space": "floor",
+      "skill": "entry",
+      "cues": [
+        "Thumbs up, lift from the shoulder blades",
+        "Very light or no weight at all",
+        "Stop when the neck starts doing the work"
+      ],
+      "video": {
+        "id": "woQ9AsBuqtg",
+        "author": "Catalyst Athletics"
+      },
+      "block": "07-prep-prehab"
+    },
+    {
+      "id": "prone-arm-circles",
+      "name": "Prone Weighted Arm Circles",
+      "aka": null,
+      "family": "prone-raise",
+      "modifiers": [
+        "prone",
+        "continuous circles"
+      ],
+      "pattern": "scapular control",
+      "plane": "transverse",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "slow, continuous",
+      "joints": [
+        "shoulder circumduction through full range",
+        "scapular rotation through range"
+      ],
+      "agonists": [
+        "trapezius (all parts)",
+        "posterior deltoid"
+      ],
+      "synergists": [
+        "rhomboids",
+        "infraspinatus",
+        "serratus anterior"
+      ],
+      "stabilizers": [
+        "erector spinae",
+        "deep trunk"
+      ],
+      "position": "Takes the shoulder through a continuous full-range circle against gravity, so the scapular muscles work through every position rather than at fixed angles. Brutal with tiny weights and useful as both warm-up and endurance work.",
+      "resistance": "Very light plates.",
+      "lengthBias": "mid",
+      "intents": [
+        "shoulder endurance",
+        "warm-up"
+      ],
+      "dose": "2 × 20–40 s continuous, 1–2.5 kg",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "mod",
+        "elbow": "low"
+      },
+      "equipment": [
+        "very light plates"
+      ],
+      "equipTier": "minimal",
+      "space": "floor",
+      "skill": "entry",
+      "cues": [
+        "Tiny weights — 1 kg is plenty",
+        "Keep the arms straight and the circles smooth",
+        "Chest stays down"
+      ],
+      "video": {
+        "id": "wud3idMnESY",
+        "author": "Catalyst Athletics"
+      },
+      "block": "07-prep-prehab"
+    }
+  ],
+  "swap_edges": [
+    {
+      "from": "copenhagen-plank",
+      "to": "butterfly-adduction",
+      "reason": "harder",
+      "same": "Isometric adductor loading",
+      "changed": "Supine and self-limited instead of holding bodyweight on one leg",
+      "dose": "3 × 20–45 s"
+    },
+    {
+      "from": "copenhagen-kick",
+      "to": "copenhagen-plank",
+      "reason": "harder",
+      "same": "Adductor isometric in the same position",
+      "changed": "Static hold instead of a moving free leg",
+      "dose": "3 × 15–30 s per side"
+    },
+    {
+      "from": "copenhagen-plank",
+      "to": "standing-band-adduction",
+      "reason": "equipment",
+      "same": "Adductor strengthening",
+      "changed": "Band in standing instead of bodyweight on a bench",
+      "dose": "3 × 12–20 per side"
+    },
+    {
+      "from": "copenhagen-plank",
+      "to": "butterfly-adduction",
+      "reason": "shoulder",
+      "same": "Adductor loading",
+      "changed": "No weight through the supporting shoulder at all",
+      "dose": "3 × 20–45 s"
+    },
+    {
+      "from": "monster-walk",
+      "to": "clamshell",
+      "reason": "space",
+      "same": "Glute medius activation",
+      "changed": "Side-lying on the spot instead of walking",
+      "dose": "2–3 × 12–20 per side"
+    },
+    {
+      "from": "monster-walk",
+      "to": "clamshell",
+      "reason": "equipment",
+      "same": "Glute medius work",
+      "changed": "No band needed",
+      "dose": "2–3 × 12–20 per side"
+    },
+    {
+      "from": "band-side-shuffle",
+      "to": "monster-walk",
+      "reason": "harder",
+      "same": "Banded lateral hip work",
+      "changed": "Slower and shorter, so less control demand",
+      "dose": "2–3 × 10–20 steps"
+    },
+    {
+      "from": "side-plank-clamshell",
+      "to": "clamshell",
+      "reason": "harder",
+      "same": "Hip external rotation",
+      "changed": "Removes the side plank, so no trunk or shoulder demand",
+      "dose": "2–3 × 12–20 per side"
+    },
+    {
+      "from": "side-plank-clamshell",
+      "to": "clamshell",
+      "reason": "shoulder",
+      "same": "Hip external rotation work",
+      "changed": "No load through the supporting shoulder",
+      "dose": "2–3 × 12–20 per side"
+    },
+    {
+      "from": "standing-band-abduction",
+      "to": "clamshell",
+      "reason": "equipment",
+      "same": "Glute medius activation",
+      "changed": "No band; side-lying removes the balance element",
+      "dose": "2–3 × 12–20 per side"
+    },
+    {
+      "from": "spanish-squat",
+      "to": "tke",
+      "reason": "harder",
+      "same": "Banded quadriceps work with low joint load",
+      "changed": "Small end-range movement instead of a sustained loaded hold",
+      "dose": "3 × 15–25 per side"
+    },
+    {
+      "from": "petersen-step-up",
+      "to": "poliquin-step-up",
+      "reason": "achilles",
+      "same": "Small-range single-leg knee extension work on a low step",
+      "changed": "Toes elevated instead of up on the toes, so the calf and Achilles are unloaded",
+      "dose": "3 × 10–20 per side"
+    },
+    {
+      "from": "spanish-squat",
+      "to": "wall-sit",
+      "reason": "equipment",
+      "same": "Isometric quadriceps loading with an upright trunk",
+      "changed": "A wall instead of a heavy band and anchor",
+      "dose": "3–5 × 30–60 s"
+    },
+    {
+      "from": "step-through",
+      "to": "step-up",
+      "reason": "harder",
+      "same": "Single-leg work off a step",
+      "changed": "Straight up and down instead of a controlled reach",
+      "dose": "3 × 6–10 per side"
+    },
+    {
+      "from": "sl-calf-raise",
+      "to": "iso-calf-hold",
+      "reason": "achilles",
+      "same": "Single-leg calf loading",
+      "changed": "Isometric, which an irritable tendon usually tolerates better than repetitions",
+      "dose": "5 × 30–45 s per side"
+    },
+    {
+      "from": "eccentric-heel-drop",
+      "to": "iso-calf-hold",
+      "reason": "achilles",
+      "same": "Targeted Achilles loading on one leg",
+      "changed": "Isometric at short length instead of loaded lengthening below neutral",
+      "dose": "5 × 30–45 s per side"
+    },
+    {
+      "from": "sl-calf-raise",
+      "to": "standing-calf-raise",
+      "reason": "harder",
+      "same": "Straight-knee plantarflexion",
+      "changed": "Both legs share the load",
+      "dose": "3–4 × 10–20"
+    },
+    {
+      "from": "seated-calf-raise",
+      "to": "standing-calf-raise",
+      "reason": "equipment",
+      "same": "Calf strengthening through full plantarflexion",
+      "changed": "No bench or machine; straight knee biases the gastrocnemius instead",
+      "dose": "3–4 × 10–20"
+    },
+    {
+      "from": "face-pull",
+      "to": "band-pull-apart",
+      "reason": "equipment",
+      "same": "Scapular retraction and posterior shoulder work",
+      "changed": "Band with no anchor point needed; less external rotation",
+      "dose": "2–3 × 15–25"
+    },
+    {
+      "from": "banded-wall-slide",
+      "to": "wall-slide",
+      "reason": "harder",
+      "same": "Overhead scapular control against a wall",
+      "changed": "No band, so no external rotation demand to maintain",
+      "dose": "2–3 × 8–12"
+    },
+    {
+      "from": "scap-pull-up",
+      "to": "scap-push-up",
+      "reason": "equipment",
+      "same": "Isolated scapular control",
+      "changed": "On the floor instead of hanging; protraction rather than depression",
+      "dose": "3 × 8–15"
+    },
+    {
+      "from": "scap-pull-up",
+      "to": "band-pull-apart",
+      "reason": "shoulder",
+      "same": "Scapular retraction and depression",
+      "changed": "No hanging load through the shoulder",
+      "dose": "2–3 × 15–25"
+    },
+    {
+      "from": "prone-arm-circles",
+      "to": "iyt",
+      "reason": "harder",
+      "same": "Prone scapular endurance work",
+      "changed": "Fixed positions instead of continuous full-range circles",
+      "dose": "2–3 × 8–12 each position"
+    },
+    {
+      "from": "band-pull-apart",
+      "to": "iyt",
+      "reason": "equipment",
+      "same": "Scapular retraction and posterior shoulder work",
+      "changed": "Prone on the floor instead of standing with a band — no equipment at all",
+      "dose": "2–3 × 8–12 of each position"
+    },
+    {
+      "from": "barbell-upright-row",
+      "to": "face-pull",
+      "reason": "shoulder",
+      "same": "Posterior shoulder and upper-back work",
+      "changed": "Removes abduction with internal rotation entirely, and adds external rotation",
+      "dose": "3 × 12–20"
+    },
+    {
+      "from": "leg-extension",
+      "to": "spanish-squat",
+      "reason": "knee",
+      "same": "Quadriceps loading",
+      "changed": "Banded isometric with far less patellofemoral compression",
+      "dose": "4–5 × 30–45 s"
+    },
+    {
+      "from": "pogo",
+      "to": "sl-calf-raise",
+      "reason": "achilles",
+      "same": "Plantarflexor and Achilles loading",
+      "changed": "Slow strength work instead of repeated fast impacts",
+      "dose": "3 × 10–25 per side"
+    },
+    {
+      "from": "bounding",
+      "to": "sl-calf-raise",
+      "reason": "achilles",
+      "same": "Single-leg plantarflexor loading",
+      "changed": "No impact, no horizontal projection",
+      "dose": "3 × 10–25 per side"
+    },
+    {
+      "from": "cossack-squat",
+      "to": "half-kneeling-adductor-rock",
+      "reason": "harder",
+      "same": "Adductors loaded at long length",
+      "changed": "Supported and partial range instead of a deep single-leg squat",
+      "dose": "2 × 8–12 per side"
+    }
+  ]
+}

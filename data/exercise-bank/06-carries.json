@@ -1,0 +1,760 @@
+{
+  "block": "06-carries",
+  "title": "Loaded carries",
+  "reviewed": false,
+  "clinical_signoff": null,
+  "updated": "2026-10-27",
+  "vocab": {
+    "ssc": [
+      {
+        "id": "none",
+        "label": "No SSC",
+        "definition": "Dead start or paused. No elastic contribution; force comes from rate of development alone."
+      },
+      {
+        "id": "slow",
+        "label": "Slow SSC",
+        "definition": "Contact > 250 ms, large joint displacement. Countermovement assists the jump."
+      },
+      {
+        "id": "fast",
+        "label": "Fast SSC",
+        "definition": "Contact < 250 ms, small displacement. Trains tendon stiffness and reactive strength."
+      },
+      {
+        "id": "ecc",
+        "label": "Eccentric only",
+        "definition": "Deceleration and landing. No concentric phase to train."
+      },
+      {
+        "id": "n/a",
+        "label": "Not applicable",
+        "definition": "Grinding or isolation work where the stretch-shortening cycle is not the organizing variable."
+      },
+      {
+        "id": "n/a",
+        "label": "Not applicable",
+        "definition": "Grinding or isolation work where the stretch-shortening cycle is not the organizing variable."
+      }
+    ],
+    "swap_reason": [
+      {
+        "id": "equipment",
+        "label": "Equipment unavailable"
+      },
+      {
+        "id": "space",
+        "label": "No space"
+      },
+      {
+        "id": "harder",
+        "label": "Too hard today"
+      },
+      {
+        "id": "lumbar",
+        "label": "Lower back"
+      },
+      {
+        "id": "knee",
+        "label": "Knee"
+      },
+      {
+        "id": "achilles",
+        "label": "Achilles / calf"
+      },
+      {
+        "id": "shoulder",
+        "label": "Shoulder"
+      },
+      {
+        "id": "elbow",
+        "label": "Elbow"
+      }
+    ],
+    "stress_level": [
+      "low",
+      "mod",
+      "high"
+    ],
+    "skill": [
+      "entry",
+      "intermediate",
+      "advanced"
+    ],
+    "plane": [
+      "sagittal",
+      "frontal",
+      "transverse"
+    ],
+    "stance": [
+      "bilateral",
+      "unilateral",
+      "unilateral (split)",
+      "unilateral alternating"
+    ],
+    "provenance": [
+      "sourced",
+      "inferred",
+      "unverified"
+    ],
+    "length_bias": [
+      "lengthened",
+      "mid",
+      "shortened"
+    ],
+    "stress_field": [
+      "axial",
+      "flexion",
+      "impact",
+      "landing",
+      "achilles",
+      "knee",
+      "shoulder",
+      "elbow"
+    ],
+    "equip_tier": [
+      "none",
+      "home",
+      "minimal",
+      "gym",
+      "specialist"
+    ]
+  },
+  "exercises": [
+    {
+      "id": "farmer-carry",
+      "name": "Farmer Carry",
+      "aka": null,
+      "family": "carry",
+      "modifiers": [
+        "bilateral",
+        "load at the sides"
+      ],
+      "pattern": "loaded carry",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "walking",
+      "joints": [
+        "trunk anti-flexion (isometric)",
+        "scapular depression (isometric)",
+        "gait"
+      ],
+      "agonists": [
+        "grip and forearm flexors",
+        "upper trapezius",
+        "deep trunk"
+      ],
+      "synergists": [
+        "erector spinae",
+        "obliques",
+        "gluteus medius (gait)",
+        "calves"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "scapular stabilizers",
+        "foot and ankle"
+      ],
+      "position": "Load hangs from the hands, so the spine is loaded in traction rather than compression and the limit is almost always grip. The most transferable loaded-carry variant and the easiest to prescribe to a back that dislikes compression.",
+      "resistance": "External, hanging. Grip-limited.",
+      "lengthBias": "mid",
+      "intents": [
+        "grip strength",
+        "trunk endurance",
+        "conditioning"
+      ],
+      "dose": "3–5 × 20–40 m, or 30–60 s",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [
+        "dumbbells or kettlebells"
+      ],
+      "equipTier": "minimal",
+      "space": "20 m walkway",
+      "skill": "entry",
+      "cues": [
+        "Tall posture, shoulders packed down",
+        "Short deliberate steps",
+        "Stop when the grip goes, not the legs"
+      ],
+      "video": {
+        "id": "G-_FYQfur9w",
+        "author": "Catalyst Athletics"
+      },
+      "block": "06-carries"
+    },
+    {
+      "id": "single-arm-farmer-carry",
+      "name": "Single Arm Farmer Carry",
+      "aka": "suitcase carry",
+      "family": "carry",
+      "modifiers": [
+        "unilateral",
+        "load at one side"
+      ],
+      "pattern": "loaded carry",
+      "plane": "frontal",
+      "stance": "unilateral",
+      "perSide": true,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "walking",
+      "joints": [
+        "trunk anti-lateral-flexion (isometric, loaded)",
+        "gait",
+        "scapular depression"
+      ],
+      "agonists": [
+        "obliques (non-carrying side)",
+        "quadratus lumborum",
+        "grip"
+      ],
+      "synergists": [
+        "gluteus medius",
+        "erector spinae",
+        "upper trapezius"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "gluteus medius (high)",
+        "foot and ankle"
+      ],
+      "position": "Asymmetric load turns a carry into the most practical anti-lateral-flexion exercise there is — the trunk refuses a side bend while walking. Far closer to how lateral trunk strength is used than a side bend is.",
+      "resistance": "External, one side. Grip- and trunk-limited.",
+      "lengthBias": "mid",
+      "intents": [
+        "anti-lateral flexion",
+        "grip strength"
+      ],
+      "dose": "3–4 × 20–40 m per side",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [
+        "dumbbell or kettlebell"
+      ],
+      "equipTier": "minimal",
+      "space": "20 m walkway",
+      "skill": "entry",
+      "cues": [
+        "Stay vertical — do not lean away from the weight",
+        "Shoulders level",
+        "Match the distance on both sides"
+      ],
+      "video": {
+        "id": "ZvUkhUesX0Y",
+        "author": "Catalyst Athletics"
+      },
+      "block": "06-carries"
+    },
+    {
+      "id": "crosswalk-carry",
+      "name": "Crosswalk",
+      "aka": "mixed carry",
+      "family": "carry",
+      "modifiers": [
+        "asymmetric",
+        "one at the side, one overhead or racked"
+      ],
+      "pattern": "loaded carry",
+      "plane": "frontal",
+      "stance": "unilateral",
+      "perSide": true,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "walking",
+      "joints": [
+        "trunk anti-lateral-flexion (opposing torques)",
+        "shoulder flexion hold",
+        "gait"
+      ],
+      "agonists": [
+        "obliques",
+        "quadratus lumborum",
+        "deltoids (overhead side)"
+      ],
+      "synergists": [
+        "gluteus medius",
+        "serratus anterior",
+        "grip"
+      ],
+      "stabilizers": [
+        "deep trunk (high)",
+        "rotator cuff",
+        "gluteus medius"
+      ],
+      "position": "Two loads in different positions create opposing torques the trunk has to balance at once — harder to organize than a single-arm carry even at lower total weight.",
+      "resistance": "External, asymmetric and opposed.",
+      "lengthBias": "mid",
+      "intents": [
+        "anti-lateral flexion",
+        "shoulder stability"
+      ],
+      "dose": "3 × 15–30 m per side",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "mod",
+        "elbow": "low"
+      },
+      "equipment": [
+        "two dumbbells or kettlebells"
+      ],
+      "equipTier": "minimal",
+      "space": "20 m walkway",
+      "skill": "intermediate",
+      "cues": [
+        "Ribs down, overhead arm locked",
+        "Walk tall and slow",
+        "Swap sides and repeat exactly"
+      ],
+      "video": {
+        "id": "hvnR21u3XJc",
+        "author": "Catalyst Athletics"
+      },
+      "block": "06-carries"
+    },
+    {
+      "id": "backward-farmer-carry",
+      "name": "Backward Farmer Carry",
+      "aka": null,
+      "family": "carry",
+      "modifiers": [
+        "bilateral",
+        "walking backward"
+      ],
+      "pattern": "loaded carry",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "walking backward",
+      "joints": [
+        "trunk anti-flexion",
+        "hip extension (backward gait)",
+        "knee extension",
+        "gait reversal"
+      ],
+      "agonists": [
+        "grip",
+        "quadriceps",
+        "deep trunk"
+      ],
+      "synergists": [
+        "gluteus maximus",
+        "calves",
+        "erector spinae"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "foot and ankle",
+        "gluteus medius"
+      ],
+      "position": "Walking backward shifts the gait demand toward the quadriceps and removes the heel strike entirely, which is why it appears in knee rehab. The carry adds grip and trunk load on top.",
+      "resistance": "External, hanging.",
+      "lengthBias": "mid",
+      "intents": [
+        "conditioning",
+        "knee-tolerant loading"
+      ],
+      "dose": "3 × 15–30 m",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [
+        "dumbbells or kettlebells"
+      ],
+      "equipTier": "minimal",
+      "space": "20 m clear walkway",
+      "skill": "entry",
+      "cues": [
+        "Toe down first, then heel",
+        "Look over your shoulder before you start, then straight ahead",
+        "Shorter steps than forward"
+      ],
+      "video": {
+        "id": "WQb0rvx_iZ8",
+        "author": "Catalyst Athletics"
+      },
+      "block": "06-carries"
+    },
+    {
+      "id": "db-overhead-carry",
+      "name": "Dumbbell Overhead Carry",
+      "aka": null,
+      "family": "overhead-carry",
+      "modifiers": [
+        "bilateral",
+        "load overhead"
+      ],
+      "pattern": "loaded carry",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "walking",
+      "joints": [
+        "shoulder flexion held overhead (isometric)",
+        "trunk anti-extension (high)",
+        "gait"
+      ],
+      "agonists": [
+        "deltoids",
+        "triceps brachii",
+        "deep trunk"
+      ],
+      "synergists": [
+        "upper trapezius",
+        "serratus anterior",
+        "erector spinae"
+      ],
+      "stabilizers": [
+        "deep trunk (maximal)",
+        "rotator cuff",
+        "gluteus maximus"
+      ],
+      "position": "Overhead load pulls the ribcage up and back, so the trunk fights extension for the whole walk while the shoulders hold position. Exposes a shoulder flexion restriction instantly — if the range is not there, the lower back supplies it.",
+      "resistance": "External, overhead.",
+      "lengthBias": "mid",
+      "intents": [
+        "shoulder stability",
+        "anti-extension"
+      ],
+      "dose": "3 × 15–30 m",
+      "stress": {
+        "axial": "mod",
+        "flexion": "mod",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "high",
+        "elbow": "low"
+      },
+      "equipment": [
+        "dumbbells"
+      ],
+      "equipTier": "minimal",
+      "space": "20 m walkway",
+      "skill": "intermediate",
+      "cues": [
+        "Ribs down, glutes on",
+        "Elbows locked, biceps by the ears",
+        "Stop if the back starts to arch"
+      ],
+      "video": {
+        "id": "u2zEzUeOI-o",
+        "author": "Catalyst Athletics"
+      },
+      "block": "06-carries"
+    },
+    {
+      "id": "single-arm-oh-carry",
+      "name": "Single Arm Dumbbell Overhead Carry",
+      "aka": null,
+      "family": "overhead-carry",
+      "modifiers": [
+        "unilateral",
+        "load overhead"
+      ],
+      "pattern": "loaded carry",
+      "plane": "frontal",
+      "stance": "unilateral",
+      "perSide": true,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "walking",
+      "joints": [
+        "shoulder flexion held overhead",
+        "trunk anti-lateral-flexion and anti-extension",
+        "gait"
+      ],
+      "agonists": [
+        "deltoids",
+        "obliques",
+        "quadratus lumborum"
+      ],
+      "synergists": [
+        "triceps brachii",
+        "serratus anterior",
+        "gluteus medius"
+      ],
+      "stabilizers": [
+        "deep trunk (maximal)",
+        "rotator cuff (high)",
+        "gluteus medius"
+      ],
+      "position": "Combines the overhead anti-extension demand with the asymmetry of a suitcase carry, so the trunk resists two directions at once. The hardest carry here per kilo.",
+      "resistance": "External, overhead, one side.",
+      "lengthBias": "mid",
+      "intents": [
+        "shoulder stability",
+        "anti-lateral flexion"
+      ],
+      "dose": "3 × 15–25 m per side",
+      "stress": {
+        "axial": "mod",
+        "flexion": "mod",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "high",
+        "elbow": "low"
+      },
+      "equipment": [
+        "dumbbell or kettlebell"
+      ],
+      "equipTier": "minimal",
+      "space": "20 m walkway",
+      "skill": "advanced",
+      "cues": [
+        "Do not lean away from the load",
+        "Lock the elbow and keep the arm vertical",
+        "Short distances to start"
+      ],
+      "video": {
+        "id": "1grTH_YfK_0",
+        "author": "Catalyst Athletics"
+      },
+      "block": "06-carries"
+    },
+    {
+      "id": "snatch-grip-oh-carry",
+      "name": "Snatch Grip Overhead Carry",
+      "aka": null,
+      "family": "overhead-carry",
+      "modifiers": [
+        "barbell",
+        "wide grip overhead"
+      ],
+      "pattern": "loaded carry",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "walking",
+      "joints": [
+        "shoulder flexion and external rotation held overhead",
+        "trunk anti-extension",
+        "gait"
+      ],
+      "agonists": [
+        "deltoids",
+        "upper trapezius",
+        "deep trunk"
+      ],
+      "synergists": [
+        "triceps brachii",
+        "serratus anterior",
+        "erector spinae"
+      ],
+      "stabilizers": [
+        "deep trunk (maximal)",
+        "rotator cuff",
+        "scapular stabilizers"
+      ],
+      "position": "A wide barbell grip overhead demands more shoulder external rotation and thoracic extension than dumbbells, so it doubles as an overhead position test. Heavier loading possible, less forgiving of a tight shoulder.",
+      "resistance": "External, overhead, fixed bar.",
+      "lengthBias": "mid",
+      "intents": [
+        "overhead position",
+        "trunk endurance"
+      ],
+      "dose": "3 × 15–30 m",
+      "stress": {
+        "axial": "mod",
+        "flexion": "mod",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "high",
+        "elbow": "low"
+      },
+      "equipment": [
+        "barbell",
+        "plates"
+      ],
+      "equipTier": "gym",
+      "space": "20 m walkway",
+      "skill": "advanced",
+      "cues": [
+        "Active shoulders — push up into the bar",
+        "Bar slightly behind the head, not in front",
+        "Abort the set if the bar drifts forward"
+      ],
+      "video": {
+        "id": "3qOa2aNMFGE",
+        "author": "Catalyst Athletics"
+      },
+      "block": "06-carries"
+    },
+    {
+      "id": "axle-farmer-carry",
+      "name": "Axle Farmer Carry",
+      "aka": null,
+      "family": "carry",
+      "modifiers": [
+        "thick bar",
+        "bilateral"
+      ],
+      "pattern": "loaded carry",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "walking",
+      "joints": [
+        "trunk anti-flexion",
+        "grip (thick bar)",
+        "gait"
+      ],
+      "agonists": [
+        "grip and forearm flexors (maximal)",
+        "upper trapezius"
+      ],
+      "synergists": [
+        "erector spinae",
+        "obliques",
+        "calves"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "scapular stabilizers"
+      ],
+      "position": "A thicker handle makes the grip the overwhelming limiter, so it trains grip far more than trunk or legs. Use it when grip is the target, not as a general carry.",
+      "resistance": "External, hanging on a thick handle. Grip-limited.",
+      "lengthBias": "mid",
+      "intents": [
+        "grip strength"
+      ],
+      "dose": "4–6 × 10–20 m",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [
+        "axle or thick-handled implement"
+      ],
+      "equipTier": "specialist",
+      "space": "20 m walkway",
+      "skill": "intermediate",
+      "cues": [
+        "Hook grip or chalk if allowed",
+        "Short fast sets — grip fails quickly",
+        "Set the implement down, do not drop it"
+      ],
+      "video": {
+        "id": "FVZ9BX1ZGH4",
+        "author": "Catalyst Athletics"
+      },
+      "block": "06-carries"
+    }
+  ],
+  "swap_edges": [
+    {
+      "from": "db-overhead-carry",
+      "to": "farmer-carry",
+      "reason": "shoulder",
+      "same": "Loaded carry, trunk and grip demand",
+      "changed": "Load at the sides instead of overhead — no shoulder flexion required",
+      "dose": "3–5 × 20–40 m"
+    },
+    {
+      "from": "snatch-grip-oh-carry",
+      "to": "farmer-carry",
+      "reason": "shoulder",
+      "same": "Loaded carry",
+      "changed": "Removes the overhead position entirely",
+      "dose": "3–5 × 20–40 m"
+    },
+    {
+      "from": "single-arm-oh-carry",
+      "to": "single-arm-farmer-carry",
+      "reason": "shoulder",
+      "same": "Asymmetric carry, anti-lateral flexion",
+      "changed": "Load at the side rather than overhead",
+      "dose": "3–4 × 20–40 m per side"
+    },
+    {
+      "from": "single-arm-oh-carry",
+      "to": "db-overhead-carry",
+      "reason": "harder",
+      "same": "Overhead carry, anti-extension",
+      "changed": "Both arms, so no lateral-flexion demand",
+      "dose": "3 × 15–30 m"
+    },
+    {
+      "from": "axle-farmer-carry",
+      "to": "farmer-carry",
+      "reason": "harder",
+      "same": "Loaded carry, grip-limited",
+      "changed": "Normal handles instead of a thick bar",
+      "dose": "3–5 × 20–40 m"
+    },
+    {
+      "from": "axle-farmer-carry",
+      "to": "farmer-carry",
+      "reason": "equipment",
+      "same": "Bilateral loaded carry",
+      "changed": "Dumbbells or kettlebells instead of a specialist implement",
+      "dose": "3–5 × 20–40 m"
+    },
+    {
+      "from": "snatch-grip-oh-carry",
+      "to": "db-overhead-carry",
+      "reason": "equipment",
+      "same": "Overhead carry",
+      "changed": "Dumbbells instead of a loaded barbell",
+      "dose": "3 × 15–30 m"
+    },
+    {
+      "from": "farmer-carry",
+      "to": "plank",
+      "reason": "space",
+      "same": "Trunk endurance under load",
+      "changed": "No walkway needed; isometric on the spot",
+      "dose": "3–4 × 30–60 s"
+    }
+  ]
+}

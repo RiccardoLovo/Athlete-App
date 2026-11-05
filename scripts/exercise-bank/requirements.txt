@@ -1,0 +1,5 @@
+# Workbook round-trip for the exercise bank.
+#   python3 -m venv .venv && .venv/bin/pip install -r scripts/exercise-bank/requirements.txt
+#   .venv/bin/python scripts/exercise-bank/to_xlsx.py   data/exercise-bank/01-....json
+#   .venv/bin/python scripts/exercise-bank/from_xlsx.py edited.xlsx target.json --write
+openpyxl==3.1.5

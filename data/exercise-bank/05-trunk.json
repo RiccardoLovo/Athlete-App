@@ -1,0 +1,2506 @@
+{
+  "block": "05-trunk",
+  "title": "Trunk & anti-rotation",
+  "reviewed": false,
+  "clinical_signoff": null,
+  "updated": "2026-10-27",
+  "vocab": {
+    "ssc": [
+      {
+        "id": "none",
+        "label": "No SSC",
+        "definition": "Dead start or paused. No elastic contribution; force comes from rate of development alone."
+      },
+      {
+        "id": "slow",
+        "label": "Slow SSC",
+        "definition": "Contact > 250 ms, large joint displacement. Countermovement assists the jump."
+      },
+      {
+        "id": "fast",
+        "label": "Fast SSC",
+        "definition": "Contact < 250 ms, small displacement. Trains tendon stiffness and reactive strength."
+      },
+      {
+        "id": "ecc",
+        "label": "Eccentric only",
+        "definition": "Deceleration and landing. No concentric phase to train."
+      },
+      {
+        "id": "n/a",
+        "label": "Not applicable",
+        "definition": "Grinding or isolation work where the stretch-shortening cycle is not the organizing variable."
+      },
+      {
+        "id": "n/a",
+        "label": "Not applicable",
+        "definition": "Grinding or isolation work where the stretch-shortening cycle is not the organizing variable."
+      }
+    ],
+    "swap_reason": [
+      {
+        "id": "equipment",
+        "label": "Equipment unavailable"
+      },
+      {
+        "id": "space",
+        "label": "No space"
+      },
+      {
+        "id": "harder",
+        "label": "Too hard today"
+      },
+      {
+        "id": "lumbar",
+        "label": "Lower back"
+      },
+      {
+        "id": "knee",
+        "label": "Knee"
+      },
+      {
+        "id": "achilles",
+        "label": "Achilles / calf"
+      },
+      {
+        "id": "shoulder",
+        "label": "Shoulder"
+      },
+      {
+        "id": "elbow",
+        "label": "Elbow"
+      }
+    ],
+    "stress_level": [
+      "low",
+      "mod",
+      "high"
+    ],
+    "skill": [
+      "entry",
+      "intermediate",
+      "advanced"
+    ],
+    "plane": [
+      "sagittal",
+      "frontal",
+      "transverse"
+    ],
+    "stance": [
+      "bilateral",
+      "unilateral",
+      "unilateral (split)",
+      "unilateral alternating"
+    ],
+    "provenance": [
+      "sourced",
+      "inferred",
+      "unverified"
+    ],
+    "length_bias": [
+      "lengthened",
+      "mid",
+      "shortened"
+    ],
+    "stress_field": [
+      "axial",
+      "flexion",
+      "impact",
+      "landing",
+      "achilles",
+      "knee",
+      "shoulder",
+      "elbow"
+    ],
+    "equip_tier": [
+      "none",
+      "home",
+      "minimal",
+      "gym",
+      "specialist"
+    ]
+  },
+  "exercises": [
+    {
+      "id": "plank",
+      "name": "Plank",
+      "aka": "front plank",
+      "family": "plank",
+      "modifiers": [
+        "bodyweight",
+        "forearms"
+      ],
+      "pattern": "anti-extension",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "none",
+      "gct": "n/a — sustained hold",
+      "velocity": "none (isometric)",
+      "joints": [
+        "trunk anti-extension (isometric)",
+        "hip anti-extension",
+        "scapular protraction (isometric)"
+      ],
+      "agonists": [
+        "rectus abdominis",
+        "transversus abdominis"
+      ],
+      "synergists": [
+        "obliques",
+        "serratus anterior",
+        "gluteus maximus",
+        "quadriceps (isometric)"
+      ],
+      "stabilizers": [
+        "erector spinae (co-contraction)",
+        "deep trunk",
+        "rotator cuff"
+      ],
+      "position": "The job is refusing lumbar extension while gravity pulls the pelvis down, so the demand is isometric and the spine stays neutral. Zero flexion load, which is why it survives on almost any lower-back programme.",
+      "resistance": "Bodyweight, isometric. Time under tension is the dose.",
+      "lengthBias": "mid",
+      "intents": [
+        "isometric strength",
+        "trunk endurance"
+      ],
+      "dose": "3–4 × 30–60 s",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [],
+      "equipTier": "none",
+      "space": "floor",
+      "skill": "entry",
+      "cues": [
+        "Ribs down, pelvis tucked slightly",
+        "Squeeze the glutes — it is a full-body brace",
+        "Stop when the hips start to sag, not at a time target"
+      ],
+      "video": {
+        "id": "P3FR4GUl2QM",
+        "author": "Catalyst Athletics"
+      },
+      "block": "05-trunk"
+    },
+    {
+      "id": "dead-bug",
+      "name": "Dead Bug",
+      "aka": null,
+      "family": "dead-bug",
+      "modifiers": [
+        "bodyweight",
+        "supine",
+        "limb-loaded"
+      ],
+      "pattern": "anti-extension",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "slow, controlled",
+      "joints": [
+        "trunk anti-extension (isometric)",
+        "hip flexion / extension (limb movement)",
+        "shoulder flexion / extension"
+      ],
+      "agonists": [
+        "rectus abdominis",
+        "transversus abdominis"
+      ],
+      "synergists": [
+        "obliques",
+        "hip flexors (moving limb)"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "pelvic floor"
+      ],
+      "position": "Supine, so the spine is supported and the lower back can be pressed flat against the floor — the easiest place to learn a brace honestly, because any loss of position is immediately obvious as the back arching off the ground. The limbs provide the load, not weight.",
+      "resistance": "Bodyweight, limb lever. Hardest with the limbs fully extended.",
+      "lengthBias": "mid",
+      "intents": [
+        "motor control",
+        "trunk endurance"
+      ],
+      "dose": "2–3 × 6–10 per side, slow",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [],
+      "equipTier": "none",
+      "space": "floor",
+      "skill": "entry",
+      "cues": [
+        "Press the lower back into the floor and keep it there",
+        "Extend only as far as you hold position",
+        "Breathe out as the limbs reach"
+      ],
+      "video": {
+        "id": "ZtwcT5g4Tb8",
+        "author": "Catalyst Athletics"
+      },
+      "block": "05-trunk"
+    },
+    {
+      "id": "hollow-hold",
+      "name": "Hollow Hold",
+      "aka": null,
+      "family": "hollow",
+      "modifiers": [
+        "bodyweight",
+        "supine",
+        "limbs extended"
+      ],
+      "pattern": "anti-extension",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "none (isometric)",
+      "joints": [
+        "trunk flexion held (isometric)",
+        "hip flexion held",
+        "shoulder flexion held"
+      ],
+      "agonists": [
+        "rectus abdominis"
+      ],
+      "synergists": [
+        "obliques",
+        "hip flexors",
+        "quadriceps"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "serratus anterior"
+      ],
+      "position": "A plank turned over: the abdominals hold a slightly flexed spine against the lever of extended limbs. More demanding than a plank and more likely to be cheated by arching, which turns it into a hip-flexor hold.",
+      "resistance": "Bodyweight, lever-scaled.",
+      "lengthBias": "shortened",
+      "intents": [
+        "isometric strength",
+        "trunk endurance"
+      ],
+      "dose": "3–5 × 20–45 s",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [],
+      "equipTier": "none",
+      "space": "floor",
+      "skill": "intermediate",
+      "cues": [
+        "Lower back pressed down — no gap",
+        "Tuck the knees to regress",
+        "Stop the moment the back arches"
+      ],
+      "video": {
+        "id": "x8xSTaaMmuY",
+        "author": "Catalyst Athletics"
+      },
+      "block": "05-trunk"
+    },
+    {
+      "id": "hollow-rock",
+      "name": "Hollow Rock",
+      "aka": null,
+      "family": "hollow",
+      "modifiers": [
+        "bodyweight",
+        "dynamic rocking"
+      ],
+      "pattern": "anti-extension",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "rhythmic",
+      "joints": [
+        "trunk flexion held while rocking",
+        "hip and shoulder flexion held"
+      ],
+      "agonists": [
+        "rectus abdominis"
+      ],
+      "synergists": [
+        "obliques",
+        "hip flexors",
+        "quadriceps"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "serratus anterior"
+      ],
+      "position": "A hollow hold with momentum added, so the trunk must keep its shape while the body rocks. The shape is the exercise — if the hollow breaks, the rocking is just thrashing.",
+      "resistance": "Bodyweight plus momentum.",
+      "lengthBias": "shortened",
+      "intents": [
+        "trunk endurance",
+        "position control"
+      ],
+      "dose": "3–4 × 15–30 reps",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [],
+      "equipTier": "none",
+      "space": "floor",
+      "skill": "intermediate",
+      "cues": [
+        "Rock from the shoulders, not the hips",
+        "Hold the hollow shape rigid",
+        "Regress to a static hold if the shape goes"
+      ],
+      "video": {
+        "id": "IDyzloCxcYs",
+        "author": "Catalyst Athletics"
+      },
+      "block": "05-trunk"
+    },
+    {
+      "id": "ab-rollout",
+      "name": "Ab Rollout",
+      "aka": null,
+      "family": "rollout",
+      "modifiers": [
+        "barbell or wheel",
+        "from knees or feet"
+      ],
+      "pattern": "anti-extension",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "slow, controlled",
+      "joints": [
+        "trunk anti-extension (through range, loaded)",
+        "shoulder flexion (large)",
+        "hip anti-extension"
+      ],
+      "agonists": [
+        "rectus abdominis",
+        "transversus abdominis"
+      ],
+      "synergists": [
+        "obliques",
+        "latissimus dorsi (the return)",
+        "serratus anterior",
+        "hip flexors"
+      ],
+      "stabilizers": [
+        "deep trunk (maximal)",
+        "scapular stabilizers"
+      ],
+      "position": "The hardest anti-extension exercise here, because the lever lengthens as you roll out and the abdominals resist extension through range rather than isometrically. Still no deliberate lumbar flexion, so the cost is strength, not spinal load.",
+      "resistance": "Bodyweight, lever-scaled by how far you roll.",
+      "lengthBias": "lengthened",
+      "intents": [
+        "max strength",
+        "hypertrophy"
+      ],
+      "dose": "3 × 5–10, controlled",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "mod",
+        "elbow": "low"
+      },
+      "equipment": [
+        "ab wheel or loaded barbell"
+      ],
+      "equipTier": "minimal",
+      "space": "floor",
+      "skill": "advanced",
+      "cues": [
+        "Ribs down the whole way out",
+        "Only roll as far as the back stays flat",
+        "From the knees first — feet is a long way up"
+      ],
+      "video": {
+        "id": "Ojf6jVWJDuU",
+        "author": "Catalyst Athletics"
+      },
+      "block": "05-trunk"
+    },
+    {
+      "id": "plank-march",
+      "name": "Plank March",
+      "aka": null,
+      "family": "plank",
+      "modifiers": [
+        "bodyweight",
+        "alternating limb lift"
+      ],
+      "pattern": "anti-rotation",
+      "plane": "transverse",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "slow",
+      "joints": [
+        "trunk anti-rotation (isometric)",
+        "trunk anti-extension",
+        "alternating shoulder and hip loading"
+      ],
+      "agonists": [
+        "obliques",
+        "rectus abdominis"
+      ],
+      "synergists": [
+        "gluteus medius",
+        "serratus anterior",
+        "gluteus maximus"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "quadratus lumborum",
+        "rotator cuff"
+      ],
+      "position": "Lifting one point of contact makes the plank a rotational problem rather than purely an anti-extension one — the pelvis wants to twist and dip, and refusing that is the training effect.",
+      "resistance": "Bodyweight, alternating.",
+      "lengthBias": "mid",
+      "intents": [
+        "anti-rotation",
+        "trunk endurance"
+      ],
+      "dose": "3 × 8–12 per side",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "mod",
+        "elbow": "low"
+      },
+      "equipment": [],
+      "equipTier": "none",
+      "space": "floor",
+      "skill": "intermediate",
+      "cues": [
+        "Hips stay square and level",
+        "Widen the feet to make it easier",
+        "Slow — speed hides the twist"
+      ],
+      "video": {
+        "id": "-1OWaa-DbVg",
+        "author": "Catalyst Athletics"
+      },
+      "block": "05-trunk"
+    },
+    {
+      "id": "plank-pull-through",
+      "name": "Plank Pull Through",
+      "aka": null,
+      "family": "plank",
+      "modifiers": [
+        "bodyweight",
+        "dragging a weight"
+      ],
+      "pattern": "anti-rotation",
+      "plane": "transverse",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "slow",
+      "joints": [
+        "trunk anti-rotation (isometric, loaded)",
+        "shoulder reach across the body"
+      ],
+      "agonists": [
+        "obliques",
+        "rectus abdominis"
+      ],
+      "synergists": [
+        "serratus anterior",
+        "gluteus medius",
+        "latissimus dorsi"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "quadratus lumborum",
+        "rotator cuff"
+      ],
+      "position": "Reaching under the body to drag a weight adds an external rotational torque to the plank, so the load is adjustable in a way plank variations usually are not.",
+      "resistance": "External, dragged. Scaled by the weight.",
+      "lengthBias": "mid",
+      "intents": [
+        "anti-rotation",
+        "trunk endurance"
+      ],
+      "dose": "3 × 6–10 per side",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "mod",
+        "elbow": "low"
+      },
+      "equipment": [
+        "dumbbell or plate"
+      ],
+      "equipTier": "minimal",
+      "space": "floor",
+      "skill": "intermediate",
+      "cues": [
+        "Hips level — do not let them rotate toward the reaching arm",
+        "Drag, do not throw",
+        "Reset the plank between reps"
+      ],
+      "video": {
+        "id": "MmBisIuvLeU",
+        "author": "Catalyst Athletics"
+      },
+      "block": "05-trunk"
+    },
+    {
+      "id": "side-plank",
+      "name": "Side Plank",
+      "aka": null,
+      "family": "side-plank",
+      "modifiers": [
+        "bodyweight",
+        "forearm"
+      ],
+      "pattern": "anti-lateral flexion",
+      "plane": "frontal",
+      "stance": "unilateral",
+      "perSide": true,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "none (isometric)",
+      "joints": [
+        "trunk anti-lateral-flexion (isometric)",
+        "hip abduction (isometric)",
+        "scapular stabilization"
+      ],
+      "agonists": [
+        "obliques (internal and external)",
+        "quadratus lumborum"
+      ],
+      "synergists": [
+        "gluteus medius",
+        "serratus anterior",
+        "transversus abdominis"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "rotator cuff"
+      ],
+      "position": "The frontal-plane counterpart to the plank, and the only common exercise that loads the quadratus lumborum and lateral obliques isometrically without a bending moment on a loaded spine. Gluteus medius works hard on the down side.",
+      "resistance": "Bodyweight, isometric.",
+      "lengthBias": "mid",
+      "intents": [
+        "isometric strength",
+        "lateral trunk endurance"
+      ],
+      "dose": "3 × 20–45 s per side",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "mod",
+        "elbow": "low"
+      },
+      "equipment": [],
+      "equipTier": "none",
+      "space": "floor",
+      "skill": "entry",
+      "cues": [
+        "Stack the shoulders and hips in one line",
+        "Push the down hip up, do not let it sink",
+        "Knees down to regress"
+      ],
+      "video": {
+        "id": "JFBx8cpLRTw",
+        "author": "Catalyst Athletics"
+      },
+      "block": "05-trunk"
+    },
+    {
+      "id": "star-side-plank",
+      "name": "Star Side Plank",
+      "aka": null,
+      "family": "side-plank",
+      "modifiers": [
+        "bodyweight",
+        "top leg abducted"
+      ],
+      "pattern": "anti-lateral flexion",
+      "plane": "frontal",
+      "stance": "unilateral",
+      "perSide": true,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "none (isometric)",
+      "joints": [
+        "trunk anti-lateral-flexion",
+        "top-leg hip abduction (concentric hold)",
+        "bottom-leg hip abduction (isometric)"
+      ],
+      "agonists": [
+        "obliques",
+        "quadratus lumborum",
+        "gluteus medius (both sides)"
+      ],
+      "synergists": [
+        "serratus anterior",
+        "transversus abdominis"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "rotator cuff",
+        "foot and ankle"
+      ],
+      "position": "Lifting the top leg removes a point of support and loads both glute medius muscles at once — the bottom one isometrically, the top one concentrically. The hardest side plank variant without adding weight.",
+      "resistance": "Bodyweight, reduced base.",
+      "lengthBias": "mid",
+      "intents": [
+        "isometric strength",
+        "hip abduction endurance"
+      ],
+      "dose": "3 × 15–30 s per side",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "mod",
+        "elbow": "low"
+      },
+      "equipment": [],
+      "equipTier": "none",
+      "space": "floor",
+      "skill": "advanced",
+      "cues": [
+        "Build a straight side plank first",
+        "Lift the leg without rolling backward",
+        "Stop when the hip drops"
+      ],
+      "video": {
+        "id": "9K8XTNN7tFs",
+        "author": "Catalyst Athletics"
+      },
+      "block": "05-trunk"
+    },
+    {
+      "id": "side-plank-leg-lift",
+      "name": "Side Plank Leg Lift",
+      "aka": null,
+      "family": "side-plank",
+      "modifiers": [
+        "bodyweight",
+        "dynamic top leg"
+      ],
+      "pattern": "anti-lateral flexion",
+      "plane": "frontal",
+      "stance": "unilateral",
+      "perSide": true,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "slow, controlled",
+      "joints": [
+        "trunk anti-lateral-flexion (isometric)",
+        "top-leg hip abduction (dynamic)"
+      ],
+      "agonists": [
+        "obliques",
+        "quadratus lumborum",
+        "gluteus medius"
+      ],
+      "synergists": [
+        "serratus anterior",
+        "tensor fasciae latae"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "rotator cuff"
+      ],
+      "position": "Holds the side plank while the top leg works dynamically, so trunk endurance and hip abduction strength are trained in the same set. For runners the glute medius demand is the point.",
+      "resistance": "Bodyweight.",
+      "lengthBias": "mid",
+      "intents": [
+        "hip abduction strength",
+        "lateral trunk endurance"
+      ],
+      "dose": "3 × 8–15 per side",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "mod",
+        "elbow": "low"
+      },
+      "equipment": [],
+      "equipTier": "none",
+      "space": "floor",
+      "skill": "intermediate",
+      "cues": [
+        "Trunk stays rigid — only the leg moves",
+        "Lift to hip height, no higher",
+        "Toes forward, not turned up"
+      ],
+      "video": {
+        "id": "khGht6lHoeQ",
+        "author": "Catalyst Athletics"
+      },
+      "block": "05-trunk"
+    },
+    {
+      "id": "ql-side-bend",
+      "name": "QL Side Bend",
+      "aka": null,
+      "family": "side-bend",
+      "modifiers": [
+        "bodyweight or light load",
+        "lateral flexion through range"
+      ],
+      "pattern": "trunk lateral flexion",
+      "plane": "frontal",
+      "stance": "bilateral",
+      "perSide": true,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "slow",
+      "joints": [
+        "trunk lateral flexion (dynamic, through range)"
+      ],
+      "agonists": [
+        "quadratus lumborum",
+        "obliques"
+      ],
+      "synergists": [
+        "erector spinae",
+        "latissimus dorsi"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "gluteus medius"
+      ],
+      "position": "Moves the spine into lateral flexion deliberately rather than resisting it — the opposite intent to a side plank despite working the same muscles. Lateral bending under load is a real spinal stressor, so it is a progression, not a starting point.",
+      "resistance": "Bodyweight or light held load.",
+      "lengthBias": "lengthened",
+      "intents": [
+        "lateral trunk strength",
+        "mobility under load"
+      ],
+      "dose": "2–3 × 8–12 per side, light",
+      "stress": {
+        "axial": "low",
+        "flexion": "mod",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [],
+      "equipTier": "none",
+      "space": "floor",
+      "skill": "intermediate",
+      "cues": [
+        "Bend sideways only, no twisting",
+        "Small range to start",
+        "Stop at any pinching in the back"
+      ],
+      "video": {
+        "id": "FkWLkq9xUVE",
+        "author": "Catalyst Athletics"
+      },
+      "block": "05-trunk"
+    },
+    {
+      "id": "side-bend",
+      "name": "Side Bend",
+      "aka": "loaded side bend",
+      "family": "side-bend",
+      "modifiers": [
+        "dumbbell or barbell",
+        "lateral flexion"
+      ],
+      "pattern": "trunk lateral flexion",
+      "plane": "frontal",
+      "stance": "bilateral",
+      "perSide": true,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "slow",
+      "joints": [
+        "trunk lateral flexion (loaded, through range)"
+      ],
+      "agonists": [
+        "obliques",
+        "quadratus lumborum"
+      ],
+      "synergists": [
+        "erector spinae",
+        "latissimus dorsi"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "grip"
+      ],
+      "position": "Adds external load to lateral flexion. Effective for the lateral trunk and one of the less forgiving things you can do to a lumbar spine, because the bending moment is both loaded and asymmetric.",
+      "resistance": "External, held at the side.",
+      "lengthBias": "lengthened",
+      "intents": [
+        "lateral trunk strength"
+      ],
+      "dose": "3 × 8–12 per side, conservative",
+      "stress": {
+        "axial": "low",
+        "flexion": "high",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [
+        "dumbbell"
+      ],
+      "equipTier": "minimal",
+      "space": "indoor, 1 m²",
+      "skill": "advanced",
+      "cues": [
+        "Pure sideways movement",
+        "No rotation, no forward lean",
+        "Light — this is not a loading exercise"
+      ],
+      "video": {
+        "id": "vWAiW2v7fCs",
+        "author": "Catalyst Athletics"
+      },
+      "block": "05-trunk"
+    },
+    {
+      "id": "pallof-press",
+      "name": "Pallof Press",
+      "aka": null,
+      "family": "pallof",
+      "modifiers": [
+        "cable or band",
+        "standing"
+      ],
+      "pattern": "anti-rotation",
+      "plane": "transverse",
+      "stance": "bilateral",
+      "perSide": true,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "slow, controlled",
+      "joints": [
+        "trunk anti-rotation (isometric, loaded)",
+        "shoulder flexion (press out)"
+      ],
+      "agonists": [
+        "obliques (internal and external)",
+        "transversus abdominis"
+      ],
+      "synergists": [
+        "rectus abdominis",
+        "serratus anterior",
+        "gluteus medius"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "quadratus lumborum",
+        "hip stabilizers"
+      ],
+      "position": "The reference anti-rotation exercise: a cable pulls the trunk into rotation and the job is to refuse it, with the torque increasing as the arms press further from the body. Loadable and spine-neutral, which is a rare combination in trunk work.",
+      "resistance": "Cable or band. Torque peaks at full arm extension.",
+      "lengthBias": "mid",
+      "intents": [
+        "anti-rotation",
+        "motor control"
+      ],
+      "dose": "3 × 8–12 per side, or 20–30 s holds",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [
+        "cable machine or band"
+      ],
+      "equipTier": "minimal",
+      "space": "indoor, 2 m²",
+      "skill": "entry",
+      "cues": [
+        "Ribs down, hips square to the front",
+        "Press straight out from the sternum",
+        "Resist the twist rather than fighting it"
+      ],
+      "video": {
+        "id": "GfTQ0RLZ7GA",
+        "author": "Catalyst Athletics"
+      },
+      "block": "05-trunk"
+    },
+    {
+      "id": "pallof-press-split",
+      "name": "Pallof Press In Split",
+      "aka": null,
+      "family": "pallof",
+      "modifiers": [
+        "cable or band",
+        "split stance"
+      ],
+      "pattern": "anti-rotation",
+      "plane": "transverse",
+      "stance": "unilateral (split)",
+      "perSide": true,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "slow",
+      "joints": [
+        "trunk anti-rotation (loaded)",
+        "shoulder flexion",
+        "hip stability in split stance"
+      ],
+      "agonists": [
+        "obliques",
+        "transversus abdominis"
+      ],
+      "synergists": [
+        "gluteus medius",
+        "gluteus maximus",
+        "serratus anterior"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "hip stabilizers (high)"
+      ],
+      "position": "A narrower, staggered base makes the pelvis harder to keep square, so the hip stabilizers join the anti-rotation demand. A step closer to how rotation is resisted in running and on the bike than a square stance is.",
+      "resistance": "Cable or band.",
+      "lengthBias": "mid",
+      "intents": [
+        "anti-rotation",
+        "hip stability"
+      ],
+      "dose": "3 × 8–12 per side",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [
+        "cable machine or band"
+      ],
+      "equipTier": "minimal",
+      "space": "indoor, 2 m²",
+      "skill": "intermediate",
+      "cues": [
+        "Front foot forward, hips still square",
+        "Do not let the back hip open",
+        "Slower than the standing version"
+      ],
+      "video": {
+        "id": "ctPbVlt_9f0",
+        "author": "Catalyst Athletics"
+      },
+      "block": "05-trunk"
+    },
+    {
+      "id": "anti-rotation-landmine",
+      "name": "Anti-Rotation Landmine",
+      "aka": null,
+      "family": "landmine",
+      "modifiers": [
+        "barbell in landmine",
+        "arcing resistance"
+      ],
+      "pattern": "anti-rotation",
+      "plane": "transverse",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "slow, controlled",
+      "joints": [
+        "trunk anti-rotation (loaded, through an arc)",
+        "shoulder flexion and abduction"
+      ],
+      "agonists": [
+        "obliques",
+        "transversus abdominis"
+      ],
+      "synergists": [
+        "deltoids",
+        "serratus anterior",
+        "gluteus medius"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "quadratus lumborum",
+        "scapular stabilizers"
+      ],
+      "position": "The bar arcs overhead, so the rotational torque changes direction and magnitude continuously through the rep rather than staying constant like a cable. Heavier loading available than a Pallof press.",
+      "resistance": "External, arcing. Torque varies through the range.",
+      "lengthBias": "mid",
+      "intents": [
+        "anti-rotation",
+        "trunk strength"
+      ],
+      "dose": "3 × 6–10",
+      "stress": {
+        "axial": "low",
+        "flexion": "mod",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "mod",
+        "elbow": "low"
+      },
+      "equipment": [
+        "barbell",
+        "landmine or corner"
+      ],
+      "equipTier": "gym",
+      "space": "gym floor",
+      "skill": "intermediate",
+      "cues": [
+        "Arms long, move the bar in an arc",
+        "Hips face forward throughout",
+        "Fight the bar, do not swing it"
+      ],
+      "video": {
+        "id": "PPSrY5X5Its",
+        "author": "Catalyst Athletics"
+      },
+      "block": "05-trunk"
+    },
+    {
+      "id": "half-kneeling-cross-chop",
+      "name": "Half Kneeling Cross Chop",
+      "aka": null,
+      "family": "chop",
+      "modifiers": [
+        "cable or band",
+        "half-kneeling"
+      ],
+      "pattern": "trunk rotation",
+      "plane": "transverse",
+      "stance": "unilateral (split)",
+      "perSide": true,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "controlled",
+      "joints": [
+        "trunk rotation (dynamic, loaded)",
+        "shoulder flexion and adduction across the body"
+      ],
+      "agonists": [
+        "obliques (rotating)",
+        "latissimus dorsi"
+      ],
+      "synergists": [
+        "serratus anterior",
+        "gluteus maximus (lead side)",
+        "deltoids"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "gluteus medius",
+        "hip stabilizers"
+      ],
+      "position": "Rotation produced rather than resisted, with the half-kneeling base removing the legs' contribution so the rotation has to come from the trunk. The complement to a Pallof press — one builds the brake, the other the engine.",
+      "resistance": "Cable or band.",
+      "lengthBias": "mid",
+      "intents": [
+        "rotational power",
+        "trunk strength"
+      ],
+      "dose": "3 × 8–12 per side",
+      "stress": {
+        "axial": "low",
+        "flexion": "mod",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "mod",
+        "elbow": "low"
+      },
+      "equipment": [
+        "cable machine or band"
+      ],
+      "equipTier": "minimal",
+      "space": "indoor, 2 m²",
+      "skill": "intermediate",
+      "cues": [
+        "Rotate through the ribs, not the lower back",
+        "Hips stay still in the half-kneeling position",
+        "Control the return"
+      ],
+      "video": {
+        "id": "Wfb06JyjOgQ",
+        "author": "Catalyst Athletics"
+      },
+      "block": "05-trunk"
+    },
+    {
+      "id": "cross-chop",
+      "name": "Cross Chop",
+      "aka": null,
+      "family": "chop",
+      "modifiers": [
+        "cable or band",
+        "standing"
+      ],
+      "pattern": "trunk rotation",
+      "plane": "transverse",
+      "stance": "bilateral",
+      "perSide": true,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "controlled to fast",
+      "joints": [
+        "trunk rotation (dynamic)",
+        "hip rotation",
+        "shoulder adduction across the body"
+      ],
+      "agonists": [
+        "obliques",
+        "latissimus dorsi"
+      ],
+      "synergists": [
+        "gluteus maximus",
+        "deltoids",
+        "serratus anterior"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "hip stabilizers",
+        "foot and ankle"
+      ],
+      "position": "Standing lets the hips drive the rotation, which is how rotation actually works in sport — the trunk transmits rather than originates it. Faster and more athletic than the half-kneeling version, and less isolating.",
+      "resistance": "Cable or band.",
+      "lengthBias": "mid",
+      "intents": [
+        "rotational power"
+      ],
+      "dose": "3 × 8–12 per side",
+      "stress": {
+        "axial": "low",
+        "flexion": "mod",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "mod",
+        "elbow": "low"
+      },
+      "equipment": [
+        "cable machine or band"
+      ],
+      "equipTier": "minimal",
+      "space": "indoor, 3 m²",
+      "skill": "intermediate",
+      "cues": [
+        "Pivot the back foot and let the hip turn",
+        "Arms long, chop across and down",
+        "Finish balanced, not falling"
+      ],
+      "video": {
+        "id": "w8-M1IrI3YQ",
+        "author": "Catalyst Athletics"
+      },
+      "block": "05-trunk"
+    },
+    {
+      "id": "russian-twist",
+      "name": "Russian Twist",
+      "aka": null,
+      "family": "russian-twist",
+      "modifiers": [
+        "seated",
+        "weighted"
+      ],
+      "pattern": "trunk rotation",
+      "plane": "transverse",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "controlled",
+      "joints": [
+        "trunk rotation (dynamic, seated)",
+        "hip flexion held"
+      ],
+      "agonists": [
+        "obliques"
+      ],
+      "synergists": [
+        "rectus abdominis",
+        "hip flexors",
+        "erector spinae"
+      ],
+      "stabilizers": [
+        "deep trunk"
+      ],
+      "position": "Seated rotation under load with the lumbar spine already flexed, which combines two of the stressors a sensitive back least enjoys — rotation and flexion together. Effective for the obliques and worth withholding from anyone with a flexion-intolerant back.",
+      "resistance": "External, held. Hardest at the end of each rotation.",
+      "lengthBias": "mid",
+      "intents": [
+        "rotational strength",
+        "hypertrophy"
+      ],
+      "dose": "3 × 10–20 total",
+      "stress": {
+        "axial": "low",
+        "flexion": "high",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [
+        "plate or medicine ball"
+      ],
+      "equipTier": "minimal",
+      "space": "floor",
+      "skill": "intermediate",
+      "cues": [
+        "Chest up — do not collapse into a slump",
+        "Rotate the ribs, not just the arms",
+        "Feet down to regress"
+      ],
+      "video": {
+        "id": "N-arXZs-H70",
+        "author": "Catalyst Athletics"
+      },
+      "block": "05-trunk"
+    },
+    {
+      "id": "hanging-leg-raise",
+      "name": "Hanging Leg Raise",
+      "aka": null,
+      "family": "leg-raise",
+      "modifiers": [
+        "hanging",
+        "straight legs"
+      ],
+      "pattern": "trunk flexion",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "controlled",
+      "joints": [
+        "hip flexion (large)",
+        "lumbar flexion (end range)",
+        "shoulder extension hold"
+      ],
+      "agonists": [
+        "rectus abdominis (upper range)",
+        "iliopsoas (lower range)"
+      ],
+      "synergists": [
+        "obliques",
+        "rectus femoris",
+        "latissimus dorsi (the hang)"
+      ],
+      "stabilizers": [
+        "grip",
+        "scapular stabilizers",
+        "deep trunk"
+      ],
+      "position": "The first two-thirds is hip flexion and only the last part is genuine lumbar flexion, so most people train their hip flexors and call it abs. The spine is unloaded in compression because you are hanging, which makes it kinder than a sit-up despite the flexion.",
+      "resistance": "Bodyweight, lever-scaled.",
+      "lengthBias": "lengthened",
+      "intents": [
+        "hypertrophy",
+        "trunk strength"
+      ],
+      "dose": "3 × 6–12",
+      "stress": {
+        "axial": "low",
+        "flexion": "mod",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "mod",
+        "elbow": "low"
+      },
+      "equipment": [
+        "pull-up bar"
+      ],
+      "equipTier": "gym",
+      "space": "gym floor",
+      "skill": "intermediate",
+      "cues": [
+        "Curl the pelvis at the top — that is the abdominal part",
+        "No swinging",
+        "Bend the knees to regress"
+      ],
+      "video": {
+        "id": "PjlPiVTtWA4",
+        "author": "Catalyst Athletics"
+      },
+      "block": "05-trunk"
+    },
+    {
+      "id": "reverse-crunch",
+      "name": "Reverse Crunch",
+      "aka": null,
+      "family": "leg-raise",
+      "modifiers": [
+        "supine",
+        "pelvis curls"
+      ],
+      "pattern": "trunk flexion",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "controlled",
+      "joints": [
+        "lumbar flexion (pelvis to ribs)",
+        "hip flexion"
+      ],
+      "agonists": [
+        "rectus abdominis (lower portion)"
+      ],
+      "synergists": [
+        "obliques",
+        "iliopsoas"
+      ],
+      "stabilizers": [
+        "deep trunk"
+      ],
+      "position": "Moves the pelvis toward the ribs rather than the ribs toward the pelvis, which is the half of trunk flexion a sit-up neglects. Supine and unloaded, so the flexion cost is low.",
+      "resistance": "Bodyweight.",
+      "lengthBias": "shortened",
+      "intents": [
+        "hypertrophy",
+        "motor control"
+      ],
+      "dose": "3 × 10–15",
+      "stress": {
+        "axial": "low",
+        "flexion": "mod",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [],
+      "equipTier": "none",
+      "space": "floor",
+      "skill": "entry",
+      "cues": [
+        "Curl the tailbone up off the floor",
+        "Slow — do not use momentum from the legs",
+        "Keep the lower back in contact until the curl"
+      ],
+      "video": {
+        "id": "P3HvB3fCD9Y",
+        "author": "Catalyst Athletics"
+      },
+      "block": "05-trunk"
+    },
+    {
+      "id": "v-up",
+      "name": "V-Up",
+      "aka": null,
+      "family": "v-up",
+      "modifiers": [
+        "bodyweight",
+        "both ends lift"
+      ],
+      "pattern": "trunk flexion",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "controlled",
+      "joints": [
+        "lumbar flexion (full)",
+        "hip flexion (large)",
+        "shoulder flexion"
+      ],
+      "agonists": [
+        "rectus abdominis"
+      ],
+      "synergists": [
+        "obliques",
+        "iliopsoas",
+        "rectus femoris"
+      ],
+      "stabilizers": [
+        "deep trunk"
+      ],
+      "position": "Both ends of the body lift at once, so the abdominals shorten through full range against a long double lever. Repeated full lumbar flexion, which is the training stimulus and the contraindication in the same sentence.",
+      "resistance": "Bodyweight, double lever.",
+      "lengthBias": "shortened",
+      "intents": [
+        "hypertrophy",
+        "trunk strength"
+      ],
+      "dose": "3 × 8–15",
+      "stress": {
+        "axial": "low",
+        "flexion": "high",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [],
+      "equipTier": "none",
+      "space": "floor",
+      "skill": "intermediate",
+      "cues": [
+        "Reach hands to feet, not past them",
+        "Lower under control",
+        "Tuck the knees to regress"
+      ],
+      "video": {
+        "id": "vPxaLvOsboM",
+        "author": "Catalyst Athletics"
+      },
+      "block": "05-trunk"
+    },
+    {
+      "id": "sl-v-up",
+      "name": "Single Leg V-Up",
+      "aka": null,
+      "family": "v-up",
+      "modifiers": [
+        "bodyweight",
+        "one leg"
+      ],
+      "pattern": "trunk flexion",
+      "plane": "sagittal",
+      "stance": "unilateral",
+      "perSide": true,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "controlled",
+      "joints": [
+        "lumbar flexion",
+        "single-hip flexion",
+        "shoulder flexion",
+        "anti-rotation"
+      ],
+      "agonists": [
+        "rectus abdominis"
+      ],
+      "synergists": [
+        "obliques",
+        "iliopsoas"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "quadratus lumborum"
+      ],
+      "position": "One leg halves the lever and adds a small anti-rotation demand, which makes it both a regression of the V-up and a slightly different exercise.",
+      "resistance": "Bodyweight.",
+      "lengthBias": "shortened",
+      "intents": [
+        "trunk strength"
+      ],
+      "dose": "3 × 8–12 per side",
+      "stress": {
+        "axial": "low",
+        "flexion": "mod",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [],
+      "equipTier": "none",
+      "space": "floor",
+      "skill": "entry",
+      "cues": [
+        "Keep the hips square",
+        "Non-working leg stays down and still",
+        "Alternate sides evenly"
+      ],
+      "video": {
+        "id": "T7dt59hNPiY",
+        "author": "Catalyst Athletics"
+      },
+      "block": "05-trunk"
+    },
+    {
+      "id": "sit-up",
+      "name": "Sit-Up",
+      "aka": null,
+      "family": "sit-up",
+      "modifiers": [
+        "bodyweight",
+        "feet anchored or free"
+      ],
+      "pattern": "trunk flexion",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "controlled",
+      "joints": [
+        "lumbar flexion (full)",
+        "hip flexion (large)"
+      ],
+      "agonists": [
+        "rectus abdominis",
+        "iliopsoas"
+      ],
+      "synergists": [
+        "obliques",
+        "rectus femoris",
+        "tensor fasciae latae"
+      ],
+      "stabilizers": [
+        "deep trunk"
+      ],
+      "position": "Past the first third the hip flexors do most of the work, pulling on the lumbar spine from the front of the vertebrae. Repeated loaded flexion plus hip-flexor traction is the combination most commonly implicated in low-back aggravation from ab training.",
+      "resistance": "Bodyweight.",
+      "lengthBias": "mid",
+      "intents": [
+        "trunk endurance"
+      ],
+      "dose": "3 × 15–25",
+      "stress": {
+        "axial": "low",
+        "flexion": "high",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [],
+      "equipTier": "none",
+      "space": "floor",
+      "skill": "entry",
+      "cues": [
+        "Curl up rather than hinging at the hips",
+        "Do not anchor the feet if you can avoid it",
+        "Choose a plank instead if the back complains"
+      ],
+      "video": {
+        "id": "2o9zkR0hMB8",
+        "author": "Catalyst Athletics"
+      },
+      "block": "05-trunk"
+    },
+    {
+      "id": "ghd-sit-up",
+      "name": "GHD Sit-up",
+      "aka": null,
+      "family": "sit-up",
+      "modifiers": [
+        "GHD apparatus",
+        "hyperextended start"
+      ],
+      "pattern": "trunk flexion",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "slow",
+      "gct": "n/a",
+      "velocity": "controlled to ballistic",
+      "joints": [
+        "lumbar extension then full flexion (maximal range)",
+        "hip flexion"
+      ],
+      "agonists": [
+        "rectus abdominis",
+        "iliopsoas"
+      ],
+      "synergists": [
+        "obliques",
+        "rectus femoris",
+        "erector spinae (the extended start)"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "hamstrings (anchoring)"
+      ],
+      "position": "Takes the lumbar spine from hyperextension to full flexion under bodyweight at speed — the largest loaded spinal range in the bank, and the exercise most likely to injure someone who is not prepared for it. Powerful when earned, reckless when prescribed early.",
+      "resistance": "Bodyweight through an extreme range.",
+      "lengthBias": "lengthened",
+      "intents": [
+        "trunk strength",
+        "trunk endurance"
+      ],
+      "dose": "3 × 8–15, built up very gradually",
+      "stress": {
+        "axial": "low",
+        "flexion": "high",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [
+        "glute-ham developer"
+      ],
+      "equipTier": "specialist",
+      "space": "gym floor",
+      "skill": "advanced",
+      "cues": [
+        "Start with a very small range and build over weeks",
+        "Hands touch the floor only when the range is earned",
+        "Never prescribe this to an unprepared back"
+      ],
+      "video": {
+        "id": "Pnm9TSgvBF0",
+        "author": "Catalyst Athletics"
+      },
+      "block": "05-trunk"
+    },
+    {
+      "id": "dragon-flag",
+      "name": "Dragon Flag",
+      "aka": null,
+      "family": "dragon-flag",
+      "modifiers": [
+        "bodyweight",
+        "shoulders anchored"
+      ],
+      "pattern": "anti-extension",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "ecc",
+      "gct": "n/a",
+      "velocity": "slow eccentric",
+      "joints": [
+        "trunk anti-extension (eccentric, maximal lever)",
+        "hip held extended"
+      ],
+      "agonists": [
+        "rectus abdominis (eccentric)"
+      ],
+      "synergists": [
+        "obliques",
+        "latissimus dorsi (the anchor)",
+        "hip flexors"
+      ],
+      "stabilizers": [
+        "deep trunk (maximal)",
+        "scapular stabilizers"
+      ],
+      "position": "The longest possible lever against trunk extension — the whole body lowered as one rigid unit from the shoulders. Spine stays neutral throughout, so the difficulty is pure strength rather than range, but the demand is extreme.",
+      "resistance": "Bodyweight at full lever.",
+      "lengthBias": "lengthened",
+      "intents": [
+        "max strength",
+        "eccentric strength"
+      ],
+      "dose": "3 × 3–6, slow",
+      "stress": {
+        "axial": "low",
+        "flexion": "mod",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "mod",
+        "elbow": "low"
+      },
+      "equipment": [
+        "bench or upright to hold"
+      ],
+      "equipTier": "minimal",
+      "space": "floor",
+      "skill": "advanced",
+      "cues": [
+        "One rigid line — no hinging at the hips",
+        "Bend the knees to shorten the lever",
+        "Lower only as far as you keep the line"
+      ],
+      "video": {
+        "id": "MTLp7im55S8",
+        "author": "Catalyst Athletics"
+      },
+      "block": "05-trunk"
+    },
+    {
+      "id": "windshield-wiper",
+      "name": "Windshield Wiper",
+      "aka": null,
+      "family": "windshield-wiper",
+      "modifiers": [
+        "bodyweight",
+        "supine or hanging"
+      ],
+      "pattern": "trunk rotation",
+      "plane": "transverse",
+      "stance": "bilateral",
+      "perSide": true,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "slow, controlled",
+      "joints": [
+        "trunk rotation under load",
+        "hip flexion held",
+        "lumbar rotation (end range)"
+      ],
+      "agonists": [
+        "obliques"
+      ],
+      "synergists": [
+        "rectus abdominis",
+        "iliopsoas",
+        "quadratus lumborum"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "grip (if hanging)"
+      ],
+      "position": "Rotating a long loaded lever, which puts significant torsional stress on the lumbar discs at end range. Strong oblique stimulus with the highest rotational cost in the block.",
+      "resistance": "Bodyweight, long lever.",
+      "lengthBias": "mid",
+      "intents": [
+        "rotational strength"
+      ],
+      "dose": "3 × 5–10 per side",
+      "stress": {
+        "axial": "low",
+        "flexion": "high",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "mod",
+        "elbow": "low"
+      },
+      "equipment": [],
+      "equipTier": "none",
+      "space": "floor",
+      "skill": "advanced",
+      "cues": [
+        "Shoulders stay flat on the floor",
+        "Control the whole arc",
+        "Bend the knees to regress"
+      ],
+      "video": {
+        "id": "jyW-zgOHatg",
+        "author": "Catalyst Athletics"
+      },
+      "block": "05-trunk"
+    },
+    {
+      "id": "back-extension",
+      "name": "Back Extension",
+      "aka": "hyperextension",
+      "family": "back-extension",
+      "modifiers": [
+        "bench or GHD",
+        "bodyweight"
+      ],
+      "pattern": "trunk extension",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "controlled",
+      "joints": [
+        "trunk extension (dynamic)",
+        "hip extension"
+      ],
+      "agonists": [
+        "erector spinae",
+        "gluteus maximus",
+        "hamstrings"
+      ],
+      "synergists": [
+        "multifidus",
+        "quadratus lumborum"
+      ],
+      "stabilizers": [
+        "deep trunk"
+      ],
+      "position": "Trains the spinal extensors concentrically through range, which almost nothing else in this bank does — planks hold them isometrically and hinges load them isometrically. The bottom of the range involves flexion, so range should be earned.",
+      "resistance": "Bodyweight, loadable.",
+      "lengthBias": "mid",
+      "intents": [
+        "posterior chain endurance",
+        "spinal extensor strength"
+      ],
+      "dose": "3 × 10–15",
+      "stress": {
+        "axial": "low",
+        "flexion": "mod",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [
+        "back extension bench or GHD"
+      ],
+      "equipTier": "gym",
+      "space": "gym floor",
+      "skill": "entry",
+      "cues": [
+        "Finish level, do not hyperextend past neutral",
+        "Lead with the glutes",
+        "Small range first"
+      ],
+      "video": {
+        "id": "skXsFN8NfqU",
+        "author": "Catalyst Athletics"
+      },
+      "block": "05-trunk"
+    },
+    {
+      "id": "back-extension-hold",
+      "name": "Back Extension Hold",
+      "aka": null,
+      "family": "back-extension",
+      "modifiers": [
+        "bench or GHD",
+        "isometric"
+      ],
+      "pattern": "trunk extension",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "none",
+      "gct": "n/a — sustained hold",
+      "velocity": "none (isometric)",
+      "joints": [
+        "trunk extension (isometric at neutral)",
+        "hip extension (isometric)"
+      ],
+      "agonists": [
+        "erector spinae",
+        "gluteus maximus"
+      ],
+      "synergists": [
+        "hamstrings",
+        "multifidus"
+      ],
+      "stabilizers": [
+        "deep trunk"
+      ],
+      "position": "Holding neutral rather than moving through range, so the extensors work isometrically with no flexion at the bottom. The version to use when endurance is the goal and spinal range is a concern — which for endurance athletes holding a position for hours is usually the case.",
+      "resistance": "Bodyweight, isometric.",
+      "lengthBias": "mid",
+      "intents": [
+        "isometric strength",
+        "postural endurance"
+      ],
+      "dose": "3 × 30–60 s",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [
+        "back extension bench or GHD"
+      ],
+      "equipTier": "gym",
+      "space": "gym floor",
+      "skill": "entry",
+      "cues": [
+        "Hold level — ears, shoulders and hips in line",
+        "Breathe normally through the hold",
+        "Stop when position goes, not when the clock does"
+      ],
+      "video": {
+        "id": "5im9HDTetn0",
+        "author": "Catalyst Athletics"
+      },
+      "block": "05-trunk"
+    },
+    {
+      "id": "reverse-hyper",
+      "name": "Reverse Hyper",
+      "aka": null,
+      "family": "back-extension",
+      "modifiers": [
+        "apparatus",
+        "legs move"
+      ],
+      "pattern": "trunk extension",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "controlled",
+      "joints": [
+        "hip extension (large)",
+        "lumbar extension (light)"
+      ],
+      "agonists": [
+        "gluteus maximus",
+        "hamstrings",
+        "erector spinae"
+      ],
+      "synergists": [
+        "adductor magnus"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "grip"
+      ],
+      "position": "Torso fixed and the legs move, so the hip extensors work while the spine is lightly traction-loaded rather than compressed. Widely used for lumbar-tolerant posterior chain work for exactly that reason.",
+      "resistance": "Bodyweight or loaded.",
+      "lengthBias": "mid",
+      "intents": [
+        "posterior chain endurance",
+        "hip extension strength"
+      ],
+      "dose": "3 × 10–20",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [
+        "reverse hyper apparatus"
+      ],
+      "equipTier": "specialist",
+      "space": "gym floor",
+      "skill": "entry",
+      "cues": [
+        "Drive with the glutes, not a swing",
+        "Stop at level",
+        "Control the return — no pendulum"
+      ],
+      "video": {
+        "id": "ROV6iVsSJSE",
+        "author": "Catalyst Athletics"
+      },
+      "block": "05-trunk"
+    },
+    {
+      "id": "superman-hold",
+      "name": "Superman Hold",
+      "aka": null,
+      "family": "superman",
+      "modifiers": [
+        "bodyweight",
+        "prone",
+        "isometric"
+      ],
+      "pattern": "trunk extension",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "none",
+      "gct": "n/a — sustained hold",
+      "velocity": "none (isometric)",
+      "joints": [
+        "trunk extension (isometric)",
+        "hip extension",
+        "shoulder flexion"
+      ],
+      "agonists": [
+        "erector spinae",
+        "gluteus maximus"
+      ],
+      "synergists": [
+        "posterior deltoid",
+        "lower trapezius",
+        "hamstrings"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "multifidus"
+      ],
+      "position": "The zero-equipment spinal extensor hold. Prone on the floor, so there is no apparatus and no load beyond limb weight — the entry point for posterior-chain endurance when a bench or GHD is not available.",
+      "resistance": "Bodyweight, isometric.",
+      "lengthBias": "shortened",
+      "intents": [
+        "postural endurance",
+        "activation"
+      ],
+      "dose": "3 × 20–45 s",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [],
+      "equipTier": "none",
+      "space": "floor",
+      "skill": "entry",
+      "cues": [
+        "Lift just enough to clear the floor",
+        "Lengthen rather than crunching backward",
+        "Look down, not up"
+      ],
+      "video": {
+        "id": "r7u7aofrP3g",
+        "author": "Catalyst Athletics"
+      },
+      "block": "05-trunk"
+    },
+    {
+      "id": "jefferson-curl",
+      "name": "Jefferson Curl",
+      "aka": null,
+      "family": "jefferson-curl",
+      "modifiers": [
+        "light load",
+        "deliberate segmental flexion"
+      ],
+      "pattern": "trunk flexion",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "very slow",
+      "joints": [
+        "segmental spinal flexion (full, loaded)",
+        "hip flexion"
+      ],
+      "agonists": [
+        "erector spinae (eccentric, through flexion)"
+      ],
+      "synergists": [
+        "hamstrings (lengthened)",
+        "multifidus",
+        "gluteus maximus (the return)"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "grip"
+      ],
+      "position": "Deliberately loads spinal flexion segment by segment, the exact thing every other entry here is coached to avoid. Used to build tissue tolerance to flexion under very light load; prescribed carelessly it is the single riskiest exercise in the bank.",
+      "resistance": "External, very light. Hardest at full flexion.",
+      "lengthBias": "lengthened",
+      "intents": [
+        "flexion tolerance",
+        "mobility under load"
+      ],
+      "dose": "2–3 × 3–6, very light, very slow",
+      "stress": {
+        "axial": "low",
+        "flexion": "high",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [
+        "light dumbbell or kettlebell"
+      ],
+      "equipTier": "minimal",
+      "space": "indoor, 1 m²",
+      "skill": "advanced",
+      "cues": [
+        "Start with no weight at all",
+        "Roll down one vertebra at a time",
+        "Not for an acutely painful or flexion-intolerant back"
+      ],
+      "video": {
+        "id": "lHybIJtacgU",
+        "author": "Catalyst Athletics"
+      },
+      "flags": [
+        {
+          "field": "intents",
+          "kind": "unverified",
+          "text": "Loaded end-range spinal flexion is contested. Some coaches use Jefferson curls to build flexion tolerance; others consider the risk unjustifiable. The bank carries it because it exists and is widely prescribed, not as a recommendation — this is one of the entries most in need of a qualified sign-off before any athlete sees it."
+        }
+      ],
+      "block": "05-trunk"
+    },
+    {
+      "id": "death-march",
+      "name": "Death March",
+      "aka": null,
+      "family": "sl-rdl",
+      "modifiers": [
+        "dumbbells",
+        "walking single-leg hinge"
+      ],
+      "pattern": "single-leg hinge",
+      "plane": "sagittal",
+      "stance": "unilateral alternating",
+      "perSide": false,
+      "ssc": "none",
+      "gct": "n/a",
+      "velocity": "slow, continuous",
+      "joints": [
+        "hip flexion / extension (alternating, large)",
+        "trunk anti-flexion and anti-rotation (isometric)"
+      ],
+      "agonists": [
+        "hamstrings",
+        "gluteus maximus"
+      ],
+      "synergists": [
+        "erector spinae",
+        "gluteus medius",
+        "adductor magnus"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "gluteus medius (high)",
+        "grip"
+      ],
+      "position": "A single-leg RDL repeated as a walk, so the hamstrings work at length under continuous tension while the trunk resists both flexion and rotation each step. Loads hang from the hands, so the spine is in traction rather than compression.",
+      "resistance": "External, hanging.",
+      "lengthBias": "lengthened",
+      "intents": [
+        "hamstring endurance",
+        "unilateral posterior chain"
+      ],
+      "dose": "3–4 × 10–20 m",
+      "stress": {
+        "axial": "low",
+        "flexion": "mod",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [
+        "dumbbells"
+      ],
+      "equipTier": "minimal",
+      "space": "20 m walkway",
+      "skill": "intermediate",
+      "cues": [
+        "Reach the back heel to the wall behind you",
+        "Hips square each step",
+        "Slow — this is not a walk with weights"
+      ],
+      "video": {
+        "id": "YetE6iN1wbc",
+        "author": "Catalyst Athletics"
+      },
+      "block": "05-trunk"
+    }
+  ],
+  "swap_edges": [
+    {
+      "from": "sit-up",
+      "to": "plank",
+      "reason": "lumbar",
+      "same": "Anterior trunk work, bodyweight, no equipment",
+      "changed": "Isometric anti-extension instead of repeated loaded lumbar flexion",
+      "dose": "Reps become 3–4 × 30–60 s holds"
+    },
+    {
+      "from": "sit-up",
+      "to": "dead-bug",
+      "reason": "lumbar",
+      "same": "Supine anterior trunk work",
+      "changed": "Spine stays flat on the floor — no flexion at all",
+      "dose": "2–3 × 6–10 per side"
+    },
+    {
+      "from": "ghd-sit-up",
+      "to": "plank",
+      "reason": "lumbar",
+      "same": "Trunk strength and endurance",
+      "changed": "Removes the largest loaded spinal range in the bank",
+      "dose": "3–4 × 30–60 s"
+    },
+    {
+      "from": "ghd-sit-up",
+      "to": "ab-rollout",
+      "reason": "lumbar",
+      "same": "Hard anterior trunk work with a long lever",
+      "changed": "Resists extension instead of producing full flexion",
+      "dose": "3 × 5–10"
+    },
+    {
+      "from": "v-up",
+      "to": "hollow-hold",
+      "reason": "lumbar",
+      "same": "Anterior trunk, long double lever, bodyweight",
+      "changed": "Isometric hold rather than repeated full flexion",
+      "dose": "3–5 × 20–45 s"
+    },
+    {
+      "from": "russian-twist",
+      "to": "pallof-press",
+      "reason": "lumbar",
+      "same": "Oblique and rotational trunk work",
+      "changed": "Anti-rotation with a neutral spine instead of loaded rotation in flexion",
+      "dose": "3 × 8–12 per side"
+    },
+    {
+      "from": "windshield-wiper",
+      "to": "pallof-press",
+      "reason": "lumbar",
+      "same": "Rotational trunk demand",
+      "changed": "No end-range lumbar torsion under a long lever",
+      "dose": "3 × 8–12 per side"
+    },
+    {
+      "from": "side-bend",
+      "to": "single-arm-farmer-carry",
+      "reason": "lumbar",
+      "same": "Lateral trunk loading",
+      "changed": "Resists side bend while walking rather than producing it under load",
+      "dose": "3–4 × 20–40 m per side"
+    },
+    {
+      "from": "side-bend",
+      "to": "side-plank",
+      "reason": "lumbar",
+      "same": "Lateral trunk muscles",
+      "changed": "Isometric, no loaded bending moment",
+      "dose": "3 × 20–45 s per side"
+    },
+    {
+      "from": "jefferson-curl",
+      "to": "back-extension-hold",
+      "reason": "lumbar",
+      "same": "Spinal extensor work",
+      "changed": "Holds neutral instead of loading full flexion",
+      "dose": "3 × 30–60 s"
+    },
+    {
+      "from": "back-extension",
+      "to": "back-extension-hold",
+      "reason": "lumbar",
+      "same": "Same apparatus, same extensors",
+      "changed": "Isometric at neutral, so no flexion at the bottom of the range",
+      "dose": "3 × 30–60 s"
+    },
+    {
+      "from": "back-extension",
+      "to": "reverse-hyper",
+      "reason": "lumbar",
+      "same": "Posterior chain and spinal extensor work",
+      "changed": "Torso fixed and legs move, so the spine is tractioned rather than flexed",
+      "dose": "3 × 10–20"
+    },
+    {
+      "from": "ql-side-bend",
+      "to": "side-plank",
+      "reason": "lumbar",
+      "same": "Quadratus lumborum and lateral obliques",
+      "changed": "Isometric rather than moving into lateral flexion",
+      "dose": "3 × 20–45 s per side"
+    },
+    {
+      "from": "ab-rollout",
+      "to": "plank",
+      "reason": "equipment",
+      "same": "Anti-extension trunk work",
+      "changed": "No wheel or barbell; isometric rather than through range",
+      "dose": "3–4 × 30–60 s"
+    },
+    {
+      "from": "pallof-press",
+      "to": "plank-march",
+      "reason": "equipment",
+      "same": "Anti-rotation demand",
+      "changed": "Bodyweight — the limb lift supplies the rotational torque",
+      "dose": "3 × 8–12 per side"
+    },
+    {
+      "from": "anti-rotation-landmine",
+      "to": "pallof-press",
+      "reason": "equipment",
+      "same": "Loaded anti-rotation",
+      "changed": "Cable or band instead of a barbell and landmine",
+      "dose": "3 × 8–12 per side"
+    },
+    {
+      "from": "hanging-leg-raise",
+      "to": "reverse-crunch",
+      "reason": "equipment",
+      "same": "Lower-abdominal and hip-flexor work",
+      "changed": "No bar needed; supine instead of hanging",
+      "dose": "3 × 10–15"
+    },
+    {
+      "from": "back-extension",
+      "to": "superman-hold",
+      "reason": "equipment",
+      "same": "Spinal extensor work",
+      "changed": "Floor instead of a bench or GHD; isometric",
+      "dose": "3 × 20–45 s"
+    },
+    {
+      "from": "reverse-hyper",
+      "to": "superman-hold",
+      "reason": "equipment",
+      "same": "Posterior chain extension",
+      "changed": "No apparatus at all",
+      "dose": "3 × 20–45 s"
+    },
+    {
+      "from": "ghd-sit-up",
+      "to": "sit-up",
+      "reason": "equipment",
+      "same": "Trunk flexion against bodyweight",
+      "changed": "Floor instead of a GHD, and a far smaller range",
+      "dose": "3 × 15–25"
+    },
+    {
+      "from": "ab-rollout",
+      "to": "dead-bug",
+      "reason": "shoulder",
+      "same": "Anti-extension trunk work",
+      "changed": "No loaded shoulder flexion at a long lever",
+      "dose": "2–3 × 6–10 per side"
+    },
+    {
+      "from": "ghd-sit-up",
+      "to": "sit-up",
+      "reason": "harder",
+      "same": "Trunk flexion pattern",
+      "changed": "Much smaller range, no hyperextended start",
+      "dose": "3 × 15–25"
+    },
+    {
+      "from": "dragon-flag",
+      "to": "hollow-hold",
+      "reason": "harder",
+      "same": "Anti-extension against a long lever",
+      "changed": "Static hold on the floor instead of an eccentric lower",
+      "dose": "3–5 × 20–45 s"
+    },
+    {
+      "from": "ab-rollout",
+      "to": "plank",
+      "reason": "harder",
+      "same": "Anti-extension",
+      "changed": "Isometric, with no lengthening lever",
+      "dose": "3–4 × 30–60 s"
+    },
+    {
+      "from": "star-side-plank",
+      "to": "side-plank",
+      "reason": "harder",
+      "same": "Anti-lateral flexion hold",
+      "changed": "Both feet down, so a wider base and less abduction demand",
+      "dose": "3 × 20–45 s per side"
+    },
+    {
+      "from": "hollow-hold",
+      "to": "dead-bug",
+      "reason": "harder",
+      "same": "Supine anti-extension",
+      "changed": "Limbs move one at a time with the back supported",
+      "dose": "2–3 × 6–10 per side"
+    },
+    {
+      "from": "v-up",
+      "to": "sl-v-up",
+      "reason": "harder",
+      "same": "Trunk flexion with a long lever",
+      "changed": "One leg halves the lever",
+      "dose": "3 × 8–12 per side"
+    },
+    {
+      "from": "death-march",
+      "to": "single-leg-rdl",
+      "reason": "space",
+      "same": "Unilateral hinge, hamstrings at length",
+      "changed": "On the spot instead of walking 20 m",
+      "dose": "3 × 6–10 per side"
+    }
+  ]
+}

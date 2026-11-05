@@ -1,0 +1,1702 @@
+{
+  "block": "03-upper-body-push",
+  "title": "Upper-body push",
+  "reviewed": false,
+  "clinical_signoff": null,
+  "updated": "2026-10-27",
+  "vocab": {
+    "ssc": [
+      {
+        "id": "none",
+        "label": "No SSC",
+        "definition": "Dead start or paused. No elastic contribution; force comes from rate of development alone."
+      },
+      {
+        "id": "slow",
+        "label": "Slow SSC",
+        "definition": "Contact > 250 ms, large joint displacement. Countermovement assists the jump."
+      },
+      {
+        "id": "fast",
+        "label": "Fast SSC",
+        "definition": "Contact < 250 ms, small displacement. Trains tendon stiffness and reactive strength."
+      },
+      {
+        "id": "ecc",
+        "label": "Eccentric only",
+        "definition": "Deceleration and landing. No concentric phase to train."
+      },
+      {
+        "id": "n/a",
+        "label": "Not applicable",
+        "definition": "Grinding or isolation work where the stretch-shortening cycle is not the organizing variable."
+      },
+      {
+        "id": "n/a",
+        "label": "Not applicable",
+        "definition": "Grinding or isolation work where the stretch-shortening cycle is not the organizing variable."
+      }
+    ],
+    "swap_reason": [
+      {
+        "id": "equipment",
+        "label": "Equipment unavailable"
+      },
+      {
+        "id": "space",
+        "label": "No space"
+      },
+      {
+        "id": "harder",
+        "label": "Too hard today"
+      },
+      {
+        "id": "lumbar",
+        "label": "Lower back"
+      },
+      {
+        "id": "knee",
+        "label": "Knee"
+      },
+      {
+        "id": "achilles",
+        "label": "Achilles / calf"
+      },
+      {
+        "id": "shoulder",
+        "label": "Shoulder"
+      },
+      {
+        "id": "elbow",
+        "label": "Elbow"
+      }
+    ],
+    "stress_level": [
+      "low",
+      "mod",
+      "high"
+    ],
+    "skill": [
+      "entry",
+      "intermediate",
+      "advanced"
+    ],
+    "plane": [
+      "sagittal",
+      "frontal",
+      "transverse"
+    ],
+    "stance": [
+      "bilateral",
+      "unilateral",
+      "unilateral (split)",
+      "unilateral alternating"
+    ],
+    "provenance": [
+      "sourced",
+      "inferred",
+      "unverified"
+    ],
+    "length_bias": [
+      "lengthened",
+      "mid",
+      "shortened"
+    ],
+    "stress_field": [
+      "axial",
+      "flexion",
+      "impact",
+      "landing",
+      "achilles",
+      "knee",
+      "shoulder",
+      "elbow"
+    ],
+    "equip_tier": [
+      "none",
+      "home",
+      "minimal",
+      "gym",
+      "specialist"
+    ]
+  },
+  "exercises": [
+    {
+      "id": "bench-press",
+      "name": "Bench Press",
+      "aka": null,
+      "family": "bench-press",
+      "modifiers": [
+        "barbell",
+        "flat bench"
+      ],
+      "pattern": "horizontal push",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "n/a",
+      "gct": "n/a",
+      "velocity": "sub-maximal",
+      "joints": [
+        "shoulder horizontal adduction (large)",
+        "elbow extension (large)",
+        "scapular retraction (isometric, fixed against bench)"
+      ],
+      "agonists": [
+        "pectoralis major (sternal head)",
+        "anterior deltoid",
+        "triceps brachii"
+      ],
+      "synergists": [
+        "pectoralis major (clavicular head)",
+        "serratus anterior (limited \u2014 scapula is pinned)",
+        "latissimus dorsi (bar path)"
+      ],
+      "stabilizers": [
+        "scapular retractors (isometric)",
+        "rotator cuff",
+        "deep trunk"
+      ],
+      "position": "The scapulae are pinned against the bench, which is what makes it a good loading tool and a poor one for scapular control \u2014 the serratus anterior barely works compared with a push-up. Pec is at its longest at the bottom, where the shoulder is extended and where a cranky shoulder complains.",
+      "resistance": "External. Hardest just off the chest.",
+      "lengthBias": "lengthened",
+      "intents": [
+        "max strength",
+        "hypertrophy"
+      ],
+      "dose": "3\u20135 \u00d7 3\u20138",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "mod",
+        "elbow": "mod"
+      },
+      "equipment": [
+        "barbell",
+        "bench",
+        "plates"
+      ],
+      "equipTier": "gym",
+      "space": "gym floor",
+      "skill": "intermediate",
+      "cues": [
+        "Shoulder blades down and back before you unrack",
+        "Bar to the lower chest, elbows tucked around 45\u00b0",
+        "Feet planted \u2014 press the floor away"
+      ],
+      "video": {
+        "id": "GlPKtOUvZqw",
+        "author": "Catalyst Athletics"
+      },
+      "block": "03-upper-body-push"
+    },
+    {
+      "id": "incline-bench-press",
+      "name": "Incline Bench Press",
+      "aka": null,
+      "family": "bench-press",
+      "modifiers": [
+        "barbell",
+        "incline bench"
+      ],
+      "pattern": "horizontal push",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "n/a",
+      "gct": "n/a",
+      "velocity": "sub-maximal",
+      "joints": [
+        "shoulder flexion and horizontal adduction",
+        "elbow extension"
+      ],
+      "agonists": [
+        "pectoralis major (clavicular head)",
+        "anterior deltoid",
+        "triceps brachii"
+      ],
+      "synergists": [
+        "pectoralis major (sternal head)",
+        "serratus anterior"
+      ],
+      "stabilizers": [
+        "scapular retractors",
+        "rotator cuff",
+        "deep trunk"
+      ],
+      "position": "Tilting the bench raises the humerus relative to the torso, shifting work to the clavicular (upper) pec and the anterior deltoid. Same family as the flat bench, different regional emphasis within one muscle.",
+      "resistance": "External. Hardest off the chest.",
+      "lengthBias": "lengthened",
+      "intents": [
+        "hypertrophy",
+        "max strength"
+      ],
+      "dose": "3\u20134 \u00d7 5\u201310",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "mod",
+        "elbow": "mod"
+      },
+      "equipment": [
+        "barbell",
+        "incline bench",
+        "plates"
+      ],
+      "equipTier": "gym",
+      "space": "gym floor",
+      "skill": "intermediate",
+      "cues": [
+        "30\u201345\u00b0 is plenty \u2014 steeper becomes a press",
+        "Bar to the upper chest",
+        "Keep the shoulder blades set"
+      ],
+      "video": {
+        "id": "EQSPHyJ75EM",
+        "author": "Catalyst Athletics"
+      },
+      "block": "03-upper-body-push"
+    },
+    {
+      "id": "db-incline-press",
+      "name": "Dumbbell Incline Bench Press",
+      "aka": null,
+      "family": "bench-press",
+      "modifiers": [
+        "dumbbells",
+        "incline bench"
+      ],
+      "pattern": "horizontal push",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "n/a",
+      "gct": "n/a",
+      "velocity": "controlled",
+      "joints": [
+        "shoulder flexion and horizontal adduction (independent arms)",
+        "elbow extension"
+      ],
+      "agonists": [
+        "pectoralis major (clavicular head)",
+        "anterior deltoid",
+        "triceps brachii"
+      ],
+      "synergists": [
+        "serratus anterior",
+        "rotator cuff (active, not just stabilizing)"
+      ],
+      "stabilizers": [
+        "rotator cuff (high)",
+        "scapular retractors",
+        "deep trunk"
+      ],
+      "position": "Independent dumbbells allow a path the shoulder actually likes and a deeper stretch, at the cost of load. Usually the first substitute when a barbell bench irritates the shoulder, because the humerus is free to rotate rather than locked by the bar.",
+      "resistance": "External, independent. Hardest at the bottom.",
+      "lengthBias": "lengthened",
+      "intents": [
+        "hypertrophy"
+      ],
+      "dose": "3\u20134 \u00d7 6\u201312",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [
+        "dumbbells",
+        "incline bench"
+      ],
+      "equipTier": "minimal",
+      "space": "gym floor",
+      "skill": "entry",
+      "cues": [
+        "Let the elbows find their own angle",
+        "Control the stretch at the bottom",
+        "Do not clash the dumbbells at the top"
+      ],
+      "video": {
+        "id": "JHFd-e2_M8E",
+        "author": "Catalyst Athletics"
+      },
+      "block": "03-upper-body-push"
+    },
+    {
+      "id": "push-up",
+      "name": "Push-Up",
+      "aka": null,
+      "family": "push-up",
+      "modifiers": [
+        "bodyweight",
+        "closed chain"
+      ],
+      "pattern": "horizontal push",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "n/a",
+      "gct": "n/a",
+      "velocity": "controlled",
+      "joints": [
+        "shoulder horizontal adduction",
+        "elbow extension",
+        "scapular protraction (free, through range)",
+        "trunk anti-extension (isometric)"
+      ],
+      "agonists": [
+        "pectoralis major",
+        "anterior deltoid",
+        "triceps brachii"
+      ],
+      "synergists": [
+        "serratus anterior (high \u2014 the scapula is free to move)",
+        "deep trunk"
+      ],
+      "stabilizers": [
+        "deep trunk (high)",
+        "gluteus maximus",
+        "rotator cuff"
+      ],
+      "position": "Closed chain, so the scapula glides over the ribcage and the serratus anterior works properly \u2014 the thing a bench press cannot train because the bench pins the shoulder blade. It is also a moving plank, so the trunk does real work. Not merely an easier bench press.",
+      "resistance": "Bodyweight. Hardest at the bottom.",
+      "lengthBias": "lengthened",
+      "intents": [
+        "hypertrophy",
+        "endurance",
+        "scapular control"
+      ],
+      "dose": "3\u20134 \u00d7 8\u201320",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [],
+      "equipTier": "none",
+      "space": "floor",
+      "skill": "entry",
+      "cues": [
+        "Push the floor away and let the shoulder blades spread at the top",
+        "Ribs down, glutes on \u2014 one straight line",
+        "Elbows back at ~45\u00b0, not flared wide"
+      ],
+      "video": {
+        "id": "8lruUgJ-Rww",
+        "author": "Catalyst Athletics"
+      },
+      "block": "03-upper-body-push"
+    },
+    {
+      "id": "db-press",
+      "name": "Dumbbell Press",
+      "aka": "standing overhead press",
+      "family": "overhead-press",
+      "modifiers": [
+        "dumbbells",
+        "standing"
+      ],
+      "pattern": "vertical push",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "n/a",
+      "gct": "n/a",
+      "velocity": "controlled",
+      "joints": [
+        "shoulder abduction and flexion to overhead (large)",
+        "elbow extension",
+        "scapular upward rotation",
+        "trunk anti-extension (isometric)"
+      ],
+      "agonists": [
+        "anterior and middle deltoid",
+        "triceps brachii"
+      ],
+      "synergists": [
+        "upper trapezius",
+        "serratus anterior",
+        "pectoralis major (clavicular)",
+        "supraspinatus (initiation)"
+      ],
+      "stabilizers": [
+        "deep trunk (high)",
+        "rotator cuff",
+        "erector spinae"
+      ],
+      "position": "Full overhead range needs shoulder flexion and thoracic extension; without them the lumbar spine arches to fake it, which is why this exercise so often becomes a standing back extension. Independent dumbbells let each shoulder find its own path.",
+      "resistance": "External, overhead. Hardest at the sticking point around eye level.",
+      "lengthBias": "mid",
+      "intents": [
+        "max strength",
+        "hypertrophy"
+      ],
+      "dose": "3\u20134 \u00d7 5\u201310",
+      "stress": {
+        "axial": "mod",
+        "flexion": "mod",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "high",
+        "elbow": "mod"
+      },
+      "equipment": [
+        "dumbbells"
+      ],
+      "equipTier": "minimal",
+      "space": "indoor, 2 m\u00b2",
+      "skill": "intermediate",
+      "cues": [
+        "Ribs down \u2014 do not arch to get the weight up",
+        "Press slightly back so the weight finishes over the ears",
+        "Squeeze the glutes to stop the lean"
+      ],
+      "video": {
+        "id": "ieewD7N2Nuw",
+        "author": "Catalyst Athletics"
+      },
+      "block": "03-upper-body-push"
+    },
+    {
+      "id": "kb-press",
+      "name": "Kettlebell Press",
+      "aka": null,
+      "family": "overhead-press",
+      "modifiers": [
+        "kettlebell",
+        "standing"
+      ],
+      "pattern": "vertical push",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "n/a",
+      "gct": "n/a",
+      "velocity": "controlled",
+      "joints": [
+        "shoulder abduction and flexion to overhead",
+        "elbow extension",
+        "forearm supination through the press"
+      ],
+      "agonists": [
+        "anterior and middle deltoid",
+        "triceps brachii"
+      ],
+      "synergists": [
+        "upper trapezius",
+        "serratus anterior",
+        "rotator cuff"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "rotator cuff (high \u2014 offset load)",
+        "grip"
+      ],
+      "position": "The bell sits behind the wrist, so the load line runs through the forearm and the cuff works harder to keep the humerus centred. Often tolerated by shoulders that dislike a barbell press because the groove is self-selected.",
+      "resistance": "External, offset. Hardest at the start.",
+      "lengthBias": "mid",
+      "intents": [
+        "max strength",
+        "shoulder stability"
+      ],
+      "dose": "3\u20134 \u00d7 5\u20138 per side",
+      "stress": {
+        "axial": "mod",
+        "flexion": "mod",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "mod",
+        "elbow": "mod"
+      },
+      "equipment": [
+        "kettlebell"
+      ],
+      "equipTier": "minimal",
+      "space": "indoor, 2 m\u00b2",
+      "skill": "intermediate",
+      "cues": [
+        "Wrist stacked under the bell, forearm vertical",
+        "Corkscrew the press \u2014 let the hand rotate",
+        "Lock out with the biceps by the ear"
+      ],
+      "video": {
+        "id": "Hfg2Mi3vOhQ",
+        "author": "Catalyst Athletics"
+      },
+      "block": "03-upper-body-push"
+    },
+    {
+      "id": "z-press",
+      "name": "Z Press",
+      "aka": "seated floor press overhead",
+      "family": "overhead-press",
+      "modifiers": [
+        "seated on floor",
+        "legs extended"
+      ],
+      "pattern": "vertical push",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "n/a",
+      "gct": "n/a",
+      "velocity": "slow",
+      "joints": [
+        "shoulder flexion to overhead",
+        "elbow extension",
+        "trunk anti-extension (maximal isometric)",
+        "hip flexion held"
+      ],
+      "agonists": [
+        "anterior and middle deltoid",
+        "triceps brachii"
+      ],
+      "synergists": [
+        "upper trapezius",
+        "serratus anterior"
+      ],
+      "stabilizers": [
+        "deep trunk (maximal)",
+        "hip flexors",
+        "erector spinae",
+        "rotator cuff"
+      ],
+      "position": "Sitting on the floor with the legs out removes every compensation \u2014 no leg drive, no lumbar arch, no ankle push. What is left is true overhead range and trunk control, which is why the load is humbling and why it exposes a shoulder flexion restriction honestly.",
+      "resistance": "External, overhead, position-limited.",
+      "lengthBias": "mid",
+      "intents": [
+        "position control",
+        "shoulder strength"
+      ],
+      "dose": "3 \u00d7 5\u20138, light",
+      "stress": {
+        "axial": "mod",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "high",
+        "elbow": "mod"
+      },
+      "equipment": [
+        "barbell or dumbbells"
+      ],
+      "equipTier": "minimal",
+      "space": "floor",
+      "skill": "advanced",
+      "cues": [
+        "Sit tall, legs straight, toes up",
+        "No leaning back at all",
+        "Light load \u2014 this is a diagnostic as much as a lift"
+      ],
+      "video": {
+        "id": "-ym8dYDPx68",
+        "author": "Catalyst Athletics"
+      },
+      "block": "03-upper-body-push"
+    },
+    {
+      "id": "arnold-press",
+      "name": "Arnold Press",
+      "aka": null,
+      "family": "overhead-press",
+      "modifiers": [
+        "dumbbells",
+        "rotation through the press"
+      ],
+      "pattern": "vertical push",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "n/a",
+      "gct": "n/a",
+      "velocity": "controlled",
+      "joints": [
+        "shoulder external rotation then abduction and flexion",
+        "elbow extension"
+      ],
+      "agonists": [
+        "anterior and middle deltoid",
+        "triceps brachii"
+      ],
+      "synergists": [
+        "infraspinatus and teres minor (the rotation)",
+        "upper trapezius",
+        "serratus anterior"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "rotator cuff (high)"
+      ],
+      "position": "Starting with the palms facing in and rotating out adds external rotation under load, so the posterior cuff contributes concentrically rather than only stabilizing. More time under tension for the front delt, less absolute load.",
+      "resistance": "External. Hardest through the rotation.",
+      "lengthBias": "mid",
+      "intents": [
+        "hypertrophy",
+        "shoulder control"
+      ],
+      "dose": "3 \u00d7 8\u201312, moderate",
+      "stress": {
+        "axial": "mod",
+        "flexion": "mod",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "mod",
+        "elbow": "mod"
+      },
+      "equipment": [
+        "dumbbells"
+      ],
+      "equipTier": "minimal",
+      "space": "indoor, 2 m\u00b2",
+      "skill": "intermediate",
+      "cues": [
+        "Rotate as you press, not before",
+        "Keep the elbows under the hands",
+        "Lighter than a straight press"
+      ],
+      "video": {
+        "id": "y2Z56aTvx_M",
+        "author": "Catalyst Athletics"
+      },
+      "block": "03-upper-body-push"
+    },
+    {
+      "id": "alt-db-press",
+      "name": "Alternating Dumbbell Press",
+      "aka": null,
+      "family": "overhead-press",
+      "modifiers": [
+        "dumbbells",
+        "one arm at a time"
+      ],
+      "pattern": "vertical push",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "n/a",
+      "gct": "n/a",
+      "velocity": "controlled",
+      "joints": [
+        "shoulder flexion to overhead (alternating)",
+        "elbow extension",
+        "trunk anti-lateral-flexion (isometric)"
+      ],
+      "agonists": [
+        "anterior and middle deltoid",
+        "triceps brachii"
+      ],
+      "synergists": [
+        "upper trapezius",
+        "serratus anterior",
+        "obliques (resisting the side bend)"
+      ],
+      "stabilizers": [
+        "deep trunk (high, asymmetric)",
+        "quadratus lumborum",
+        "rotator cuff"
+      ],
+      "position": "Pressing one side while holding the other turns it into an anti-lateral-flexion trunk exercise as much as a shoulder one. The asymmetric load is the training effect, not a convenience.",
+      "resistance": "External, alternating.",
+      "lengthBias": "mid",
+      "intents": [
+        "shoulder strength",
+        "trunk anti-lateral flexion"
+      ],
+      "dose": "3 \u00d7 6\u201310 per side",
+      "stress": {
+        "axial": "mod",
+        "flexion": "mod",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "mod",
+        "elbow": "mod"
+      },
+      "equipment": [
+        "dumbbells"
+      ],
+      "equipTier": "minimal",
+      "space": "indoor, 2 m\u00b2",
+      "skill": "intermediate",
+      "cues": [
+        "Stay square \u2014 no leaning away from the working arm",
+        "Hold the resting bell at the shoulder, not down",
+        "Brace the ribs down"
+      ],
+      "video": {
+        "id": "5y8aJ7hmvoA",
+        "author": "Catalyst Athletics"
+      },
+      "block": "03-upper-body-push"
+    },
+    {
+      "id": "dip",
+      "name": "Dip",
+      "aka": null,
+      "family": "dip",
+      "modifiers": [
+        "bodyweight",
+        "parallel bars"
+      ],
+      "pattern": "vertical push",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "n/a",
+      "gct": "n/a",
+      "velocity": "controlled",
+      "joints": [
+        "shoulder extension then flexion (large range)",
+        "elbow extension (large)",
+        "scapular depression"
+      ],
+      "agonists": [
+        "pectoralis major (sternal head)",
+        "triceps brachii",
+        "anterior deltoid"
+      ],
+      "synergists": [
+        "latissimus dorsi",
+        "rhomboids and lower trapezius (control)"
+      ],
+      "stabilizers": [
+        "scapular stabilizers",
+        "deep trunk",
+        "rotator cuff"
+      ],
+      "position": "Takes the shoulder into more extension than any pressing movement here, which is both why it builds the lower pec and triceps so well and why it is the first exercise to go when the front of the shoulder is sore.",
+      "resistance": "Bodyweight, loadable. Hardest at the bottom.",
+      "lengthBias": "lengthened",
+      "intents": [
+        "max strength",
+        "hypertrophy"
+      ],
+      "dose": "3\u20134 \u00d7 5\u201312",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "high",
+        "elbow": "mod"
+      },
+      "equipment": [
+        "parallel bars or rings"
+      ],
+      "equipTier": "gym",
+      "space": "gym floor",
+      "skill": "intermediate",
+      "cues": [
+        "Depth to about 90\u00b0 at the elbow, no deeper at first",
+        "Lean forward slightly for chest, stay vertical for triceps",
+        "Shoulders stay down, away from the ears"
+      ],
+      "video": {
+        "id": "sg3PTIA3rXI",
+        "author": "Catalyst Athletics"
+      },
+      "block": "03-upper-body-push"
+    },
+    {
+      "id": "bench-dip",
+      "name": "Bench Dip",
+      "aka": null,
+      "family": "dip",
+      "modifiers": [
+        "bodyweight",
+        "bench behind"
+      ],
+      "pattern": "vertical push",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "n/a",
+      "gct": "n/a",
+      "velocity": "controlled",
+      "joints": [
+        "elbow extension (large)",
+        "shoulder extension (large, internally rotated)"
+      ],
+      "agonists": [
+        "triceps brachii"
+      ],
+      "synergists": [
+        "anterior deltoid",
+        "pectoralis major (limited)"
+      ],
+      "stabilizers": [
+        "scapular stabilizers",
+        "deep trunk"
+      ],
+      "position": "Hands behind the body puts the shoulder in extension with internal rotation, the least forgiving position for the front of the shoulder. Easier than a dip on the triceps and harder on the joint \u2014 a trade-off worth knowing before offering it as a regression.",
+      "resistance": "Bodyweight, partial. Hardest at the bottom.",
+      "lengthBias": "lengthened",
+      "intents": [
+        "hypertrophy",
+        "endurance"
+      ],
+      "dose": "3 \u00d7 8\u201315",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "high",
+        "elbow": "mod"
+      },
+      "equipment": [
+        "bench or box"
+      ],
+      "equipTier": "home",
+      "space": "floor",
+      "skill": "entry",
+      "cues": [
+        "Stay close to the bench",
+        "Only go as deep as the shoulder allows",
+        "Stop if the front of the shoulder pinches"
+      ],
+      "video": {
+        "id": "em94npR71nk",
+        "author": "Catalyst Athletics"
+      },
+      "block": "03-upper-body-push"
+    },
+    {
+      "id": "pec-fly",
+      "name": "Pec Fly",
+      "aka": null,
+      "family": "fly",
+      "modifiers": [
+        "cable or dumbbell",
+        "elbow near-fixed"
+      ],
+      "pattern": "horizontal push",
+      "plane": "transverse",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "n/a",
+      "gct": "n/a",
+      "velocity": "controlled",
+      "joints": [
+        "shoulder horizontal adduction (isolated)",
+        "elbow held slightly flexed"
+      ],
+      "agonists": [
+        "pectoralis major"
+      ],
+      "synergists": [
+        "anterior deltoid",
+        "coracobrachialis"
+      ],
+      "stabilizers": [
+        "scapular retractors",
+        "rotator cuff"
+      ],
+      "position": "Removes the triceps and most of the deltoid, so the pec works through horizontal adduction alone and can be loaded at long length with no elbow limitation. The complement to pressing rather than a substitute for it.",
+      "resistance": "Cable keeps tension through range; dumbbells lose it near the top.",
+      "lengthBias": "lengthened",
+      "intents": [
+        "hypertrophy",
+        "isolation"
+      ],
+      "dose": "3 \u00d7 10\u201315",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "mod",
+        "elbow": "low"
+      },
+      "equipment": [
+        "cable machine or dumbbells",
+        "bench"
+      ],
+      "equipTier": "gym",
+      "space": "gym floor",
+      "skill": "entry",
+      "cues": [
+        "Elbow angle stays fixed \u2014 this is not a press",
+        "Feel the stretch, do not chase depth",
+        "Squeeze across the chest at the end"
+      ],
+      "video": {
+        "id": "T3EOhuU5RQg",
+        "author": "Catalyst Athletics"
+      },
+      "block": "03-upper-body-push"
+    },
+    {
+      "id": "skullcrusher",
+      "name": "Skullcrusher",
+      "aka": "lying triceps extension",
+      "family": "triceps-extension",
+      "modifiers": [
+        "lying",
+        "arms perpendicular"
+      ],
+      "pattern": "elbow extension",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "n/a",
+      "gct": "n/a",
+      "velocity": "controlled",
+      "joints": [
+        "elbow extension (isolated, large range)",
+        "shoulder held in flexion"
+      ],
+      "agonists": [
+        "triceps brachii (all three heads)"
+      ],
+      "synergists": [
+        "anconeus"
+      ],
+      "stabilizers": [
+        "scapular stabilizers",
+        "deep trunk"
+      ],
+      "position": "The triceps long head crosses the shoulder, so its length depends on shoulder position \u2014 the same biarticular logic as the rectus femoris at the hip. Arms perpendicular puts it at moderate length; taking the arms further overhead lengthens it more and trains it harder.",
+      "resistance": "External. Hardest with the forearm horizontal.",
+      "lengthBias": "mid",
+      "intents": [
+        "hypertrophy",
+        "isolation"
+      ],
+      "dose": "3 \u00d7 8\u201312",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "high"
+      },
+      "equipment": [
+        "barbell or dumbbells",
+        "bench"
+      ],
+      "equipTier": "minimal",
+      "space": "gym floor",
+      "skill": "entry",
+      "cues": [
+        "Elbows stay pointing the same way throughout",
+        "Lower behind the head, not to the forehead",
+        "Stop if the elbows ache \u2014 this one is hard on them"
+      ],
+      "video": {
+        "id": "S3xRQfb4Alo",
+        "author": "Catalyst Athletics"
+      },
+      "block": "03-upper-body-push"
+    },
+    {
+      "id": "db-oh-triceps",
+      "name": "Dumbbell Overhead Tricep Extension",
+      "aka": null,
+      "family": "triceps-extension",
+      "modifiers": [
+        "overhead",
+        "long-head bias"
+      ],
+      "pattern": "elbow extension",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "n/a",
+      "gct": "n/a",
+      "velocity": "controlled",
+      "joints": [
+        "elbow extension (isolated)",
+        "shoulder held in full flexion"
+      ],
+      "agonists": [
+        "triceps brachii (long head emphasised)"
+      ],
+      "synergists": [
+        "anconeus",
+        "shoulder flexors (isometric hold)"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "rotator cuff",
+        "scapular stabilizers"
+      ],
+      "position": "Arms overhead puts the long head at its longest, which is where it is most trainable \u2014 a pushdown does the opposite and leaves it short. This is why pushdowns and overhead extensions are complements, not alternatives, despite both being 'triceps'.",
+      "resistance": "External. Hardest at full stretch.",
+      "lengthBias": "lengthened",
+      "intents": [
+        "hypertrophy"
+      ],
+      "dose": "3 \u00d7 8\u201312",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "mod",
+        "elbow": "mod"
+      },
+      "equipment": [
+        "dumbbell"
+      ],
+      "equipTier": "minimal",
+      "space": "indoor, 1 m\u00b2",
+      "skill": "entry",
+      "cues": [
+        "Elbows stay narrow and pointing up",
+        "Full stretch at the bottom",
+        "Ribs down \u2014 do not arch the back"
+      ],
+      "video": {
+        "id": "xbNm9fRoUTw",
+        "author": "Catalyst Athletics"
+      },
+      "block": "03-upper-body-push"
+    },
+    {
+      "id": "triceps-pushdown",
+      "name": "Tricep Pushdown",
+      "aka": null,
+      "family": "triceps-extension",
+      "modifiers": [
+        "cable",
+        "arms at the side"
+      ],
+      "pattern": "elbow extension",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "n/a",
+      "gct": "n/a",
+      "velocity": "controlled",
+      "joints": [
+        "elbow extension (isolated)",
+        "shoulder held neutral"
+      ],
+      "agonists": [
+        "triceps brachii (lateral and medial heads emphasised)"
+      ],
+      "synergists": [
+        "anconeus"
+      ],
+      "stabilizers": [
+        "scapular stabilizers",
+        "deep trunk"
+      ],
+      "position": "Elbows at the side keeps the long head short throughout, so the lateral and medial heads do most of the work. Easiest triceps exercise on the elbow joint, which makes it the usual substitute when skullcrushers start to hurt.",
+      "resistance": "Cable, constant tension. Hardest at full extension.",
+      "lengthBias": "shortened",
+      "intents": [
+        "hypertrophy",
+        "isolation"
+      ],
+      "dose": "3 \u00d7 10\u201315",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "low",
+        "elbow": "low"
+      },
+      "equipment": [
+        "cable machine"
+      ],
+      "equipTier": "gym",
+      "space": "gym floor",
+      "skill": "entry",
+      "cues": [
+        "Upper arms stay pinned to the sides",
+        "Lean in slightly, let the elbows lock",
+        "Control the way up"
+      ],
+      "video": {
+        "id": "e0g_ZbWlWRI",
+        "author": "Catalyst Athletics"
+      },
+      "block": "03-upper-body-push"
+    },
+    {
+      "id": "db-lateral-raise",
+      "name": "Dumbbell Lateral Raise",
+      "aka": null,
+      "family": "lateral-raise",
+      "modifiers": [
+        "dumbbells",
+        "standing"
+      ],
+      "pattern": "shoulder abduction",
+      "plane": "frontal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "n/a",
+      "gct": "n/a",
+      "velocity": "controlled",
+      "joints": [
+        "shoulder abduction (isolated)",
+        "scapular upward rotation (upper range)"
+      ],
+      "agonists": [
+        "middle deltoid"
+      ],
+      "synergists": [
+        "supraspinatus (initiates the first 15\u00b0)",
+        "upper trapezius (above shoulder height)",
+        "anterior deltoid"
+      ],
+      "stabilizers": [
+        "scapular stabilizers",
+        "deep trunk"
+      ],
+      "position": "The supraspinatus starts the movement and the middle deltoid takes over \u2014 which is why the first few degrees feel different and why this is both a cuff exercise and a delt exercise depending on the range used. Hardest at the top, where the lever is longest and the delt is shortest.",
+      "resistance": "External. Hardest at horizontal.",
+      "lengthBias": "shortened",
+      "intents": [
+        "hypertrophy",
+        "isolation"
+      ],
+      "dose": "3 \u00d7 10\u201315, light",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "mod",
+        "elbow": "low"
+      },
+      "equipment": [
+        "dumbbells"
+      ],
+      "equipTier": "minimal",
+      "space": "indoor, 1 m\u00b2",
+      "skill": "entry",
+      "cues": [
+        "Lead with the elbows, not the hands",
+        "Stop at shoulder height",
+        "Much lighter than feels right"
+      ],
+      "video": {
+        "id": "a27bLDELPmg",
+        "author": "Catalyst Athletics"
+      },
+      "block": "03-upper-body-push"
+    },
+    {
+      "id": "cable-lateral-raise",
+      "name": "Cable Lateral Raise",
+      "aka": null,
+      "family": "lateral-raise",
+      "modifiers": [
+        "cable",
+        "single arm"
+      ],
+      "pattern": "shoulder abduction",
+      "plane": "frontal",
+      "stance": "unilateral",
+      "perSide": true,
+      "ssc": "n/a",
+      "gct": "n/a",
+      "velocity": "controlled",
+      "joints": [
+        "shoulder abduction (isolated)",
+        "trunk anti-lateral-flexion (isometric)"
+      ],
+      "agonists": [
+        "middle deltoid"
+      ],
+      "synergists": [
+        "supraspinatus",
+        "upper trapezius",
+        "obliques (resisting the pull)"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "scapular stabilizers"
+      ],
+      "position": "A cable keeps tension at the bottom of the range where a dumbbell has almost none, so the delt is loaded in the lengthened position too. Structurally the same movement with a materially different resistance profile.",
+      "resistance": "Cable, constant. Loaded through the whole range including the stretch.",
+      "lengthBias": "mid",
+      "intents": [
+        "hypertrophy",
+        "isolation"
+      ],
+      "dose": "3 \u00d7 10\u201315 per side",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "mod",
+        "elbow": "low"
+      },
+      "equipment": [
+        "cable machine"
+      ],
+      "equipTier": "gym",
+      "space": "gym floor",
+      "skill": "entry",
+      "cues": [
+        "Start with the arm across the body for a longer range",
+        "Stay upright \u2014 do not sway into it",
+        "Slow on the way down"
+      ],
+      "video": {
+        "id": "goVyitDXa5o",
+        "author": "Catalyst Athletics"
+      },
+      "block": "03-upper-body-push"
+    },
+    {
+      "id": "db-front-raise",
+      "name": "Dumbbell Front Raise",
+      "aka": null,
+      "family": "front-raise",
+      "modifiers": [
+        "dumbbells",
+        "sagittal"
+      ],
+      "pattern": "shoulder abduction",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "n/a",
+      "gct": "n/a",
+      "velocity": "controlled",
+      "joints": [
+        "shoulder flexion (isolated)"
+      ],
+      "agonists": [
+        "anterior deltoid"
+      ],
+      "synergists": [
+        "pectoralis major (clavicular head)",
+        "upper trapezius",
+        "serratus anterior"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "scapular stabilizers"
+      ],
+      "position": "Isolates shoulder flexion, which every press already trains heavily \u2014 so it is rarely a priority unless the anterior delt is a specific weak point. Included to mark the pattern rather than to recommend it.",
+      "resistance": "External. Hardest at horizontal.",
+      "lengthBias": "mid",
+      "intents": [
+        "hypertrophy",
+        "isolation"
+      ],
+      "dose": "2\u20133 \u00d7 10\u201315, light",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "mod",
+        "elbow": "low"
+      },
+      "equipment": [
+        "dumbbells"
+      ],
+      "equipTier": "minimal",
+      "space": "indoor, 1 m\u00b2",
+      "skill": "entry",
+      "cues": [
+        "Thumbs slightly up",
+        "Stop at shoulder height",
+        "No swinging from the hips"
+      ],
+      "video": {
+        "id": "xPvL9xLXUbg",
+        "author": "Catalyst Athletics"
+      },
+      "block": "03-upper-body-push"
+    },
+    {
+      "id": "barbell-upright-row",
+      "name": "Barbell Upright Row",
+      "aka": null,
+      "family": "upright-row",
+      "modifiers": [
+        "barbell",
+        "elbows lead"
+      ],
+      "pattern": "shoulder abduction",
+      "plane": "frontal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "n/a",
+      "gct": "n/a",
+      "velocity": "controlled",
+      "joints": [
+        "shoulder abduction with internal rotation",
+        "elbow flexion",
+        "scapular elevation"
+      ],
+      "agonists": [
+        "middle deltoid",
+        "upper trapezius"
+      ],
+      "synergists": [
+        "supraspinatus",
+        "biceps brachii",
+        "rhomboids"
+      ],
+      "stabilizers": [
+        "deep trunk",
+        "erector spinae"
+      ],
+      "position": "Abduction combined with internal rotation is the position most likely to provoke a shoulder, so it is the clearest upper-body contraindication in this block. Effective for the traps and delts in a healthy shoulder, not worth the risk in a sore one.",
+      "resistance": "External. Hardest at the top.",
+      "lengthBias": "shortened",
+      "intents": [
+        "hypertrophy"
+      ],
+      "dose": "3 \u00d7 8\u201312, conservative",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "high",
+        "elbow": "mod"
+      },
+      "equipment": [
+        "barbell"
+      ],
+      "equipTier": "gym",
+      "space": "gym floor",
+      "skill": "intermediate",
+      "cues": [
+        "Stop at chest height, not chin",
+        "Wider grip is kinder to the shoulder",
+        "Drop it entirely if it pinches"
+      ],
+      "video": {
+        "id": "eg2QH0YmDsc",
+        "author": "Catalyst Athletics"
+      },
+      "block": "03-upper-body-push"
+    },
+    {
+      "id": "single-arm-z-press",
+      "name": "Single Arm Z Press",
+      "aka": null,
+      "family": "overhead-press",
+      "modifiers": [
+        "seated on floor",
+        "one arm"
+      ],
+      "pattern": "vertical push",
+      "plane": "sagittal",
+      "stance": "unilateral",
+      "perSide": true,
+      "ssc": "n/a",
+      "gct": "n/a",
+      "velocity": "slow",
+      "joints": [
+        "shoulder flexion to overhead",
+        "elbow extension",
+        "trunk anti-lateral-flexion and anti-rotation (maximal)"
+      ],
+      "agonists": [
+        "anterior and middle deltoid",
+        "triceps brachii"
+      ],
+      "synergists": [
+        "upper trapezius",
+        "serratus anterior",
+        "obliques"
+      ],
+      "stabilizers": [
+        "deep trunk (maximal)",
+        "quadratus lumborum",
+        "rotator cuff"
+      ],
+      "position": "Every compensation removed and the load asymmetric, so the trunk resists side bend and rotation while the shoulder presses. The hardest trunk exercise in the push block, disguised as a shoulder exercise.",
+      "resistance": "External, unilateral, overhead. Position-limited.",
+      "lengthBias": "mid",
+      "intents": [
+        "position control",
+        "trunk anti-rotation"
+      ],
+      "dose": "3 \u00d7 5\u20138 per side, light",
+      "stress": {
+        "axial": "mod",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "high",
+        "elbow": "mod"
+      },
+      "equipment": [
+        "dumbbell or kettlebell"
+      ],
+      "equipTier": "minimal",
+      "space": "floor",
+      "skill": "advanced",
+      "cues": [
+        "Sit tall, legs straight",
+        "Do not twist toward the working arm",
+        "Stop the set when the trunk gives before the shoulder"
+      ],
+      "video": {
+        "id": "xMD7S378yA8",
+        "author": "Catalyst Athletics"
+      },
+      "block": "03-upper-body-push"
+    },
+    {
+      "id": "jm-press",
+      "name": "JM Press",
+      "aka": null,
+      "family": "triceps-extension",
+      "modifiers": [
+        "barbell",
+        "hybrid press-extension"
+      ],
+      "pattern": "elbow extension",
+      "plane": "sagittal",
+      "stance": "bilateral",
+      "perSide": false,
+      "ssc": "n/a",
+      "gct": "n/a",
+      "velocity": "controlled",
+      "joints": [
+        "elbow extension (primary, large)",
+        "shoulder flexion (partial)"
+      ],
+      "agonists": [
+        "triceps brachii"
+      ],
+      "synergists": [
+        "anterior deltoid",
+        "pectoralis major (limited)"
+      ],
+      "stabilizers": [
+        "scapular retractors",
+        "deep trunk"
+      ],
+      "position": "Halfway between a close-grip bench and a skullcrusher, so the triceps are loaded heavily without the elbow angle of a true extension. The usual bridge for someone whose elbows cannot tolerate skullcrushers but who needs heavy triceps work.",
+      "resistance": "External. Hardest in the mid-range.",
+      "lengthBias": "mid",
+      "intents": [
+        "max strength",
+        "hypertrophy"
+      ],
+      "dose": "3\u20134 \u00d7 5\u201310",
+      "stress": {
+        "axial": "low",
+        "flexion": "low",
+        "impact": "low",
+        "landing": "low",
+        "achilles": "low",
+        "knee": "low",
+        "shoulder": "mod",
+        "elbow": "mod"
+      },
+      "equipment": [
+        "barbell",
+        "bench"
+      ],
+      "equipTier": "gym",
+      "space": "gym floor",
+      "skill": "advanced",
+      "cues": [
+        "Bar travels toward the throat, elbows forward",
+        "Forearms stay close to vertical at the bottom",
+        "Build up slowly \u2014 it is hard on the elbows"
+      ],
+      "video": {
+        "id": "xvSYujmY_EY",
+        "author": "Catalyst Athletics"
+      },
+      "block": "03-upper-body-push"
+    }
+  ],
+  "swap_edges": [
+    {
+      "from": "bench-press",
+      "to": "db-incline-press",
+      "reason": "equipment",
+      "same": "Horizontal pressing, lengthened bias, hypertrophy intent",
+      "changed": "Dumbbells instead of a barbell; incline shifts emphasis to the upper pec",
+      "dose": "3\u20134 \u00d7 6\u201312"
+    },
+    {
+      "from": "bench-press",
+      "to": "push-up",
+      "reason": "equipment",
+      "same": "Horizontal push pattern, pec and triceps emphasis",
+      "changed": "Bodyweight, and the scapula is free so the serratus works",
+      "dose": "Load becomes reps \u2014 3\u20134 \u00d7 8\u201320"
+    },
+    {
+      "from": "db-press",
+      "to": "push-up",
+      "reason": "equipment",
+      "same": "Pressing pattern for the delts and triceps",
+      "changed": "Horizontal instead of overhead; no overhead range needed",
+      "dose": "3\u20134 \u00d7 8\u201320"
+    },
+    {
+      "from": "triceps-pushdown",
+      "to": "db-oh-triceps",
+      "reason": "equipment",
+      "same": "Triceps isolation",
+      "changed": "No cable needed, and the long head is loaded at length instead of short",
+      "dose": "3 \u00d7 8\u201312"
+    },
+    {
+      "from": "cable-lateral-raise",
+      "to": "db-lateral-raise",
+      "reason": "equipment",
+      "same": "Shoulder abduction isolation",
+      "changed": "No cable; tension drops off at the bottom of the range",
+      "dose": "3 \u00d7 10\u201315"
+    },
+    {
+      "from": "pec-fly",
+      "to": "push-up",
+      "reason": "equipment",
+      "same": "Pec emphasis, horizontal",
+      "changed": "Compound rather than isolated; no machine",
+      "dose": "3\u20134 \u00d7 8\u201320"
+    },
+    {
+      "from": "barbell-upright-row",
+      "to": "db-lateral-raise",
+      "reason": "shoulder",
+      "same": "Middle deltoid emphasis in the frontal plane",
+      "changed": "Removes the internal rotation at elevation that provokes the shoulder",
+      "dose": "3 \u00d7 10\u201315 light"
+    },
+    {
+      "from": "bench-press",
+      "to": "db-incline-press",
+      "reason": "shoulder",
+      "same": "Horizontal pressing for pec and triceps",
+      "changed": "Dumbbells let the humerus rotate freely instead of being locked by the bar",
+      "dose": "3\u20134 \u00d7 6\u201312"
+    },
+    {
+      "from": "dip",
+      "to": "triceps-pushdown",
+      "reason": "shoulder",
+      "same": "Triceps emphasis",
+      "changed": "Removes the deep shoulder extension that dips demand",
+      "dose": "3 \u00d7 10\u201315"
+    },
+    {
+      "from": "bench-dip",
+      "to": "triceps-pushdown",
+      "reason": "shoulder",
+      "same": "Triceps isolation",
+      "changed": "Removes extension with internal rotation behind the body",
+      "dose": "3 \u00d7 10\u201315"
+    },
+    {
+      "from": "db-press",
+      "to": "db-incline-press",
+      "reason": "shoulder",
+      "same": "Pressing for the anterior delt and triceps",
+      "changed": "No full overhead range required",
+      "dose": "3\u20134 \u00d7 6\u201312"
+    },
+    {
+      "from": "z-press",
+      "to": "db-incline-press",
+      "reason": "shoulder",
+      "same": "Pressing pattern",
+      "changed": "Overhead range removed entirely",
+      "dose": "3\u20134 \u00d7 6\u201312"
+    },
+    {
+      "from": "skullcrusher",
+      "to": "triceps-pushdown",
+      "reason": "elbow",
+      "same": "Triceps isolation through elbow extension",
+      "changed": "Cable at the sides is far kinder to the elbow than a loaded overhead lever",
+      "dose": "3 \u00d7 10\u201315"
+    },
+    {
+      "from": "jm-press",
+      "to": "triceps-pushdown",
+      "reason": "elbow",
+      "same": "Triceps-dominant pressing",
+      "changed": "Isolation with no barbell and much lower elbow stress",
+      "dose": "3 \u00d7 10\u201315"
+    },
+    {
+      "from": "dip",
+      "to": "bench-dip",
+      "reason": "harder",
+      "same": "Vertical push, triceps emphasis",
+      "changed": "Feet on the floor carry part of the weight",
+      "dose": "3 \u00d7 8\u201315"
+    },
+    {
+      "from": "z-press",
+      "to": "db-press",
+      "reason": "harder",
+      "same": "Overhead pressing",
+      "changed": "Standing allows leg and trunk assistance",
+      "dose": "3\u20134 \u00d7 5\u201310"
+    },
+    {
+      "from": "bench-press",
+      "to": "push-up",
+      "reason": "space",
+      "same": "Horizontal push",
+      "changed": "Needs only floor",
+      "dose": "3\u20134 \u00d7 8\u201320"
+    }
+  ]
+}
