@@ -50,7 +50,9 @@ export async function downloadTrainingPdf(opts: {
   const { data: exs } = sessionIds.length
     ? await supabase
         .from("session_exercises")
-        .select("*, exercises(name_en, discipline, structure_type, video_url)")
+        .select(
+          "*, exercises(name_en, discipline, structure_type, video_url, is_structured_container)",
+        )
         .in("session_id", sessionIds)
     : { data: [] as any[] };
 
@@ -62,8 +64,32 @@ export async function downloadTrainingPdf(opts: {
         .in("session_exercise_id", exerciseRowIds)
         .order("order_index")
     : { data: [] as any[] };
+  const { data: blockRows } = exerciseRowIds.length
+    ? await supabase
+        .from("workout_blocks")
+        .select("*")
+        .in("session_exercise_id", exerciseRowIds)
+        .order("order_index")
+    : { data: [] as any[] };
+
+  const blocksBySE = new Map<string, any[]>();
+  for (const b of (blockRows ?? []) as any[]) {
+    const arr = blocksBySE.get(b.session_exercise_id) ?? [];
+    arr.push({ ...b, rounds: [] });
+    blocksBySE.set(b.session_exercise_id, arr);
+  }
+  const blockById = new Map<string, any>();
+  for (const arr of blocksBySE.values())
+    for (const b of arr) blockById.set(b.id, b);
+
   const intervalsBySE = new Map<string, PdfInterval[]>();
   for (const r of (intervals ?? []) as any[]) {
+    // A round attached to a block is drawn inside that block; including it
+    // in the flat list too would print every interval twice.
+    if (r.workout_block_id) {
+      blockById.get(r.workout_block_id)?.rounds.push(r);
+      continue;
+    }
     const arr = intervalsBySE.get(r.session_exercise_id) ?? [];
     arr.push({
       label: r.label ?? null,
@@ -105,6 +131,7 @@ export async function downloadTrainingPdf(opts: {
       summary: summarizePrescription(discipline, rowToPrescription(e), oneRm),
       intervals: intervalsBySE.get(e.id),
       structure_type: structure,
+      blocks: blocksBySE.get(e.id),
     };
   };
 

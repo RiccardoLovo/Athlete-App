@@ -1,6 +1,16 @@
 import jsPDF from "jspdf";
 import { DAY_LABELS } from "./constants";
 import type { Discipline } from "./prescription";
+import {
+  BLOCK_LABELS,
+  blockHasRounds,
+  blockIntensity,
+  blockTarget,
+  roundLine,
+  roundRest,
+  type BlockLike,
+  type RoundLike,
+} from "./blocks";
 
 // ─────────────────────────────────────────────────────────────────────
 // Athlete App training PDF. Landscape A4, dark theme — the exact palette
@@ -22,6 +32,13 @@ export interface PdfExercise {
   // Optional interval rows (intervals/template structure types).
   intervals?: PdfInterval[];
   structure_type?: "simple" | "intervals" | "template";
+  // A structured Run/Swim/Bike workout, built from blocks. Takes precedence
+  // over `intervals` and `summary` — those describe the older flat model.
+  blocks?: PdfBlock[];
+}
+
+export interface PdfBlock extends BlockLike {
+  rounds: RoundLike[];
 }
 
 export interface PdfInterval {
@@ -273,6 +290,108 @@ export function exportTrainingPdf(opts: {
     cursorY += cardH + gap;
   };
 
+  // A structured Run/Swim/Bike workout: one line per block, with an
+  // intervals or pyramid block listing its rounds and the rest between
+  // them — the same shape the coach sees in the builder and the athlete
+  // sees on their phone.
+  const drawStructuredExercise = (e: PdfExercise, isLast: boolean) => {
+    const innerLeft = M + 12;
+    const innerRight = W - M - 12;
+    const innerW = innerRight - innerLeft;
+    const blocks = e.blocks ?? [];
+    const padY = 10;
+    const nameH = 20;
+    const blockH = 14;
+    const roundH = 11;
+    const notesLines = e.notes ? doc.splitTextToSize(e.notes, innerW) : [];
+    const notesH = notesLines.length ? notesLines.length * 10 + 6 : 0;
+
+    const bodyH = blocks.reduce((h, b) => {
+      const rounds = blockHasRounds(b.block_type) ? b.rounds.length : 0;
+      const restLines = b.rounds.filter((r) => roundRest(r)).length;
+      return h + blockH + rounds * roundH + restLines * roundH;
+    }, 0);
+
+    const cardH = padY + nameH + bodyH + notesH + padY - 2;
+    const gap = isLast ? 6 : 8;
+    ensureSpace(cardH + gap);
+
+    setFill(doc, C.card);
+    setDraw(doc, C.border);
+    doc.setLineWidth(0.75);
+    doc.roundedRect(M, cursorY, W - 2 * M, cardH, RADIUS, RADIUS, "FD");
+
+    let ty = cursorY + padY;
+    setText(doc, C.text);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10.5);
+    doc.text(e.name, innerLeft, ty + 9);
+    if (e.video_url) {
+      drawVideoMark(
+        e.video_url,
+        innerLeft + doc.getTextWidth(e.name) + 8,
+        ty + 9,
+      );
+    }
+    ty += nameH;
+
+    for (const b of blocks) {
+      const label = BLOCK_LABELS[b.block_type] ?? b.block_type;
+      const { primary, indicative } = blockIntensity(b);
+
+      setText(doc, C.text);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9);
+      doc.text(label.toUpperCase(), innerLeft, ty + 9);
+
+      const detail = blockHasRounds(b.block_type)
+        ? [b.label, primary].filter(Boolean).join("  ·  ")
+        : [b.label, blockTarget(b), primary].filter(Boolean).join("  ·  ");
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      setText(doc, C.text);
+      doc.text(detail || "—", innerLeft + 62, ty + 9);
+
+      if (indicative) {
+        setText(doc, C.textMuted);
+        doc.setFontSize(8);
+        doc.text(
+          `~${indicative}`,
+          innerRight - doc.getTextWidth(`~${indicative}`),
+          ty + 9,
+        );
+      }
+      ty += blockH;
+
+      if (blockHasRounds(b.block_type)) {
+        b.rounds.forEach((r, i) => {
+          setText(doc, C.text);
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(8.5);
+          doc.text(roundLine(r, i), innerLeft + 18, ty + 7);
+          ty += roundH;
+          const rest = roundRest(r);
+          if (rest) {
+            setText(doc, C.textMuted);
+            doc.setFont("helvetica", "italic");
+            doc.setFontSize(8);
+            doc.text(rest, innerLeft + 30, ty + 7);
+            ty += roundH;
+          }
+        });
+      }
+    }
+
+    if (notesLines.length) {
+      setText(doc, C.textMuted);
+      doc.setFont("helvetica", "italic");
+      doc.setFontSize(8.5);
+      doc.text(notesLines, innerLeft, ty + 6);
+    }
+
+    cursorY += cardH + gap;
+  };
+
   const drawIntervalsExercise = (e: PdfExercise, isLast: boolean) => {
     const innerLeft = M + 12;
     const innerRight = W - M - 12;
@@ -435,7 +554,8 @@ export function exportTrainingPdf(opts: {
         );
         sorted.forEach((ex, eIdx) => {
           const isLast = eIdx === sorted.length - 1;
-          if (
+          if ((ex.blocks?.length ?? 0) > 0) drawStructuredExercise(ex, isLast);
+          else if (
             (ex.structure_type === "intervals" ||
               ex.structure_type === "template") &&
             (ex.intervals?.length ?? 0) > 0

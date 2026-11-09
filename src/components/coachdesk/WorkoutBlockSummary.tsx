@@ -1,6 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { summarizeIntervals } from "@/lib/coachdesk/prescription";
+import {
+  BLOCK_LABELS,
+  blockIntensity,
+  blockTarget,
+} from "@/lib/coachdesk/blocks";
 
 type Block = {
   id: string;
@@ -24,29 +29,6 @@ type Round = {
   rest_mode: "seconds" | "ratio" | null;
   rest_ratio: number | null;
 };
-
-const BLOCK_LABELS: Record<string, string> = {
-  warmup: "Warm-up",
-  cooldown: "Cool-down",
-  steady: "Steady",
-  drill: "Drill",
-  intervals: "Intervals",
-  pyramid: "Pyramid",
-};
-
-// The target as the coach entered it, in their chosen unit.
-function targetText(b: Block): string | null {
-  if (b.target_mode === "time") {
-    if (b.duration_min == null) return null;
-    return b.target_unit === "sec"
-      ? `${Math.round(b.duration_min * 60)} sec`
-      : `${b.duration_min} min`;
-  }
-  if (b.distance_km == null) return null;
-  return b.target_unit === "m"
-    ? `${Math.round(b.distance_km * 1000)} m`
-    : `${b.distance_km} km`;
-}
 
 /**
  * Read-only "finished workout" view of a structured Run/Swim/Bike
@@ -117,15 +99,7 @@ export function WorkoutBlockSummary({
         const mine = rounds.filter((r) => r.workout_block_id === b.id);
         const isRounds =
           b.block_type === "intervals" || b.block_type === "pyramid";
-        const zoneText = b.zone != null ? `Z${b.zone}` : null;
-        const pctText = b.pct_threshold != null ? `${b.pct_threshold}%` : null;
-        const followZone = b.intensity_mode === "zone";
-        const primary = followZone
-          ? [zoneText, pctText].filter(Boolean).join(" ")
-          : b.pace;
-        const indicative = followZone
-          ? b.pace
-          : [zoneText, pctText].filter(Boolean).join(" ");
+        const { primary, indicative } = blockIntensity(b);
 
         return (
           <div
@@ -152,7 +126,7 @@ export function WorkoutBlockSummary({
                       })),
                     )
                   : "—"
-                : (targetText(b) ?? "—")}
+                : (blockTarget(b) ?? "—")}
             </span>
             {primary && <span className="font-medium">{primary}</span>}
             {indicative && (
