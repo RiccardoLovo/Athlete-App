@@ -1453,7 +1453,29 @@ function LogWorkout({
       setBorg(draft!.borg);
       setOverall(draft!.overall);
       setPerformedAt(draft!.performedAt);
-      setForms({ ...init, ...draft!.forms });
+      // Field-wise, never wholesale: an empty value in the draft must not
+      // overwrite content that exists on the server.
+      const merged: Record<string, ExForm> = { ...init };
+      for (const [exId, draftForm] of Object.entries(draft!.forms)) {
+        const server = init[exId];
+        if (!server) {
+          merged[exId] = draftForm;
+          continue;
+        }
+        merged[exId] = {
+          ...draftForm,
+          notes: draftForm.notes || server.notes,
+          distance: draftForm.distance || server.distance,
+          duration: draftForm.duration || server.duration,
+          pace: draftForm.pace || server.pace,
+          sets: draftForm.sets?.length ? draftForm.sets : server.sets,
+          intervalActuals: draftForm.intervalActuals?.length
+            ? draftForm.intervalActuals
+            : server.intervalActuals,
+          swap: draftForm.swap ?? server.swap,
+        };
+      }
+      setForms(merged);
       toast.info("Restored your unsaved sets from this device");
     } else {
       setForms(init);
@@ -1562,18 +1584,16 @@ function LogWorkout({
       // Only now drop logs whose exercise is no longer in the session
       // (the athlete removed it) — never before the write above.
       const keepIds = exs.map((e) => e.id);
-      let stale = supabase
-        .from("exercise_logs")
-        .delete()
-        .eq("workout_log_id", logId!);
+      // Never prune against an empty list. If the session's exercises have
+      // not resolved, a delete with no NOT-IN filter matches every row for
+      // this workout and takes the athlete's sets and notes with it.
       if (keepIds.length) {
-        stale = stale.not(
-          "session_exercise_id",
-          "in",
-          `(${keepIds.join(",")})`,
-        );
+        await supabase
+          .from("exercise_logs")
+          .delete()
+          .eq("workout_log_id", logId!)
+          .not("session_exercise_id", "in", `(${keepIds.join(",")})`);
       }
-      await stale;
       markWorkoutDraftSaved(draftKey, sig);
       setSaveState("saved");
       qc.invalidateQueries({ queryKey: ["athlete-week"] });
