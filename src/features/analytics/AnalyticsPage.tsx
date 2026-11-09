@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { WeeklyVolumeTab } from "./WeeklyVolumeTab";
 import {
   Select,
   SelectContent,
@@ -111,7 +112,7 @@ export function AnalyticsPage() {
     from: "/_authenticated/analytics/$clientId",
   });
   const [range, setRange] = useState<Range>("8w");
-  const [tab, setTab] = useState("overview");
+  const [tab, setTab] = useState("weekly");
 
   const { data: client } = useQuery({
     queryKey: ["client", clientId],
@@ -222,31 +223,58 @@ export function AnalyticsPage() {
 
         {isLoading ? (
           <p className="py-12 text-center text-muted-foreground">Loading…</p>
-        ) : rows.length === 0 ? (
-          <Card className="p-12 text-center text-muted-foreground">
-            No completed workout data yet. Once the athlete logs feedback for
-            sessions, progress will appear here.
-          </Card>
         ) : (
           <Tabs value={tab} onValueChange={setTab}>
             <TabsList>
+              <TabsTrigger value="weekly">Weekly Volume</TabsTrigger>
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="weight">Weight Progression</TabsTrigger>
               <TabsTrigger value="borg">Borg / RPE</TabsTrigger>
-              <TabsTrigger value="volume">Training Volume</TabsTrigger>
+              <TabsTrigger value="volume">Strength Volume</TabsTrigger>
             </TabsList>
 
+            <TabsContent value="weekly" className="mt-4">
+              <WeeklyVolumeTab clientId={clientId} />
+            </TabsContent>
             <TabsContent value="overview" className="mt-4">
-              <OverviewTab rows={filtered} />
+              {rows.length === 0 ? (
+                <Card className="p-12 text-center text-muted-foreground">
+                  No completed workout data yet. Once the athlete logs feedback
+                  for sessions, progress will appear here.
+                </Card>
+              ) : (
+                <OverviewTab rows={filtered} />
+              )}
             </TabsContent>
             <TabsContent value="weight" className="mt-4">
-              <WeightTab rows={filtered} />
+              {rows.length === 0 ? (
+                <Card className="p-12 text-center text-muted-foreground">
+                  No completed workout data yet. Once the athlete logs feedback
+                  for sessions, progress will appear here.
+                </Card>
+              ) : (
+                <WeightTab rows={filtered} />
+              )}
             </TabsContent>
             <TabsContent value="borg" className="mt-4">
-              <BorgTab rows={filtered} />
+              {rows.length === 0 ? (
+                <Card className="p-12 text-center text-muted-foreground">
+                  No completed workout data yet. Once the athlete logs feedback
+                  for sessions, progress will appear here.
+                </Card>
+              ) : (
+                <BorgTab rows={filtered} />
+              )}
             </TabsContent>
             <TabsContent value="volume" className="mt-4">
-              <VolumeTab rows={filtered} />
+              {rows.length === 0 ? (
+                <Card className="p-12 text-center text-muted-foreground">
+                  No completed workout data yet. Once the athlete logs feedback
+                  for sessions, progress will appear here.
+                </Card>
+              ) : (
+                <VolumeTab rows={filtered} />
+              )}
             </TabsContent>
           </Tabs>
         )}
