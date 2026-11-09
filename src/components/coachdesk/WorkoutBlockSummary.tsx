@@ -119,7 +119,7 @@ export function WorkoutBlockSummary({
           b.block_type === "intervals" || b.block_type === "pyramid";
         const zoneText = b.zone != null ? `Z${b.zone}` : null;
         const pctText = b.pct_threshold != null ? `${b.pct_threshold}%` : null;
-        const followZone = b.intensity_mode !== "pace";
+        const followZone = b.intensity_mode === "zone";
         const primary = followZone
           ? [zoneText, pctText].filter(Boolean).join(" ")
           : b.pace;

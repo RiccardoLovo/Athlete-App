@@ -163,7 +163,7 @@ export function IntervalBuilder({
   clientId?: string | null;
   /** Which of Zone/Pace is binding; the other renders as indicative.
    *  Omitted (legacy per-exercise intervals) = neither is dimmed. */
-  intensityMode?: "zone" | "pace";
+  intensityMode?: "zone" | "pace" | "threshold";
 }) {
   const scope: IntervalScope = { sessionExerciseId, workoutBlockId };
   const qc = useQueryClient();
@@ -404,7 +404,7 @@ function IntervalRowEditor({
   cols: ColumnFlags;
   cssSec?: number | null;
   ftpWatts?: number | null;
-  intensityMode?: "zone" | "pace";
+  intensityMode?: "zone" | "pace" | "threshold";
   canUp: boolean;
   canDown: boolean;
   onSwapUp: () => void;

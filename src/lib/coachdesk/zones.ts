@@ -108,3 +108,47 @@ export function formatSecondsToPace(totalSec: number): string {
   const s = sec % 60;
   return `${m}:${String(s).padStart(2, "0")}`;
 }
+
+// ---------------------------------------------------------------------------
+// Reverse lookups: percentage -> zone. The coach may set either end, and the
+// other must follow, so these mirror bikeZoneDefaultPct / swimZoneDefaultPct.
+// ---------------------------------------------------------------------------
+
+/** Which Coggan band a %FTP falls in. Nearest band if it sits in a gap. */
+export function bikePctToZone(pct: number): ZoneNumber | null {
+  if (!Number.isFinite(pct) || pct <= 0) return null;
+  const f = pct / 100;
+  for (const z of [1, 2, 3, 4, 5] as ZoneNumber[]) {
+    const { min, max } = BIKE_ZONES[z];
+    if (f > min && f <= max) return z;
+  }
+  // Above the top band is still Z5; below the first is Z1.
+  return f > BIKE_ZONES[5].max ? 5 : 1;
+}
+
+/** Which swim zone a %CSS is closest to, using each zone's own default %. */
+export function swimPctToZone(
+  cssSecPer100m: number,
+  pct: number,
+): ZoneNumber | null {
+  if (!Number.isFinite(pct) || pct <= 0) return null;
+  let best: ZoneNumber | null = null;
+  let bestGap = Infinity;
+  for (const z of [1, 2, 3, 4, 5] as ZoneNumber[]) {
+    const gap = Math.abs(swimZoneDefaultPct(cssSecPer100m, z) - pct);
+    if (gap < bestGap) {
+      bestGap = gap;
+      best = z;
+    }
+  }
+  return best;
+}
+
+/** The %FTP band a zone spans, for showing the range beside the number. */
+export function bikeZoneRangePct(zone: ZoneNumber): {
+  min: number;
+  max: number;
+} {
+  const z = BIKE_ZONES[zone];
+  return { min: Math.round(z.min * 100), max: Math.round(z.max * 100) };
+}

@@ -1152,7 +1152,19 @@ export type Database = {
       };
     };
     Views: {
-      [_ in never]: never;
+      v_planned_volume: {
+        Row: {
+          block_id: string | null;
+          discipline: string | null;
+          km_direct: number | null;
+          km_estimated: number | null;
+          minutes: number | null;
+          session_exercise_id: string | null;
+          week_number: number | null;
+          zone: number | null;
+        };
+        Relationships: [];
+      };
     };
     Functions: {
       athlete_owns_session_exercise: {
@@ -1196,6 +1208,7 @@ export type Database = {
         };
         Returns: boolean;
       };
+      parse_pace_seconds: { Args: { _pace: string }; Returns: number };
       pgp_armor_headers: {
         Args: { "": string };
         Returns: Record<string, unknown>[];
@@ -1215,6 +1228,42 @@ export type Database = {
           tier: string;
           video_url: string;
         }[];
+      };
+      weekly_volume: {
+        Args: { _client_id: string };
+        Returns: {
+          actual_km: number;
+          actual_minutes: number;
+          block_id: string;
+          block_name: string;
+          block_position: number;
+          discipline: string;
+          plan_id: string;
+          plan_name: string;
+          planned_km: number;
+          planned_km_estimated: number;
+          planned_minutes: number;
+          sessions_total: number;
+          sessions_unmeasured: number;
+          week_number: number;
+          week_start: string;
+        }[];
+      };
+      weekly_volume_by_zone: {
+        Args: { _client_id: string; _discipline: string };
+        Returns: {
+          block_id: string;
+          block_position: number;
+          km: number;
+          km_estimated: number;
+          minutes: number;
+          week_number: number;
+          zone: number;
+        }[];
+      };
+      zone_of: {
+        Args: { _hr_zone: number; _intensity: string };
+        Returns: number;
       };
     };
     Enums: {

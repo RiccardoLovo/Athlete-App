@@ -33,9 +33,12 @@ import { TemplateForm } from "./TemplateForm";
 import {
   type ZoneNumber,
   bikePctToWatts,
+  bikePctToZone,
   bikeZoneDefaultPct,
+  bikeZoneRangePct,
   formatSecondsToPace,
   swimPctToPaceSec,
+  swimPctToZone,
   swimZoneDefaultPct,
 } from "@/lib/coachdesk/zones";
 
@@ -55,7 +58,7 @@ type Block = {
   label: string | null;
   target_mode: "distance" | "time" | null;
   target_unit: "km" | "m" | "min" | "sec" | null;
-  intensity_mode: "zone" | "pace";
+  intensity_mode: "zone" | "pace" | "threshold";
   rest_mode: "seconds" | "ratio";
   rest_seconds: number | null;
   rest_ratio: number | null;
@@ -575,16 +578,44 @@ function SimpleBlockBody({
     onChanged();
   }
 
+  const thresholdLabel = discipline === "Cycling" ? "%FTP" : "%CSS";
+  const zoneBandHint =
+    discipline === "Cycling" && local.zone
+      ? (() => {
+          const b = bikeZoneRangePct(local.zone as ZoneNumber);
+          return `${b.min}\u2013${b.max}%`;
+        })()
+      : "";
+
+  // Zone and threshold percentage are two views of the same intensity, so
+  // setting either fills the other. The Coggan %FTP bands are percentages,
+  // so the bike needs no FTP on file for this to work. Swim %CSS is derived
+  // from pace offsets, which does need the athlete's CSS — without it the
+  // percentage is left blank rather than guessed.
   function pickZone(zone: ZoneNumber) {
-    if (threshold == null) {
-      save({ zone });
+    if (discipline === "Cycling") {
+      save({ zone, pct_threshold: bikeZoneDefaultPct(zone) });
       return;
     }
-    const pct =
+    if (discipline === "Swimming" && threshold != null) {
+      save({ zone, pct_threshold: swimZoneDefaultPct(threshold, zone) });
+      return;
+    }
+    save({ zone });
+  }
+
+  function savePct(pct: number | null) {
+    if (pct == null) {
+      save({ pct_threshold: null });
+      return;
+    }
+    const zone =
       discipline === "Cycling"
-        ? bikeZoneDefaultPct(zone)
-        : swimZoneDefaultPct(threshold, zone);
-    save({ zone, pct_threshold: pct });
+        ? bikePctToZone(pct)
+        : threshold != null
+          ? swimPctToZone(threshold, pct)
+          : null;
+    save(zone == null ? { pct_threshold: pct } : { pct_threshold: pct, zone });
   }
 
   const resolvedValue =
@@ -658,6 +689,7 @@ function SimpleBlockBody({
     save({ target_unit: u, ...canonical });
   }
 
+  // Whichever target is NOT being followed renders dimmed.
   const secondary = local.intensity_mode === "zone" ? "pace" : "zone";
 
   return (
@@ -726,21 +758,29 @@ function SimpleBlockBody({
       <span className="ml-1 text-[10px] text-muted-foreground">Follow</span>
       <Select
         value={local.intensity_mode}
-        onValueChange={(v) => save({ intensity_mode: v as "zone" | "pace" })}
+        onValueChange={(v) =>
+          save({ intensity_mode: v as "zone" | "pace" | "threshold" })
+        }
       >
         <SelectTrigger
-          className="h-7 w-[76px] text-xs"
+          className="h-7 w-[86px] text-xs"
           title="Which target the athlete must follow; the other is indicative"
         >
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="zone">Zone</SelectItem>
-          <SelectItem value="pace">Pace</SelectItem>
+          {/* Bike and swim are prescribed against a threshold percentage.
+              A pace on the bike is meaningless — it is wind and gradient. */}
+          {usesThreshold ? (
+            <SelectItem value="threshold">{thresholdLabel}</SelectItem>
+          ) : (
+            <SelectItem value="pace">Pace</SelectItem>
+          )}
         </SelectContent>
       </Select>
 
-      <div className={secondary === "zone" ? "opacity-50" : ""}>
+      <div className={local.intensity_mode === "zone" ? "" : "opacity-50"}>
         <Select
           value={local.zone == null ? "_" : String(local.zone)}
           onValueChange={(v) =>
@@ -749,7 +789,11 @@ function SimpleBlockBody({
         >
           <SelectTrigger
             className="h-7 w-[68px] text-xs"
-            title={secondary === "zone" ? "Indicative only" : "Zone to follow"}
+            title={
+              local.intensity_mode === "zone"
+                ? "Zone to follow"
+                : `Indicative \u2014 follows from the ${thresholdLabel}`
+            }
           >
             <SelectValue placeholder="Zone" />
           </SelectTrigger>
@@ -766,10 +810,16 @@ function SimpleBlockBody({
 
       {usesThreshold && (
         <Input
-          className={`h-7 w-16 text-xs ${secondary === "zone" ? "opacity-50" : ""}`}
+          className={`h-7 w-16 text-xs ${
+            local.intensity_mode === "threshold" ? "" : "opacity-50"
+          }`}
           type="number"
-          placeholder={discipline === "Cycling" ? "%FTP" : "%CSS"}
-          title={`Exact % of ${discipline === "Cycling" ? "FTP" : "CSS"}`}
+          placeholder={thresholdLabel}
+          title={
+            local.zone
+              ? `${thresholdLabel} — Z${local.zone} spans ${zoneBandHint}`
+              : `Exact ${thresholdLabel}`
+          }
           value={local.pct_threshold ?? ""}
           onChange={(e) =>
             setLocal((p) => ({
@@ -778,18 +828,21 @@ function SimpleBlockBody({
                 e.target.value === "" ? null : Number(e.target.value),
             }))
           }
-          onBlur={() => save({ pct_threshold: local.pct_threshold })}
+          onBlur={() => savePct(local.pct_threshold)}
         />
       )}
 
-      <Input
-        className={`h-7 w-20 text-xs ${secondary === "pace" ? "opacity-50" : ""}`}
-        placeholder={secondary === "pace" ? "~pace" : "Pace"}
-        title={secondary === "pace" ? "Indicative only" : "Pace to follow"}
-        value={local.pace ?? ""}
-        onChange={(e) => setLocal((p) => ({ ...p, pace: e.target.value }))}
-        onBlur={() => save({ pace: local.pace })}
-      />
+      {/* Running is the only discipline where a pace is the thing to hold. */}
+      {!usesThreshold && (
+        <Input
+          className={`h-7 w-20 text-xs ${secondary === "pace" ? "opacity-50" : ""}`}
+          placeholder={secondary === "pace" ? "~pace" : "Pace"}
+          title={secondary === "pace" ? "Indicative only" : "Pace to follow"}
+          value={local.pace ?? ""}
+          onChange={(e) => setLocal((p) => ({ ...p, pace: e.target.value }))}
+          onBlur={() => save({ pace: local.pace })}
+        />
+      )}
 
       {resolvedValue && (
         <span className="text-[10px] text-muted-foreground">

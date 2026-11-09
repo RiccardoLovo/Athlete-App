@@ -240,7 +240,27 @@ function SessionList({
     .slice()
     .sort((a: any, b: any) => a.position - b.position);
   const totalWeeks = blocks.reduce((s: number, b: any) => s + b.weeks, 0);
-  const [weekOffset, setWeekOffset] = useState(0); // 0..totalWeeks-1 across whole plan
+  // Which week of the whole plan today falls in. The athlete opens the app to
+  // train now, so starting at week 1 of a plan that began months ago showed
+  // them a block they had already finished.
+  const currentWeekOffset = (() => {
+    if (!plan?.start_date || !totalWeeks) return 0;
+    const started = parseISODate(plan.start_date).getTime();
+    const weeksElapsed = Math.floor(
+      (Date.now() - started) / (7 * 24 * 60 * 60 * 1000),
+    );
+    return Math.min(Math.max(weeksElapsed, 0), totalWeeks - 1);
+  })();
+
+  const [weekOffset, setWeekOffset] = useState(currentWeekOffset); // 0..totalWeeks-1
+  // The plan arrives after first render, so adopt the real current week once
+  // it is known — but never fight the athlete if they have already navigated.
+  const pickedWeekRef = useRef(false);
+  useEffect(() => {
+    if (pickedWeekRef.current || !plan?.start_date) return;
+    pickedWeekRef.current = true;
+    setWeekOffset(currentWeekOffset);
+  }, [plan?.start_date, currentWeekOffset]);
   const [downloading, setDownloading] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [addingExtra, setAddingExtra] = useState(false);
@@ -341,11 +361,18 @@ function SessionList({
   // Compute the global offset of the first week of each block, so the
   // W-button onClick selects the right slot in the cross-plan offset.
   let runningOffset = 0;
-  const blockSections = blocks.map((b: any) => {
+  const allBlockSections = blocks.map((b: any) => {
     const startOffset = runningOffset;
     runningOffset += b.weeks;
     return { block: b, startOffset };
   });
+  // Only the block being trained now and the ones still to come. A finished
+  // block is history the athlete does not need while logging today's session.
+  const blockSections = allBlockSections.filter(
+    ({ block, startOffset }: any) =>
+      startOffset + block.weeks > currentWeekOffset,
+  );
+  const pastBlockCount = allBlockSections.length - blockSections.length;
 
   return (
     <div className="h-[calc(100vh-3.5rem)] overflow-auto">
@@ -393,8 +420,12 @@ function SessionList({
           />
         )}
         <div className="space-y-2">
-          {blockSections.map(({ block, startOffset }: any, idx: number) => {
+          {blockSections.map(({ block, startOffset }: any) => {
             const isCurrentBlock = weekInfo?.block?.id === block.id;
+            // Numbered by its place in the whole plan, not in the filtered list.
+            const idx = allBlockSections.findIndex(
+              (x: any) => x.block.id === block.id,
+            );
             return (
               <Card
                 key={block.id}
@@ -1761,7 +1792,7 @@ function LogWorkout({
                       <PlayCircle className="h-4 w-4" />
                     </Button>
                   )}
-                  {!finished && e.exercise_id && (
+                  {e.exercise_id && (
                     <SwapButton
                       onClick={() =>
                         setSwapFor({

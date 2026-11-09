@@ -273,8 +273,14 @@ export function PlanDetailPage() {
                       <div
                         className={`h-8 w-2 rounded ${BLOCK_COLORS[i % BLOCK_COLORS.length]}`}
                       />
+                      {/* Keyed on the stored name: an uncontrolled input only
+                          reads defaultValue on mount, so after a refetch or a
+                          reorder the box kept whatever it first rendered —
+                          which is why saved block names showed up blank. */}
                       <Input
+                        key={`${b.id}:${b.name}`}
                         defaultValue={b.name}
+                        placeholder="Block name"
                         onBlur={(e) => {
                           if (e.target.value !== b.name)
                             updateBlock(b.id, { name: e.target.value });
@@ -287,6 +293,7 @@ export function PlanDetailPage() {
                           type="number"
                           min={1}
                           max={52}
+                          key={`${b.id}:${b.weeks}`}
                           defaultValue={b.weeks}
                           onBlur={(e) => {
                             const w = parseInt(e.target.value, 10);
