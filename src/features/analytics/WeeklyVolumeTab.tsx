@@ -29,6 +29,14 @@ type ZoneRow = {
   minutes: number;
 };
 
+type ActualZoneRow = {
+  block_position: number;
+  week_number: number;
+  zone: number | null;
+  km: number;
+  minutes: number;
+};
+
 const DISCIPLINES = ["Running", "Cycling", "Swimming"] as const;
 const DISCIPLINE_ICON: Record<string, string> = {
   Running: "🏃",
@@ -79,6 +87,20 @@ export function WeeklyVolumeTab({ clientId }: { clientId: string }) {
     },
   });
 
+  // Actual time-in-zone, which only exists once athletes log per block.
+  const { data: actualZoneRows = [] } = useQuery({
+    queryKey: ["weekly-actual-zone", clientId, openDiscipline],
+    enabled: !!openDiscipline,
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("weekly_actual_by_zone", {
+        _client_id: clientId,
+        _discipline: openDiscipline!,
+      });
+      if (error) throw error;
+      return (data ?? []) as unknown as ActualZoneRow[];
+    },
+  });
+
   // One row per week, disciplines across it.
   const weeks = useMemo(() => {
     const byWeek = new Map<
@@ -110,6 +132,16 @@ export function WeeklyVolumeTab({ clientId }: { clientId: string }) {
       (a, b) => a.pos - b.pos || a.week - b.week,
     );
   }, [rows]);
+
+  const actualZonesByWeek = useMemo(() => {
+    const m = new Map<string, Map<number | null, ActualZoneRow>>();
+    for (const z of actualZoneRows) {
+      const k = `${z.block_position}-${z.week_number}`;
+      if (!m.has(k)) m.set(k, new Map());
+      m.get(k)!.set(z.zone, z);
+    }
+    return m;
+  }, [actualZoneRows]);
 
   const zonesByWeek = useMemo(() => {
     const m = new Map<string, ZoneRow[]>();
@@ -181,6 +213,7 @@ export function WeeklyVolumeTab({ clientId }: { clientId: string }) {
             {weeks.map((w) => {
               const key = `${w.pos}-${w.week}`;
               const zones = zonesByWeek.get(key) ?? [];
+              const actualZones = actualZonesByWeek.get(key);
               return (
                 <tr key={key} className="border-b last:border-0 align-top">
                   <td className="p-2">
@@ -220,21 +253,32 @@ export function WeeklyVolumeTab({ clientId }: { clientId: string }) {
                             )}
                             {openDiscipline === d && zones.length > 0 && (
                               <ul className="mt-1 space-y-0.5 border-t pt-1">
-                                {zones.map((z, i) => (
-                                  <li
-                                    key={i}
-                                    className="flex gap-2 text-[11px] text-muted-foreground"
-                                  >
-                                    <span className="w-7 font-medium text-foreground">
-                                      {z.zone ? `Z${z.zone}` : "—"}
-                                    </span>
-                                    <span>
-                                      {fmtKm(z.km, z.km_estimated) ??
-                                        fmtMin(z.minutes) ??
-                                        "—"}
-                                    </span>
-                                  </li>
-                                ))}
+                                {zones.map((z, i) => {
+                                  const act = actualZones?.get(z.zone);
+                                  const actText = act
+                                    ? (fmtKm(act.km, 0) ?? fmtMin(act.minutes))
+                                    : null;
+                                  return (
+                                    <li
+                                      key={i}
+                                      className="flex gap-2 text-[11px] text-muted-foreground"
+                                    >
+                                      <span className="w-7 font-medium text-foreground">
+                                        {z.zone ? `Z${z.zone}` : "—"}
+                                      </span>
+                                      <span>
+                                        {fmtKm(z.km, z.km_estimated) ??
+                                          fmtMin(z.minutes) ??
+                                          "—"}
+                                      </span>
+                                      {actText && (
+                                        <span className="text-emerald-600">
+                                          done {actText}
+                                        </span>
+                                      )}
+                                    </li>
+                                  );
+                                })}
                               </ul>
                             )}
                             {openDiscipline === d && zones.length === 0 && (
@@ -258,9 +302,9 @@ export function WeeklyVolumeTab({ clientId }: { clientId: string }) {
         Planned volume, from what the plan states. &ldquo;est.&rdquo; is
         distance implied by a pace you prescribed on a time-based piece —
         nothing is estimated from an assumed speed, so where no pace is set the
-        time is shown and the distance left out. Logged volume is not shown:
-        athletes record one total per session with no zone split, so it cannot
-        be compared against the zone breakdown below.
+        time is shown and the distance left out. Inside a zone breakdown,
+        &ldquo;done&rdquo; is what the athlete logged against that block — it
+        appears only for sessions they logged block by block.
       </p>
     </div>
   );

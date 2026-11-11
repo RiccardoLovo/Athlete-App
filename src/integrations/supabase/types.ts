@@ -1015,6 +1015,54 @@ export type Database = {
         };
         Relationships: [];
       };
+      workout_block_logs: {
+        Row: {
+          created_at: string;
+          distance_km: number | null;
+          duration_min: number | null;
+          exercise_log_id: string;
+          id: string;
+          notes: string | null;
+          updated_at: string;
+          workout_block_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          distance_km?: number | null;
+          duration_min?: number | null;
+          exercise_log_id: string;
+          id?: string;
+          notes?: string | null;
+          updated_at?: string;
+          workout_block_id: string;
+        };
+        Update: {
+          created_at?: string;
+          distance_km?: number | null;
+          duration_min?: number | null;
+          exercise_log_id?: string;
+          id?: string;
+          notes?: string | null;
+          updated_at?: string;
+          workout_block_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "workout_block_logs_exercise_log_id_fkey";
+            columns: ["exercise_log_id"];
+            isOneToOne: false;
+            referencedRelation: "exercise_logs";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "workout_block_logs_workout_block_id_fkey";
+            columns: ["workout_block_id"];
+            isOneToOne: false;
+            referencedRelation: "workout_blocks";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       workout_blocks: {
         Row: {
           block_type: string;
@@ -1167,6 +1215,7 @@ export type Database = {
       };
     };
     Functions: {
+      athlete_owns_exercise_log: { Args: { _el_id: string }; Returns: boolean };
       athlete_owns_session_exercise: {
         Args: { _se_id: string };
         Returns: boolean;
@@ -1176,6 +1225,7 @@ export type Database = {
         Returns: boolean;
       };
       can_view_session_exercise: { Args: { _se_id: string }; Returns: boolean };
+      coach_owns_exercise_log: { Args: { _el_id: string }; Returns: boolean };
       coach_owns_session_exercise: {
         Args: { _se_id: string };
         Returns: boolean;
@@ -1227,6 +1277,17 @@ export type Database = {
           skill_level: string;
           tier: string;
           video_url: string;
+        }[];
+      };
+      weekly_actual_by_zone: {
+        Args: { _client_id: string; _discipline: string };
+        Returns: {
+          block_id: string;
+          block_position: number;
+          km: number;
+          minutes: number;
+          week_number: number;
+          zone: number;
         }[];
       };
       weekly_volume: {

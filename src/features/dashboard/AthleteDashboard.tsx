@@ -1,5 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ArrowLeft,
@@ -44,6 +44,10 @@ import {
   toISODate,
 } from "@/lib/coachdesk/periodization";
 import { getEmbedUrl } from "@/lib/coachdesk/video";
+import {
+  BlockLogInputs,
+  type BlockActual,
+} from "@/components/coachdesk/BlockLogInputs";
 import {
   SwapButton,
   SwapExerciseDialog,
@@ -872,6 +876,8 @@ type ExForm = {
   /** Set when the athlete did something else instead. The prescription is
    *  untouched; this rides along with the log. */
   swap: SwapChoice | null;
+  /** What was actually done per structured block, keyed by block id. */
+  blockActuals: Record<string, BlockActual>;
 };
 export const SWAP_REASON_LABEL: Record<string, string> = {
   equipment: "equipment taken",
@@ -892,6 +898,7 @@ const EMPTY_EXFORM: ExForm = {
   pace: "",
   intervalActuals: [],
   swap: null,
+  blockActuals: {},
 };
 
 // A workout in progress is held on the device as well as on the server.
@@ -1305,6 +1312,36 @@ function LogWorkout({
   });
   const existingExLogs = existingExLogsData ?? EMPTY_EXS;
 
+  // Previously logged per-block actuals, keyed session_exercise -> block.
+  const { data: blockLogRows } = useQuery({
+    queryKey: ["my-block-logs", existingLog?.id],
+    enabled: !!existingLog?.id,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("workout_block_logs")
+        .select(
+          "exercise_log_id, workout_block_id, distance_km, duration_min, workout_blocks!inner(session_exercise_id)",
+        )
+        .in(
+          "exercise_log_id",
+          (existingExLogsData ?? []).map((l: any) => l.id),
+        );
+      return (data ?? []) as any[];
+    },
+  });
+  const blockLogsBySE = useMemo(() => {
+    const out: Record<string, Record<string, BlockActual>> = {};
+    for (const r of blockLogRows ?? []) {
+      const seId = r.workout_blocks?.session_exercise_id;
+      if (!seId) continue;
+      (out[seId] ??= {})[r.workout_block_id] = {
+        distanceKm: r.distance_km == null ? null : Number(r.distance_km),
+        durationMin: r.duration_min == null ? null : Number(r.duration_min),
+      };
+    }
+    return out;
+  }, [blockLogRows]);
+
   const [borg, setBorg] = useState(5);
   const [overall, setOverall] = useState("");
   const [performedAt, setPerformedAt] = useState<string>(session.planned_date);
@@ -1340,6 +1377,7 @@ function LogWorkout({
     if (!exsData) return;
     if (existingLog === undefined) return;
     if (existingLog?.id && existingExLogsData === undefined) return;
+    if (existingLog?.id && blockLogRows === undefined) return;
     hydratedRef.current = true;
     logIdRef.current = existingLog?.id ?? null;
     setSavedLogId(existingLog?.id ?? null);
@@ -1427,6 +1465,7 @@ function LogWorkout({
       });
 
       init[e.id] = {
+        blockActuals: blockLogsBySE[e.id] ?? {},
         swap:
           el?.swapped_to_exercise_id && el?.swap_reason
             ? {
@@ -1473,6 +1512,9 @@ function LogWorkout({
             ? draftForm.intervalActuals
             : server.intervalActuals,
           swap: draftForm.swap ?? server.swap,
+          blockActuals: Object.keys(draftForm.blockActuals ?? {}).length
+            ? draftForm.blockActuals
+            : server.blockActuals,
         };
       }
       setForms(merged);
@@ -1594,6 +1636,44 @@ function LogWorkout({
           .eq("workout_log_id", logId!)
           .not("session_exercise_id", "in", `(${keepIds.join(",")})`);
       }
+      // Per-block actuals hang off the exercise log, so they are written
+      // after the upsert above has given every exercise a row.
+      const { data: savedLogs } = await supabase
+        .from("exercise_logs")
+        .select("id, session_exercise_id")
+        .eq("workout_log_id", logId!);
+      const logIdBySe = new Map(
+        (savedLogs ?? []).map((l: any) => [l.session_exercise_id, l.id]),
+      );
+      const blockRows: {
+        exercise_log_id: string;
+        workout_block_id: string;
+        distance_km: number | null;
+        duration_min: number | null;
+      }[] = [];
+      for (const e of exs) {
+        const f = forms[e.id];
+        const elId = logIdBySe.get(e.id);
+        if (!f || !elId) continue;
+        for (const [blockId, actual] of Object.entries(f.blockActuals ?? {})) {
+          if (actual.distanceKm == null && actual.durationMin == null) continue;
+          blockRows.push({
+            exercise_log_id: elId,
+            workout_block_id: blockId,
+            distance_km: actual.distanceKm,
+            duration_min: actual.durationMin,
+          });
+        }
+      }
+      if (blockRows.length) {
+        const { error: blockErr } = await supabase
+          .from("workout_block_logs")
+          .upsert(blockRows, {
+            onConflict: "exercise_log_id,workout_block_id",
+          });
+        if (blockErr) throw blockErr;
+      }
+
       markWorkoutDraftSaved(draftKey, sig);
       setSaveState("saved");
       qc.invalidateQueries({ queryKey: ["athlete-week"] });
@@ -1966,7 +2046,28 @@ function LogWorkout({
               ) : (
                 <div className="mt-3 space-y-2">
                   {e.exercises?.is_structured_container && (
-                    <WorkoutBlockSummary sessionExerciseId={e.id} />
+                    <>
+                      <WorkoutBlockSummary sessionExerciseId={e.id} />
+                      <BlockLogInputs
+                        sessionExerciseId={e.id}
+                        values={f.blockActuals ?? {}}
+                        onChange={(blockId, next) =>
+                          setForms((prev) => {
+                            const cur = prev[e.id] ?? EMPTY_EXFORM;
+                            return {
+                              ...prev,
+                              [e.id]: {
+                                ...cur,
+                                blockActuals: {
+                                  ...cur.blockActuals,
+                                  [blockId]: next,
+                                },
+                              },
+                            };
+                          })
+                        }
+                      />
+                    </>
                   )}
                   <div className="flex flex-wrap gap-4">
                     <div>
