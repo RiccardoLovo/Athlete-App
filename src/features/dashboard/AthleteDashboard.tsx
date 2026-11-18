@@ -2130,6 +2130,7 @@ function LogWorkout({
                         <WorkoutBlockSummary
                           sessionExerciseId={e.id}
                           discipline={e.exercises?.discipline}
+                          clientId={client.id}
                           chartOnly
                         />
                         <BlockLogInputs

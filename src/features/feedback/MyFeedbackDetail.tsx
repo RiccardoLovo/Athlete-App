@@ -555,6 +555,7 @@ export function MyFeedbackDetail({
                   <WorkoutBlockSummary
                     sessionExerciseId={e.id}
                     discipline={e.exercises?.discipline}
+                    clientId={client.id}
                   />
                 )}
                 <div className="flex flex-wrap gap-4">

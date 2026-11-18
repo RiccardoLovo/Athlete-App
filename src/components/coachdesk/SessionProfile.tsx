@@ -9,6 +9,23 @@ import {
 } from "@/lib/coachdesk/profile";
 import type { BlockLike, RoundLike } from "@/lib/coachdesk/blocks";
 import { cn } from "@/lib/utils";
+import { useLatestThreshold } from "./IntervalBuilder";
+
+/**
+ * A ride is prescribed in watts, so neither its duration nor its distance
+ * can be worked out without the athlete's typical speed. Everything else
+ * gets what it needs from the pace the coach set.
+ */
+function useProfileContext(
+  clientId: string | null | undefined,
+  discipline: string | null | undefined,
+) {
+  const { data: bikeSpeedKmh } = useLatestThreshold(
+    discipline === "Cycling" ? clientId : null,
+    "bike_speed_kmh",
+  );
+  return { bikeSpeedKmh };
+}
 
 import { zoneBg } from "@/lib/coachdesk/zoneColors";
 
@@ -25,16 +42,20 @@ export function SessionProfile({
   blocks,
   rounds,
   discipline,
+  clientId,
   className,
 }: {
   blocks: (BlockLike & { id: string })[];
   rounds: (RoundLike & { workout_block_id?: string | null })[];
   discipline: string | null | undefined;
+  /** Needed only for cycling, whose numbers come from the athlete's speed. */
+  clientId?: string | null;
   className?: string;
 }) {
+  const { bikeSpeedKmh } = useProfileContext(clientId, discipline);
   const profile = useMemo(
-    () => buildProfile(blocks, rounds, discipline),
-    [blocks, rounds, discipline],
+    () => buildProfile(blocks, rounds, discipline, { bikeSpeedKmh }),
+    [blocks, rounds, discipline, bikeSpeedKmh],
   );
 
   // A chart that cannot be drawn to scale says less than the block list
@@ -67,16 +88,20 @@ export function SessionTotals({
   blocks,
   rounds,
   discipline,
+  clientId,
   className,
 }: {
   blocks: (BlockLike & { id: string })[];
   rounds: (RoundLike & { workout_block_id?: string | null })[];
   discipline: string | null | undefined;
+  /** Needed only for cycling, whose numbers come from the athlete's speed. */
+  clientId?: string | null;
   className?: string;
 }) {
+  const { bikeSpeedKmh } = useProfileContext(clientId, discipline);
   const profile = useMemo(
-    () => buildProfile(blocks, rounds, discipline),
-    [blocks, rounds, discipline],
+    () => buildProfile(blocks, rounds, discipline, { bikeSpeedKmh }),
+    [blocks, rounds, discipline, bikeSpeedKmh],
   );
   if (!blocks.length) return null;
 

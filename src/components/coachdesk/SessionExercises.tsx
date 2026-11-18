@@ -362,6 +362,7 @@ export function ExerciseCard({
             <WorkoutBlockSummary
               sessionExerciseId={se.id}
               discipline={se.exercises?.discipline}
+              clientId={clientId}
             />
           </div>
         ) : (

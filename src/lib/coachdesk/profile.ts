@@ -40,6 +40,13 @@ export type Profile = {
 
 type Disc = string | null | undefined;
 
+/** What the session can be measured against beyond the blocks themselves. */
+export type ProfileContext = {
+  /** Typical riding speed, km/h. The only way a ride prescribed in time
+   *  gets a distance, or one prescribed in distance gets a duration. */
+  bikeSpeedKmh?: number | null;
+};
+
 /**
  * Pace means seconds per km running and per 100 m swimming. Cycling is
  * prescribed in watts and carries no pace, so a ride given as distance has
@@ -49,12 +56,29 @@ function minutesFromDistance(
   km: number,
   pace: string | null | undefined,
   discipline: Disc,
+  ctx: ProfileContext,
 ): number | null {
+  // A ride is prescribed in watts, never in pace, so its duration can only
+  // come from the athlete's own typical speed.
+  if (discipline === "Cycling") {
+    const kmh = ctx.bikeSpeedKmh;
+    return kmh != null && kmh > 0 ? (km / kmh) * 60 : null;
+  }
   const paceSec = parsePaceToSeconds(pace ?? "");
   if (paceSec == null || paceSec <= 0) return null;
-  if (discipline === "Cycling") return null;
   if (discipline === "Swimming") return ((km * 1000) / 100) * (paceSec / 60);
   return km * (paceSec / 60);
+}
+
+/** The other direction: how far a time-prescribed ride is likely to go. */
+function distanceFromMinutes(
+  min: number,
+  discipline: Disc,
+  ctx: ProfileContext,
+): number | null {
+  if (discipline !== "Cycling") return null;
+  const kmh = ctx.bikeSpeedKmh;
+  return kmh != null && kmh > 0 ? (min / 60) * kmh : null;
 }
 
 function roundDistanceKm(r: RoundLike): number | null {
@@ -62,13 +86,22 @@ function roundDistanceKm(r: RoundLike): number | null {
   return r.target_unit === "meters" ? Number(r.target_value) / 1000 : null;
 }
 
-function roundMinutes(r: RoundLike, discipline: Disc): number | null {
+function roundMinutes(
+  r: RoundLike,
+  discipline: Disc,
+  ctx: ProfileContext,
+): number | null {
   const v = r.target_value;
   if (v == null) return null;
   if (r.target_unit === "minutes") return Number(v);
   if (r.target_unit === "seconds") return Number(v) / 60;
   if (r.target_unit === "meters")
-    return minutesFromDistance(Number(v) / 1000, r.pace_per_km, discipline);
+    return minutesFromDistance(
+      Number(v) / 1000,
+      r.pace_per_km,
+      discipline,
+      ctx,
+    );
   return null;
 }
 
@@ -87,17 +120,22 @@ function restMinutes(
   return rest.rest_seconds == null ? null : rest.rest_seconds / 60;
 }
 
-function blockMinutes(b: BlockLike, discipline: Disc): number | null {
+function blockMinutes(
+  b: BlockLike,
+  discipline: Disc,
+  ctx: ProfileContext,
+): number | null {
   if (b.target_mode === "time")
     return b.duration_min == null ? null : Number(b.duration_min);
   if (b.distance_km == null) return null;
-  return minutesFromDistance(Number(b.distance_km), b.pace, discipline);
+  return minutesFromDistance(Number(b.distance_km), b.pace, discipline, ctx);
 }
 
 export function buildProfile(
   blocks: (BlockLike & { id: string })[],
   rounds: (RoundLike & { workout_block_id?: string | null })[],
   discipline: Disc,
+  ctx: ProfileContext = {},
 ): Profile {
   const segments: ProfileSegment[] = [];
   let derived = false;
@@ -131,7 +169,7 @@ export function buildProfile(
 
       if (mine.length) {
         mine.forEach((r, i) => {
-          const work = roundMinutes(r, discipline);
+          const work = roundMinutes(r, discipline, ctx);
           if (work != null && r.target_unit === "meters") derived = true;
           segments.push({
             key: `${b.id}:r${i}`,
@@ -181,14 +219,19 @@ export function buildProfile(
       continue;
     }
 
-    const min = blockMinutes(b, discipline);
+    const min = blockMinutes(b, discipline, ctx);
     if (min != null && b.target_mode !== "time") derived = true;
     segments.push({
       key: b.id,
       kind: "work",
       label,
       durationMin: min,
-      distanceKm: b.distance_km == null ? null : Number(b.distance_km),
+      distanceKm:
+        b.distance_km != null
+          ? Number(b.distance_km)
+          : min != null
+            ? distanceFromMinutes(min, discipline, ctx)
+            : null,
       zone: b.zone ?? null,
       blockType: b.block_type,
     });

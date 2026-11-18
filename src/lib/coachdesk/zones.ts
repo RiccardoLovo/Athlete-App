@@ -34,6 +34,27 @@ export const SWIM_ZONE_OFFSET_SEC: Record<ZoneNumber, number> = {
   5: -4,
 };
 
+// Run zone pace offset from threshold pace, in seconds per km. Same shape
+// as the swim offsets: positive = slower, negative = faster. Threshold
+// pace is roughly what an athlete holds for an hour, which puts Z4 on it
+// and the easy zones a long way behind — a minute per km of difference
+// between easy and threshold is normal and deliberate.
+export const RUN_ZONE_OFFSET_SEC: Record<ZoneNumber, number> = {
+  1: 90,
+  2: 60,
+  3: 25,
+  4: 0,
+  5: -12,
+};
+
+/** Threshold pace (sec/km) + zone offset -> that zone's pace, in sec/km. */
+export function runZonePaceSec(
+  thresholdSecPerKm: number,
+  zone: ZoneNumber,
+): number {
+  return Math.max(1, Math.round(thresholdSecPerKm + RUN_ZONE_OFFSET_SEC[zone]));
+}
+
 export function bikeZoneWatts(
   ftpWatts: number,
   zone: ZoneNumber,

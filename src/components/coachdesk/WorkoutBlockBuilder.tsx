@@ -35,6 +35,7 @@ import {
 } from "./IntervalBuilder";
 import { TemplateForm } from "./TemplateForm";
 import { SessionProfile, SessionTotals } from "./SessionProfile";
+import { PacePicker } from "./PacePicker";
 import {
   type ZoneNumber,
   bikePctToWatts,
@@ -45,6 +46,7 @@ import {
   swimPctToPaceSec,
   swimPctToZone,
   swimZoneDefaultPct,
+  runZonePaceSec,
 } from "@/lib/coachdesk/zones";
 
 type BlockType =
@@ -296,11 +298,13 @@ export function WorkoutBlockBuilder({
             blocks={blocks}
             rounds={allRounds}
             discipline={discipline}
+            clientId={clientId}
           />
           <SessionProfile
             blocks={blocks}
             rounds={allRounds}
             discipline={discipline}
+            clientId={clientId}
           />
         </div>
       )}
@@ -643,6 +647,12 @@ function SimpleBlockBody({
     "css_pace_sec_per_100m",
   );
   const threshold = discipline === "Cycling" ? ftpWatts : cssSec;
+  // Running has no %-of-threshold field, but it does have a threshold
+  // pace — enough to turn a chosen zone straight into a pace to hold.
+  const { data: runThresholdSec } = useLatestThreshold(
+    discipline === "Running" ? clientId : null,
+    "run_threshold_pace_sec_per_km",
+  );
 
   async function save(patch: Partial<Block>) {
     const next = { ...local, ...patch };
@@ -681,6 +691,16 @@ function SimpleBlockBody({
     }
     if (discipline === "Swimming" && threshold != null) {
       save({ zone, pct_threshold: swimZoneDefaultPct(threshold, zone) });
+      return;
+    }
+    // A zone on its own cannot be drawn, estimated or added up. Where the
+    // athlete has a threshold pace on file, choosing a zone fills the pace
+    // in too, so the pair the rest of the app depends on arrives together.
+    if (discipline === "Running" && runThresholdSec != null) {
+      save({
+        zone,
+        pace: formatSecondsToPace(runZonePaceSec(runThresholdSec, zone)),
+      });
       return;
     }
     save({ zone });
@@ -914,15 +934,21 @@ function SimpleBlockBody({
         />
       )}
 
-      {/* Running is the only discipline where a pace is the thing to hold. */}
+      {/* Running is the only discipline where a pace is the thing to hold.
+          Picked rather than typed: every downstream number — the session's
+          shape, its duration, weekly volume — needs a pace a machine can
+          read, and a text box cannot promise one. */}
       {!usesThreshold && (
-        <Input
-          className={`h-7 w-20 text-xs ${secondary === "pace" ? "opacity-50" : ""}`}
+        <PacePicker
+          value={local.pace}
+          discipline={discipline}
+          dimmed={secondary === "pace"}
           placeholder={secondary === "pace" ? "~pace" : "Pace"}
           title={secondary === "pace" ? "Indicative only" : "Pace to follow"}
-          value={local.pace ?? ""}
-          onChange={(e) => setLocal((p) => ({ ...p, pace: e.target.value }))}
-          onBlur={() => save({ pace: local.pace })}
+          onChange={(next) => {
+            setLocal((p) => ({ ...p, pace: next }));
+            save({ pace: next });
+          }}
         />
       )}
 

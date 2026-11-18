@@ -141,7 +141,11 @@ export async function appendIntervals(
 // generation.
 export function useLatestThreshold(
   clientId: string | null | undefined,
-  metric: "ftp_watts" | "css_pace_sec_per_100m",
+  metric:
+    | "ftp_watts"
+    | "css_pace_sec_per_100m"
+    | "run_threshold_pace_sec_per_km"
+    | "bike_speed_kmh",
 ) {
   return useQuery({
     queryKey: ["latest-threshold", clientId, metric],

@@ -46,6 +46,7 @@ type Round = {
 export function WorkoutBlockSummary({
   sessionExerciseId,
   discipline,
+  clientId,
   chartOnly = false,
 }: {
   sessionExerciseId: string;
@@ -55,6 +56,8 @@ export function WorkoutBlockSummary({
   /** Pace means seconds per km running and per 100 m swimming, so the
    *  session's shape cannot be worked out without knowing the sport. */
   discipline?: string | null;
+  /** Cycling estimates need the athlete's typical speed. */
+  clientId?: string | null;
 }) {
   const { data: blocks = [] } = useQuery({
     queryKey: ["workout-blocks", sessionExerciseId],
@@ -96,7 +99,12 @@ export function WorkoutBlockSummary({
 
   return (
     <div className="space-y-2 rounded border border-border bg-muted/30 p-2">
-      <SessionProfile blocks={blocks} rounds={rounds} discipline={discipline} />
+      <SessionProfile
+        blocks={blocks}
+        rounds={rounds}
+        discipline={discipline}
+        clientId={clientId}
+      />
       {!chartOnly &&
         blocks.map((b) => {
           const mine = rounds.filter((r) => r.workout_block_id === b.id);
@@ -143,6 +151,7 @@ export function WorkoutBlockSummary({
           blocks={blocks}
           rounds={rounds}
           discipline={discipline}
+          clientId={clientId}
           className="border-t border-border pt-2"
         />
       )}
