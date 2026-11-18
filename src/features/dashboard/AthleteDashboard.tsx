@@ -16,6 +16,7 @@ import {
 import { ClientProfileDialog } from "@/components/coachdesk/ClientProfileDialog";
 import { WorkoutPhotos } from "@/components/coachdesk/WorkoutPhotos";
 import { WorkoutBlockSummary } from "@/components/coachdesk/WorkoutBlockSummary";
+import { WeekRings } from "@/components/coachdesk/WeekRings";
 import {
   disciplineIcon,
   primaryDiscipline,
@@ -311,14 +312,24 @@ function SessionList({
       const { data: logs } = ids.length
         ? await supabase
             .from("workout_logs")
-            .select("session_id")
+            .select("session_id, status")
             .eq("client_id", client.id)
             .in("session_id", ids)
         : { data: [] };
+      // A log row exists from the first autosave, so its mere presence
+      // means "opened", not "done". Only a log the athlete actually
+      // finished leaves draft status behind — the week feed used to show
+      // a check mark for a session with one number typed into it.
+      const rows = (logs ?? []) as { session_id: string; status: string }[];
       return {
         sessions: sessions ?? [],
         exs: (exs ?? []) as any[],
-        logged: new Set((logs ?? []).map((l: any) => l.session_id)),
+        finished: new Set(
+          rows.filter((l) => l.status !== "draft").map((l) => l.session_id),
+        ),
+        drafts: new Set(
+          rows.filter((l) => l.status === "draft").map((l) => l.session_id),
+        ),
       };
     },
   });
@@ -346,6 +357,19 @@ function SessionList({
       };
     })
     .filter((s) => s.exs.length > 0);
+
+  // Sessions the athlete logged themselves carry their discipline on the
+  // row and have no exercises, so they never reach the feed above. They
+  // are still work that happened, and the rings say so.
+  const extraSessions = (
+    (data?.sessions ?? []) as {
+      id: string;
+      is_client_added?: boolean | null;
+      discipline?: string | null;
+    }[]
+  )
+    .filter((s) => s.is_client_added)
+    .map((s) => ({ id: s.id, discipline: s.discipline }));
 
   // The week as seven days rather than a list of sessions: a day with
   // nothing on it is part of the plan rather than an absence, and a day can
@@ -580,6 +604,15 @@ function SessionList({
           </button>
         )}
 
+        {data && (
+          <WeekRings
+            sessions={sessionsWithExs}
+            finished={data.finished}
+            drafts={data.drafts}
+            extras={extraSessions}
+          />
+        )}
+
         {sessionsWithExs.length === 0 ? (
           <Card className="p-8 text-center text-muted-foreground">
             <Dumbbell className="mx-auto mb-2 h-10 w-10 opacity-40" />
@@ -610,12 +643,17 @@ function SessionList({
                   </div>
                 ) : (
                   day.sessions.map((s: any) => {
-                    const done = data!.logged.has(s.id);
+                    const done = data!.finished.has(s.id);
+                    const started = !done && data!.drafts.has(s.id);
                     return (
                       <Card
                         key={s.id}
                         className={`cursor-pointer p-4 hover:shadow ${
-                          done ? "border-foreground/30 bg-secondary/50" : ""
+                          done
+                            ? "border-foreground/30 bg-secondary/50"
+                            : started
+                              ? "border-dashed border-foreground/30"
+                              : ""
                         }`}
                         onClick={() => onPick(s)}
                       >
@@ -633,7 +671,12 @@ function SessionList({
                             </div>
                           </div>
                           {done && (
-                            <Check className="h-5 w-5 shrink-0 text-foreground" />
+                            <Check className="h-5 w-5 shrink-0 text-success" />
+                          )}
+                          {started && (
+                            <span className="shrink-0 rounded-full border border-border bg-muted px-2 py-0.5 font-mono text-[9px] uppercase tracking-wide text-muted-foreground">
+                              In progress
+                            </span>
                           )}
                           <Button
                             size="icon"
