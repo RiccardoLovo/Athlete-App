@@ -46,6 +46,7 @@ import {
   toISODate,
 } from "@/lib/coachdesk/periodization";
 import { clientWithPlansQuery } from "@/lib/coachdesk/client-queries";
+import { isMissed } from "@/lib/coachdesk/adherence";
 
 export const Route = createFileRoute("/_authenticated/clients/")({
   component: ClientsPage,
@@ -129,7 +130,11 @@ function useClientsTrainingStatus(clientIds: string[]) {
           .in("client_id", clientIds),
       ]);
       const hasExercises = new Set((exRows ?? []).map((e) => e.session_id));
-      const loggedKeys = new Set<string>();
+      // Only a finished log counts. A workout_log row exists from the
+      // athlete's first autosave, so counting every row meant a session
+      // with one number typed into it read as done, and the coach was
+      // told "on track" about work that never happened.
+      const finishedByClient = new Map<string, Set<string>>();
       const result = new Map<string, ClientTrainingStatus>(
         clientIds.map((id) => [
           id,
@@ -137,7 +142,11 @@ function useClientsTrainingStatus(clientIds: string[]) {
         ]),
       );
       for (const l of (logRows ?? []) as LogRow[]) {
-        loggedKeys.add(`${l.client_id}:${l.session_id}`);
+        if (l.status !== "draft") {
+          const set = finishedByClient.get(l.client_id) ?? new Set<string>();
+          set.add(l.session_id);
+          finishedByClient.set(l.client_id, set);
+        }
         if (l.status === "pending") {
           const s = result.get(l.client_id);
           if (s) {
@@ -163,6 +172,7 @@ function useClientsTrainingStatus(clientIds: string[]) {
           cum += b.weeks * 7;
         }
         const blockIdSet = new Set(blocks.map((b) => b.id));
+        const finished = finishedByClient.get(clientId) ?? new Set<string>();
         for (const s of sessions) {
           if (!blockIdSet.has(s.block_id) || !hasExercises.has(s.id)) continue;
           const off =
@@ -172,8 +182,18 @@ function useClientsTrainingStatus(clientIds: string[]) {
           const planned = toISODate(
             addDays(parseISODate(plan.start_date), off),
           );
-          if (planned > todayISO) continue;
-          if (!loggedKeys.has(`${clientId}:${s.id}`)) status.missing += 1;
+          // The same function the athlete's own week calls, so the coach
+          // and the athlete can never be looking at two different answers.
+          // It also stops counting today as already owed: this loop used
+          // to, so a coach opening the app on Monday morning was told the
+          // athlete was behind on a session they had all day to do.
+          if (
+            isMissed(
+              { id: s.id, planned_date: planned },
+              { finished, todayISO },
+            )
+          )
+            status.missing += 1;
         }
       }
       return result;
@@ -386,7 +406,11 @@ function ClientsPage() {
                     {(() => {
                       const missing = trainingStatus?.get(c.id)?.missing ?? 0;
                       return missing > 0 ? (
-                        <Badge className="bg-destructive text-white hover:bg-destructive">
+                        // Amber, matching what the athlete sees on their
+                        // own week. A missed session is a conversation to
+                        // have, not an error, and the two of you should be
+                        // reading the same signal about it.
+                        <Badge className="border-warning/40 bg-warning/15 text-warning hover:bg-warning/15">
                           Behind — {missing} session{missing === 1 ? "" : "s"}
                         </Badge>
                       ) : (

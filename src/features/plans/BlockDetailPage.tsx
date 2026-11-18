@@ -31,8 +31,11 @@ import {
   weekRange,
   formatShort,
   weekIndexForDate,
+  toISODate,
   DAYS_OF_WEEK,
 } from "@/lib/coachdesk/periodization";
+import { sessionState } from "@/lib/coachdesk/adherence";
+import { SessionStateBadge } from "@/components/coachdesk/SessionStateBadge";
 import {
   ExerciseBank,
   insertExerciseIntoSession,
@@ -53,6 +56,7 @@ type Session = {
   day_order: number;
   week_number: number;
   status: string;
+  is_optional: boolean;
   created_at: string;
   updated_at: string;
   is_client_added: boolean;
@@ -134,7 +138,7 @@ export function BlockDetailPage() {
       const { data } = await supabase
         .from("sessions")
         .select(
-          "id, name, day_of_week, day_order, week_number, status, created_at, updated_at, is_client_added",
+          "id, name, day_of_week, day_order, week_number, status, is_optional, created_at, updated_at, is_client_added",
         )
         .eq("block_id", blockId)
         .order("week_number")
@@ -148,6 +152,46 @@ export function BlockDetailPage() {
   // Bulk-fetch exercise counts for every session in the block in ONE query,
   // instead of N parallel count() queries (one per day card).
   const sessionIds = useMemo(() => sessions.map((s) => s.id), [sessions]);
+  /**
+   * What the athlete did with the week the coach is looking at.
+   *
+   * This page could prescribe a block and never show whether any of it
+   * happened, so a coach had to leave for the client list (a count with no
+   * detail) or the feedback queue (only the sessions that were finished
+   * and submitted — never the ones that were not).
+   */
+  const { data: logs } = useQuery({
+    // Scoped to this block's sessions rather than the athlete's whole
+    // history, which for a year of training is most of the table.
+    queryKey: ["block-logs", blockId, sessionIds],
+    enabled: !!ctx?.training_plans?.athlete_id && sessionIds.length > 0,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("workout_logs")
+        .select("session_id, status, performed_at")
+        .eq("client_id", ctx!.training_plans.athlete_id as string)
+        .in("session_id", sessionIds);
+      const rows = (data ?? []) as {
+        session_id: string;
+        status: string;
+        performed_at: string | null;
+      }[];
+      return {
+        finished: new Set(
+          rows.filter((l) => l.status !== "draft").map((l) => l.session_id),
+        ),
+        drafts: new Set(
+          rows.filter((l) => l.status === "draft").map((l) => l.session_id),
+        ),
+        performedAt: new Map(
+          rows
+            .filter((l) => l.performed_at)
+            .map((l) => [l.session_id, l.performed_at!]),
+        ),
+      };
+    },
+  });
+
   const { data: exCountMap, isFetched: countsFetched } = useQuery<
     Record<string, number>
   >({
@@ -504,6 +548,7 @@ export function BlockDetailPage() {
               const daySessions = sessions.filter(
                 (s) => s.week_number === activeWeek && s.day_of_week === day,
               );
+              const dayISO = toISODate(dayDate);
               return (
                 <div
                   key={day}
@@ -528,6 +573,23 @@ export function BlockDetailPage() {
                   <div className="flex flex-1 flex-col gap-2 p-2">
                     {daySessions.map((s, slotIdx) => {
                       const isExpanded = expandedSessions.has(s.id);
+                      // Same rule as the athlete's own week feed, so the
+                      // two of you are never looking at different answers
+                      // about the same session.
+                      // A session the athlete added themselves was never
+                      // prescribed, so there is no plan for it to adhere
+                      // to — it exists because it already happened.
+                      const state =
+                        logs && !s.is_client_added
+                          ? sessionState(
+                              {
+                                id: s.id,
+                                planned_date: dayISO,
+                                is_optional: s.is_optional,
+                              },
+                              { ...logs, todayISO: toISODate(new Date()) },
+                            )
+                          : null;
                       return (
                         <Card key={s.id} className="p-2">
                           <div className="flex items-center gap-1">
@@ -621,6 +683,7 @@ export function BlockDetailPage() {
                                     Added by athlete
                                   </span>
                                 )}
+                                {state && <SessionStateBadge state={state} />}
                               </button>
                             )}
                             {!s.is_client_added && (
