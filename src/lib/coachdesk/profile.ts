@@ -1,4 +1,9 @@
-import { parsePaceToSeconds } from "./zones";
+import {
+  parsePaceToSeconds,
+  runZonePaceSec,
+  swimZonePaceSec,
+  type ZoneNumber,
+} from "./zones";
 import type { BlockLike, RoundLike } from "./blocks";
 import { blockHasRounds } from "./blocks";
 
@@ -15,7 +20,7 @@ export type ProfileKind = "work" | "rest";
 export type ProfileAxis = "min" | "km" | null;
 
 /** Where a number came from, so the screen can say when it is a guess. */
-export type Provenance = "prescribed" | "pace" | "speed" | null;
+export type Provenance = "prescribed" | "pace" | "zone" | "speed" | null;
 
 export type ProfileSegment = {
   key: string;
@@ -44,7 +49,7 @@ export type Profile = {
   minEstimated: boolean;
   kmEstimated: boolean;
   /** What the estimates lean on, for the footnote. */
-  estimatedFrom: ("pace" | "speed")[];
+  estimatedFrom: ("pace" | "zone" | "speed")[];
   /** True when a duration was worked out from a pace rather than prescribed. */
   derived: boolean;
 };
@@ -56,7 +61,39 @@ export type ProfileContext = {
   /** Typical riding speed, km/h. The only way a ride prescribed in time
    *  gets a distance, or one prescribed in distance gets a duration. */
   bikeSpeedKmh?: number | null;
+  /** Run threshold pace, seconds per km. */
+  runThresholdSecPerKm?: number | null;
+  /** Critical swim speed, seconds per 100 m. */
+  cssSecPer100m?: number | null;
 };
+
+/**
+ * The pace to reckon with, and where it came from.
+ *
+ * A pace the coach typed is used as given. Where they set only a zone,
+ * the pace follows from the athlete's own threshold — the zone already
+ * says how hard, and the threshold says what that is worth in minutes,
+ * so there is no reason to make the coach type a number the app can
+ * work out. Marked as coming from the zone so the screen can say so.
+ */
+function paceSecFor(
+  pace: string | null | undefined,
+  zone: number | null | undefined,
+  discipline: Disc,
+  ctx: ProfileContext,
+): { sec: number; from: "pace" | "zone" } | null {
+  const typed = parsePaceToSeconds(pace ?? "");
+  if (typed != null && typed > 0) return { sec: typed, from: "pace" };
+
+  if (zone == null) return null;
+  const z = Math.min(5, Math.max(1, Math.round(zone))) as ZoneNumber;
+
+  if (discipline === "Swimming" && ctx.cssSecPer100m)
+    return { sec: swimZonePaceSec(ctx.cssSecPer100m, z), from: "zone" };
+  if (discipline !== "Cycling" && ctx.runThresholdSecPerKm)
+    return { sec: runZonePaceSec(ctx.runThresholdSecPerKm, z), from: "zone" };
+  return null;
+}
 
 /**
  * Pace means seconds per km running and per 100 m swimming. Cycling is
@@ -66,30 +103,45 @@ export type ProfileContext = {
 function minutesFromDistance(
   km: number,
   pace: string | null | undefined,
+  zone: number | null | undefined,
   discipline: Disc,
   ctx: ProfileContext,
-): number | null {
+): { min: number; from: "pace" | "zone" | "speed" } | null {
   // A ride is prescribed in watts, never in pace, so its duration can only
   // come from the athlete's own typical speed.
   if (discipline === "Cycling") {
     const kmh = ctx.bikeSpeedKmh;
-    return kmh != null && kmh > 0 ? (km / kmh) * 60 : null;
+    return kmh != null && kmh > 0
+      ? { min: (km / kmh) * 60, from: "speed" }
+      : null;
   }
-  const paceSec = parsePaceToSeconds(pace ?? "");
-  if (paceSec == null || paceSec <= 0) return null;
-  if (discipline === "Swimming") return ((km * 1000) / 100) * (paceSec / 60);
-  return km * (paceSec / 60);
+  const p = paceSecFor(pace, zone, discipline, ctx);
+  if (!p) return null;
+  const min =
+    discipline === "Swimming"
+      ? ((km * 1000) / 100) * (p.sec / 60)
+      : km * (p.sec / 60);
+  return { min, from: p.from };
 }
 
-/** The other direction: how far a time-prescribed ride is likely to go. */
+/** The other direction: how far a session prescribed in time will go. */
 function distanceFromMinutes(
   min: number,
+  zone: number | null | undefined,
   discipline: Disc,
   ctx: ProfileContext,
-): number | null {
-  if (discipline !== "Cycling") return null;
-  const kmh = ctx.bikeSpeedKmh;
-  return kmh != null && kmh > 0 ? (min / 60) * kmh : null;
+): { km: number; from: "pace" | "zone" | "speed" } | null {
+  if (discipline === "Cycling") {
+    const kmh = ctx.bikeSpeedKmh;
+    return kmh != null && kmh > 0
+      ? { km: (min / 60) * kmh, from: "speed" }
+      : null;
+  }
+  const p = paceSecFor(null, zone, discipline, ctx);
+  if (!p) return null;
+  const km =
+    discipline === "Swimming" ? (min * 60) / p.sec / 10 : (min * 60) / p.sec;
+  return { km, from: p.from };
 }
 
 function roundDistanceKm(r: RoundLike): number | null {
@@ -99,20 +151,26 @@ function roundDistanceKm(r: RoundLike): number | null {
 
 function roundMinutes(
   r: RoundLike,
+  zone: number | null | undefined,
   discipline: Disc,
   ctx: ProfileContext,
-): number | null {
+): { min: number; from: Provenance } | null {
   const v = r.target_value;
   if (v == null) return null;
-  if (r.target_unit === "minutes") return Number(v);
-  if (r.target_unit === "seconds") return Number(v) / 60;
-  if (r.target_unit === "meters")
-    return minutesFromDistance(
+  if (r.target_unit === "minutes")
+    return { min: Number(v), from: "prescribed" };
+  if (r.target_unit === "seconds")
+    return { min: Number(v) / 60, from: "prescribed" };
+  if (r.target_unit === "meters") {
+    const d = minutesFromDistance(
       Number(v) / 1000,
       r.pace_per_km,
+      r.hr_zone ?? zone,
       discipline,
       ctx,
     );
+    return d ? { min: d.min, from: d.from } : null;
+  }
   return null;
 }
 
@@ -135,11 +193,20 @@ function blockMinutes(
   b: BlockLike,
   discipline: Disc,
   ctx: ProfileContext,
-): number | null {
+): { min: number; from: Provenance } | null {
   if (b.target_mode === "time")
-    return b.duration_min == null ? null : Number(b.duration_min);
+    return b.duration_min == null
+      ? null
+      : { min: Number(b.duration_min), from: "prescribed" };
   if (b.distance_km == null) return null;
-  return minutesFromDistance(Number(b.distance_km), b.pace, discipline, ctx);
+  const d = minutesFromDistance(
+    Number(b.distance_km),
+    b.pace,
+    b.zone,
+    discipline,
+    ctx,
+  );
+  return d ? { min: d.min, from: d.from } : null;
 }
 
 export function buildProfile(
@@ -182,28 +249,22 @@ export function buildProfile(
 
       if (mine.length) {
         mine.forEach((r, i) => {
-          const work = roundMinutes(r, discipline, ctx);
-          if (work != null && r.target_unit === "meters") derived = true;
+          const work = roundMinutes(r, b.zone, discipline, ctx);
+          if (work && work.from !== "prescribed") derived = true;
           segments.push({
             key: `${b.id}:r${i}`,
             kind: "work",
             label: `${label} ${i + 1}`,
-            durationMin: work,
+            durationMin: work?.min ?? null,
             distanceKm: roundDistanceKm(r),
-            durationFrom:
-              work == null
-                ? null
-                : r.target_unit === "meters"
-                  ? discipline === "Cycling"
-                    ? "speed"
-                    : "pace"
-                  : "prescribed",
+            durationFrom: work?.from ?? null,
             distanceFrom: roundDistanceKm(r) == null ? null : "prescribed",
             zone: r.hr_zone ?? b.zone ?? null,
             blockType: b.block_type,
           });
           // No rest after the last one: the session ends with the work.
-          if (i < mine.length - 1) pushRest(`${b.id}:rest${i}`, r, work);
+          if (i < mine.length - 1)
+            pushRest(`${b.id}:rest${i}`, r, work?.min ?? null);
         });
         continue;
       }
@@ -245,34 +306,27 @@ export function buildProfile(
       continue;
     }
 
-    const min = blockMinutes(b, discipline, ctx);
-    if (min != null && b.target_mode !== "time") derived = true;
+    const res = blockMinutes(b, discipline, ctx);
+    const min = res?.min ?? null;
+    if (res && res.from !== "prescribed") derived = true;
+    // A session given in time still has a distance worth showing, once
+    // the zone and a threshold say how fast that time will be covered.
+    const estDistance =
+      b.distance_km == null && min != null
+        ? distanceFromMinutes(min, b.zone, discipline, ctx)
+        : null;
     segments.push({
       key: b.id,
       kind: "work",
       label,
       durationMin: min,
-      durationFrom:
-        min == null
-          ? null
-          : b.target_mode === "time"
-            ? "prescribed"
-            : discipline === "Cycling"
-              ? "speed"
-              : "pace",
+      durationFrom: res?.from ?? null,
       distanceKm:
         b.distance_km != null
           ? Number(b.distance_km)
-          : min != null
-            ? distanceFromMinutes(min, discipline, ctx)
-            : null,
+          : (estDistance?.km ?? null),
       distanceFrom:
-        b.distance_km != null
-          ? "prescribed"
-          : distanceFromMinutes(min ?? 0, discipline, ctx) != null &&
-              min != null
-            ? "speed"
-            : null,
+        b.distance_km != null ? "prescribed" : (estDistance?.from ?? null),
       zone: b.zone ?? null,
       blockType: b.block_type,
     });
@@ -290,15 +344,20 @@ export function buildProfile(
     ? work.reduce((a, s) => a + (s.distanceKm ?? 0), 0)
     : null;
   const minEstimated = segments.some(
-    (s) => s.durationFrom === "pace" || s.durationFrom === "speed",
+    (s) => s.durationFrom != null && s.durationFrom !== "prescribed",
   );
-  const kmEstimated = work.some((s) => s.distanceFrom === "speed");
+  const kmEstimated = work.some(
+    (s) => s.distanceFrom != null && s.distanceFrom !== "prescribed",
+  );
   const estimatedFrom = Array.from(
     new Set(
       [
         ...segments.map((s) => s.durationFrom),
         ...work.map((s) => s.distanceFrom),
-      ].filter((p): p is "pace" | "speed" => p === "pace" || p === "speed"),
+      ].filter(
+        (p): p is "pace" | "zone" | "speed" =>
+          p === "pace" || p === "zone" || p === "speed",
+      ),
     ),
   );
 

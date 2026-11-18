@@ -24,7 +24,18 @@ function useProfileContext(
     discipline === "Cycling" ? clientId : null,
     "bike_speed_kmh",
   );
-  return { bikeSpeedKmh };
+  // Where the coach set a zone but no pace, the athlete's own threshold
+  // supplies it, so a session is measurable as soon as the thresholds
+  // are on file rather than only once someone types a number.
+  const { data: runThresholdSecPerKm } = useLatestThreshold(
+    discipline === "Cycling" || discipline === "Swimming" ? null : clientId,
+    "run_threshold_pace_sec_per_km",
+  );
+  const { data: cssSecPer100m } = useLatestThreshold(
+    discipline === "Swimming" ? clientId : null,
+    "css_pace_sec_per_100m",
+  );
+  return { bikeSpeedKmh, runThresholdSecPerKm, cssSecPer100m };
 }
 
 import { zoneBg } from "@/lib/coachdesk/zoneColors";
@@ -52,16 +63,26 @@ export function SessionProfile({
   clientId?: string | null;
   className?: string;
 }) {
-  const { bikeSpeedKmh } = useProfileContext(clientId, discipline);
+  const { bikeSpeedKmh, runThresholdSecPerKm, cssSecPer100m } =
+    useProfileContext(clientId, discipline);
   const profile = useMemo(
-    () => buildProfile(blocks, rounds, discipline, { bikeSpeedKmh }),
-    [blocks, rounds, discipline, bikeSpeedKmh],
+    () =>
+      buildProfile(blocks, rounds, discipline, {
+        bikeSpeedKmh,
+        runThresholdSecPerKm,
+        cssSecPer100m,
+      }),
+    [
+      blocks,
+      rounds,
+      discipline,
+      bikeSpeedKmh,
+      runThresholdSecPerKm,
+      cssSecPer100m,
+    ],
   );
 
-  // A chart that cannot be drawn to scale says less than the block list
-  // beneath it, so it stays out of the way until the session carries enough
-  // to measure. Once a pace or duration is required this never happens.
-  if (!profile.segments.length || !profile.axis) return null;
+  if (!profile.segments.length) return null;
 
   return (
     <div className={cn(className)}>
@@ -98,10 +119,23 @@ export function SessionTotals({
   clientId?: string | null;
   className?: string;
 }) {
-  const { bikeSpeedKmh } = useProfileContext(clientId, discipline);
+  const { bikeSpeedKmh, runThresholdSecPerKm, cssSecPer100m } =
+    useProfileContext(clientId, discipline);
   const profile = useMemo(
-    () => buildProfile(blocks, rounds, discipline, { bikeSpeedKmh }),
-    [blocks, rounds, discipline, bikeSpeedKmh],
+    () =>
+      buildProfile(blocks, rounds, discipline, {
+        bikeSpeedKmh,
+        runThresholdSecPerKm,
+        cssSecPer100m,
+      }),
+    [
+      blocks,
+      rounds,
+      discipline,
+      bikeSpeedKmh,
+      runThresholdSecPerKm,
+      cssSecPer100m,
+    ],
   );
   if (!blocks.length) return null;
 
@@ -161,7 +195,11 @@ export function SessionTotals({
           *Worked out from{" "}
           {profile.estimatedFrom
             .map((p) =>
-              p === "pace" ? "the prescribed pace" : "a typical ride speed",
+              p === "pace"
+                ? "the prescribed pace"
+                : p === "zone"
+                  ? "the zone and your threshold"
+                  : "a typical ride speed",
             )
             .join(" and ")}
           .
@@ -180,7 +218,17 @@ export function SessionTotals({
 function Axis({ profile }: { profile: Profile }) {
   const unit = profile.axis === "km" ? "km" : "'";
   const ticks = profileTicks(profile.total, profile.axis);
-  if (ticks.length < 2) return null;
+
+  // No axis means something in the session has no target, so no bar can
+  // be placed on a scale. The shape is still worth drawing — six
+  // intervals look like six intervals — but it is labelled as shape
+  // rather than quietly implying a length nobody set.
+  if (!profile.axis || ticks.length < 2)
+    return (
+      <p className="mt-1 text-[10px] text-muted-foreground">
+        Shape only — widths are not to scale until every block has a target.
+      </p>
+    );
 
   return (
     <div className="relative mt-1.5 h-3.5">
