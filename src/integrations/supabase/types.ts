@@ -119,6 +119,7 @@ export type Database = {
           coach_id: string;
           created_at: string;
           discipline: string | null;
+          entered_by: string | null;
           id: string;
           max_bpm: number;
           min_bpm: number;
@@ -130,6 +131,7 @@ export type Database = {
           coach_id: string;
           created_at?: string;
           discipline?: string | null;
+          entered_by?: string | null;
           id?: string;
           max_bpm: number;
           min_bpm: number;
@@ -141,6 +143,7 @@ export type Database = {
           coach_id?: string;
           created_at?: string;
           discipline?: string | null;
+          entered_by?: string | null;
           id?: string;
           max_bpm?: number;
           min_bpm?: number;
@@ -207,6 +210,7 @@ export type Database = {
           client_id: string;
           coach_id: string;
           created_at: string;
+          entered_by: string | null;
           id: string;
           metric: string;
           tested_date: string;
@@ -216,6 +220,7 @@ export type Database = {
           client_id: string;
           coach_id: string;
           created_at?: string;
+          entered_by?: string | null;
           id?: string;
           metric: string;
           tested_date?: string;
@@ -225,6 +230,7 @@ export type Database = {
           client_id?: string;
           coach_id?: string;
           created_at?: string;
+          entered_by?: string | null;
           id?: string;
           metric?: string;
           tested_date?: string;
@@ -897,6 +903,7 @@ export type Database = {
           body_region: string | null;
           created_at: string;
           day_of_week: number;
+          day_order: number;
           discipline: string | null;
           distance_meters: number | null;
           duration_minutes: number | null;
@@ -916,6 +923,7 @@ export type Database = {
           body_region?: string | null;
           created_at?: string;
           day_of_week: number;
+          day_order?: number;
           discipline?: string | null;
           distance_meters?: number | null;
           duration_minutes?: number | null;
@@ -935,6 +943,7 @@ export type Database = {
           body_region?: string | null;
           created_at?: string;
           day_of_week?: number;
+          day_order?: number;
           discipline?: string | null;
           distance_meters?: number | null;
           duration_minutes?: number | null;

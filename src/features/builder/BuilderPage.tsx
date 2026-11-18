@@ -270,7 +270,9 @@ export function BuilderPage() {
         .select("id, week_number, day_of_week, name")
         .eq("block_id", blockId!)
         .order("week_number")
-        .order("day_of_week");
+        .order("day_of_week")
+        .order("day_order")
+        .order("created_at");
       return (data ?? []) as {
         id: string;
         week_number: number;

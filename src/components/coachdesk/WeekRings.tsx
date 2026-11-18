@@ -40,6 +40,8 @@ export type DisciplineProgress = {
   done: number;
   /** Started and saved, but never finished. Shown, never counted as done. */
   inProgress: number;
+  /** Required sessions whose day went past unfinished. */
+  missed: number;
   optionalPlanned: number;
   optionalDone: number;
   /** Sessions the athlete added themselves — never planned, so never owed. */
@@ -60,6 +62,7 @@ export function weekProgress(
   finished: Set<string>,
   drafts: Set<string>,
   extras: ExtraSession[] = [],
+  missed: Set<string> = new Set(),
 ): DisciplineProgress[] {
   const by = new Map<string, DisciplineProgress>();
   const blank = (discipline: string): DisciplineProgress => ({
@@ -67,6 +70,7 @@ export function weekProgress(
     planned: 0,
     done: 0,
     inProgress: 0,
+    missed: 0,
     optionalPlanned: 0,
     optionalDone: 0,
     extra: 0,
@@ -84,6 +88,7 @@ export function weekProgress(
       row.planned += 1;
       if (isDone) row.done += 1;
       else if (drafts.has(s.id)) row.inProgress += 1;
+      if (!isDone && missed.has(s.id)) row.missed += 1;
     }
     by.set(d, row);
   }
@@ -117,6 +122,10 @@ function Ring({ row }: { row: DisciplineProgress }) {
   const filled = planned ? done : row.optionalDone;
   const fraction = total > 0 ? Math.min(filled / total, 1) : 0;
   const complete = total > 0 && filled >= total;
+  // Clamped together with the done arc so the two can never overlap, even
+  // if a count ever disagrees with the denominator.
+  const missedFraction =
+    total > 0 ? Math.min(row.missed / total, 1 - fraction) : 0;
   // Nothing was asked for in this discipline — the ring exists only
   // because the athlete went and did some anyway. There is no fraction to
   // draw, so the count stands alone rather than reading "0/0".
@@ -137,6 +146,23 @@ function Ring({ row }: { row: DisciplineProgress }) {
             strokeDasharray={unplanned ? "3 5" : undefined}
             className="stroke-border"
           />
+          {/* Missed work sits at the far end of the ring, so the untouched
+              gap between the two arcs is exactly what is still to come.
+              Without this, a 1-of-3 ring looks the same on Monday as on
+              Sunday night, when the two mean opposite things. Amber rather
+              than red: a missed session is a conversation, not a fault. */}
+          {missedFraction > 0 && (
+            <circle
+              cx="24"
+              cy="24"
+              r={R}
+              fill="none"
+              strokeWidth="4"
+              strokeDasharray={`${C * missedFraction} ${C}`}
+              strokeDashoffset={-C * (1 - missedFraction)}
+              className="stroke-warning"
+            />
+          )}
           {fraction > 0 && (
             <circle
               cx="24"
@@ -175,11 +201,15 @@ function Ring({ row }: { row: DisciplineProgress }) {
           </>
         )}
       </span>
-      {inProgress > 0 && (
+      {row.missed > 0 ? (
+        <span className="font-mono text-[9px] uppercase tracking-wide text-warning">
+          {row.missed} missed
+        </span>
+      ) : inProgress > 0 ? (
         <span className="font-mono text-[9px] uppercase tracking-wide text-muted-foreground">
           {inProgress} open
         </span>
-      )}
+      ) : null}
     </div>
   );
 }
@@ -189,16 +219,19 @@ export function WeekRings({
   finished,
   drafts,
   extras = [],
+  missed = new Set<string>(),
 }: {
   sessions: RingSession[];
   finished: Set<string>;
   drafts: Set<string>;
   extras?: ExtraSession[];
+  /** Session ids whose prescribed day went past unfinished. */
+  missed?: Set<string>;
 }) {
   // Computed on every render on purpose: the caller rebuilds `sessions`
   // each time, so a useMemo keyed on it would never hit. A week is at most
   // fourteen sessions, so there is nothing to save.
-  const rows = weekProgress(sessions, finished, drafts, extras);
+  const rows = weekProgress(sessions, finished, drafts, extras, missed);
 
   if (!rows.length) return null;
 
@@ -207,6 +240,7 @@ export function WeekRings({
   const optPlanned = rows.reduce((n, r) => n + r.optionalPlanned, 0);
   const optDone = rows.reduce((n, r) => n + r.optionalDone, 0);
   const extraTotal = rows.reduce((n, r) => n + r.extra, 0);
+  const missedTotal = rows.reduce((n, r) => n + r.missed, 0);
 
   return (
     <div className="space-y-2 rounded-xl border border-border bg-muted/30 p-3">
@@ -223,6 +257,12 @@ export function WeekRings({
                 {done}
               </span>{" "}
               of {planned} {planned === 1 ? "session" : "sessions"} done
+              {missedTotal > 0 && (
+                <span className="text-warning">
+                  {" · "}
+                  {missedTotal} missed
+                </span>
+              )}
             </>
           )}
         </span>

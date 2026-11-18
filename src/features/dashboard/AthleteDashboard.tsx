@@ -18,6 +18,12 @@ import { WorkoutPhotos } from "@/components/coachdesk/WorkoutPhotos";
 import { WorkoutBlockSummary } from "@/components/coachdesk/WorkoutBlockSummary";
 import { WeekRings } from "@/components/coachdesk/WeekRings";
 import {
+  isMissed,
+  lateLabel,
+  sessionState,
+  type SessionState,
+} from "@/lib/coachdesk/adherence";
+import {
   disciplineIcon,
   primaryDiscipline,
   sessionSubtitle,
@@ -301,7 +307,9 @@ function SessionList({
         .eq("block_id", weekInfo!.block.id)
         .eq("week_number", weekInfo!.weekInBlock)
         .eq("status", "active")
-        .order("day_of_week");
+        .order("day_of_week")
+        .order("day_order")
+        .order("created_at");
       const ids = (sessions ?? []).map((s) => s.id);
       const { data: exs } = ids.length
         ? await supabase
@@ -312,7 +320,7 @@ function SessionList({
       const { data: logs } = ids.length
         ? await supabase
             .from("workout_logs")
-            .select("session_id, status")
+            .select("session_id, status, performed_at")
             .eq("client_id", client.id)
             .in("session_id", ids)
         : { data: [] };
@@ -320,7 +328,11 @@ function SessionList({
       // means "opened", not "done". Only a log the athlete actually
       // finished leaves draft status behind — the week feed used to show
       // a check mark for a session with one number typed into it.
-      const rows = (logs ?? []) as { session_id: string; status: string }[];
+      const rows = (logs ?? []) as {
+        session_id: string;
+        status: string;
+        performed_at: string | null;
+      }[];
       return {
         sessions: sessions ?? [],
         exs: (exs ?? []) as any[],
@@ -329,6 +341,14 @@ function SessionList({
         ),
         drafts: new Set(
           rows.filter((l) => l.status === "draft").map((l) => l.session_id),
+        ),
+        // The day it actually happened, which the athlete can change on
+        // the logging screen and often does — a Monday session logged on
+        // Tuesday night.
+        performedAt: new Map(
+          rows
+            .filter((l) => l.performed_at)
+            .map((l) => [l.session_id, l.performed_at!]),
         ),
       };
     },
@@ -361,6 +381,28 @@ function SessionList({
   // Sessions the athlete logged themselves carry their discipline on the
   // row and have no exercises, so they never reach the feed above. They
   // are still work that happened, and the rings say so.
+  const todayISO = toISODate(new Date());
+
+  // One pass over the week, one rule. The cards and the rings read the
+  // same answer rather than each deciding for themselves what "done" is.
+  const states = new Map<string, SessionState>();
+  const missedIds = new Set<string>();
+  if (data) {
+    const input = {
+      finished: data.finished,
+      drafts: data.drafts,
+      performedAt: data.performedAt,
+      todayISO,
+    };
+    for (const s of sessionsWithExs) {
+      states.set(s.id, sessionState(s, input));
+      // Not `state.kind === "missed"`: a past session left as a draft is
+      // called "In progress" on its card and is still work that did not
+      // happen. See isMissed.
+      if (isMissed(s, input)) missedIds.add(s.id);
+    }
+  }
+
   const extraSessions = (
     (data?.sessions ?? []) as {
       id: string;
@@ -374,7 +416,6 @@ function SessionList({
   // The week as seven days rather than a list of sessions: a day with
   // nothing on it is part of the plan rather than an absence, and a day can
   // hold two sessions.
-  const todayISO = toISODate(new Date());
   const tomorrowISO = toISODate(addDays(new Date(), 1));
   const weekDays = Array.from({ length: 7 }, (_, i) => {
     const dow = i + 1;
@@ -610,6 +651,7 @@ function SessionList({
             finished={data.finished}
             drafts={data.drafts}
             extras={extraSessions}
+            missed={missedIds}
           />
         )}
 
@@ -643,8 +685,13 @@ function SessionList({
                   </div>
                 ) : (
                   day.sessions.map((s: any) => {
-                    const done = data!.finished.has(s.id);
-                    const started = !done && data!.drafts.has(s.id);
+                    const state =
+                      states.get(s.id) ??
+                      ({ kind: "upcoming" } as SessionState);
+                    const done = state.kind === "done";
+                    const started = state.kind === "in-progress";
+                    const missed = state.kind === "missed";
+                    const late = done ? lateLabel(state.lateDays) : null;
                     return (
                       <Card
                         key={s.id}
@@ -653,7 +700,9 @@ function SessionList({
                             ? "border-foreground/30 bg-secondary/50"
                             : started
                               ? "border-dashed border-foreground/30"
-                              : ""
+                              : missed
+                                ? "border-warning/50"
+                                : ""
                         }`}
                         onClick={() => onPick(s)}
                       >
@@ -668,6 +717,10 @@ function SessionList({
                             <div className="font-mono text-[10px] uppercase tracking-wide text-muted-foreground">
                               {sessionSubtitle(s.exs)}
                               {s.is_optional && " · optional"}
+                              {/* Said plainly rather than hidden: a session
+                                  moved by a day is normal, and the coach
+                                  needs to see it as moved, not as missed. */}
+                              {late && ` · ${late}`}
                             </div>
                           </div>
                           {done && (
@@ -676,6 +729,14 @@ function SessionList({
                           {started && (
                             <span className="shrink-0 rounded-full border border-border bg-muted px-2 py-0.5 font-mono text-[9px] uppercase tracking-wide text-muted-foreground">
                               In progress
+                            </span>
+                          )}
+                          {/* Amber, not red. A missed session is something
+                              to talk to your coach about, not an error. It
+                              stays tappable — logging it late is the point. */}
+                          {missed && (
+                            <span className="shrink-0 rounded-full border border-warning/40 px-2 py-0.5 font-mono text-[9px] uppercase tracking-wide text-warning">
+                              Missed
                             </span>
                           )}
                           <Button

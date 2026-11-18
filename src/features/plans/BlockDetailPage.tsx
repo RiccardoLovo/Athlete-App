@@ -9,6 +9,8 @@ import {
   Moon,
   Dumbbell,
   GripVertical,
+  ArrowUp,
+  ArrowDown,
   ChevronDown,
   ChevronRight,
 } from "lucide-react";
@@ -48,6 +50,7 @@ type Session = {
   id: string;
   name: string | null;
   day_of_week: number;
+  day_order: number;
   week_number: number;
   status: string;
   created_at: string;
@@ -131,11 +134,13 @@ export function BlockDetailPage() {
       const { data } = await supabase
         .from("sessions")
         .select(
-          "id, name, day_of_week, week_number, status, created_at, updated_at, is_client_added",
+          "id, name, day_of_week, day_order, week_number, status, created_at, updated_at, is_client_added",
         )
         .eq("block_id", blockId)
         .order("week_number")
-        .order("day_of_week");
+        .order("day_of_week")
+        .order("day_order")
+        .order("created_at");
       return (data ?? []) as Session[];
     },
   });
@@ -198,6 +203,19 @@ export function BlockDetailPage() {
     qc.invalidateQueries({ queryKey: ["block-sessions", blockId] });
   }
 
+  /**
+   * Next free slot in a day. A new session lands after the ones already
+   * there rather than tying with them — a tie would be resolved by
+   * created_at, which works until someone reorders and then silently
+   * disagrees with the order on screen.
+   */
+  function nextDayOrder(week: number, day: number, within = sessions) {
+    const taken = within
+      .filter((s) => s.week_number === week && s.day_of_week === day)
+      .map((s) => s.day_order ?? 1);
+    return taken.length ? Math.max(...taken) + 1 : 1;
+  }
+
   async function createSession(
     week: number,
     day: number,
@@ -209,6 +227,7 @@ export function BlockDetailPage() {
         block_id: blockId,
         week_number: week,
         day_of_week: day,
+        day_order: nextDayOrder(week, day),
         status: "active",
       } as never)
       .select("id")
@@ -249,6 +268,7 @@ export function BlockDetailPage() {
             block_id: blockId,
             week_number: row.week_number,
             day_of_week: row.day_of_week,
+            day_order: row.day_order,
             name: row.name,
             status: row.status,
           } as never);
@@ -259,11 +279,70 @@ export function BlockDetailPage() {
   }
 
   async function moveSession(sessionId: string, newDay: number) {
+    const row = sessions.find((s) => s.id === sessionId);
     const { error } = await supabase
       .from("sessions")
-      .update({ day_of_week: newDay })
+      .update({
+        day_of_week: newDay,
+        // Land at the end of the target day. Carrying the old slot across
+        // would drop a session into the middle of another day's order, or
+        // tie with whatever is already in that slot.
+        ...(row
+          ? { day_order: nextDayOrder(row.week_number, newDay) }
+          : undefined),
+      })
       .eq("id", sessionId);
     if (error) toast.error(error.message);
+    invalidate();
+  }
+
+  /**
+   * Swap a session with its neighbour inside the day. Two sessions on one
+   * day are usually AM and PM, and which is which is a training
+   * instruction — quality before volume, or the quality session is spent
+   * on tired legs.
+   */
+  async function reorderWithinDay(session: Session, direction: -1 | 1) {
+    const sameDay = sessions
+      .filter(
+        (s) =>
+          s.week_number === session.week_number &&
+          s.day_of_week === session.day_of_week,
+      )
+      .sort(
+        (a, b) =>
+          (a.day_order ?? 1) - (b.day_order ?? 1) ||
+          a.created_at.localeCompare(b.created_at),
+      );
+    const i = sameDay.findIndex((s) => s.id === session.id);
+    const j = i + direction;
+    if (i < 0 || j < 0 || j >= sameDay.length) return;
+    const other = sameDay[j];
+
+    // Renumber the whole day from 1. Swapping the two stored values is not
+    // enough when the day was backfilled with ties or has gaps from a
+    // deleted session.
+    const reordered = [...sameDay];
+    reordered[i] = other;
+    reordered[j] = session;
+
+    qc.setQueryData<Session[]>(["block-sessions", blockId], (cur) =>
+      (cur ?? []).map((s) => {
+        const at = reordered.findIndex((r) => r.id === s.id);
+        return at === -1 ? s : { ...s, day_order: at + 1 };
+      }),
+    );
+
+    const results = await Promise.all(
+      reordered.map((s, idx) =>
+        supabase
+          .from("sessions")
+          .update({ day_order: idx + 1 })
+          .eq("id", s.id),
+      ),
+    );
+    const failed = results.find((r) => r.error);
+    if (failed?.error) toast.error(failed.error.message);
     invalidate();
   }
 
@@ -447,7 +526,7 @@ export function BlockDetailPage() {
                     </div>
                   </div>
                   <div className="flex flex-1 flex-col gap-2 p-2">
-                    {daySessions.map((s) => {
+                    {daySessions.map((s, slotIdx) => {
                       const isExpanded = expandedSessions.has(s.id);
                       return (
                         <Card key={s.id} className="p-2">
@@ -471,6 +550,29 @@ export function BlockDetailPage() {
                                 </button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="start">
+                                {daySessions.length > 1 && (
+                                  <>
+                                    <div className="px-2 py-1 text-[10px] uppercase text-muted-foreground">
+                                      Order within {label}
+                                    </div>
+                                    <DropdownMenuItem
+                                      disabled={slotIdx === 0}
+                                      onClick={() => reorderWithinDay(s, -1)}
+                                    >
+                                      <ArrowUp className="mr-2 h-3 w-3" />
+                                      Earlier in the day
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                      disabled={
+                                        slotIdx === daySessions.length - 1
+                                      }
+                                      onClick={() => reorderWithinDay(s, 1)}
+                                    >
+                                      <ArrowDown className="mr-2 h-3 w-3" />
+                                      Later in the day
+                                    </DropdownMenuItem>
+                                  </>
+                                )}
                                 <div className="px-2 py-1 text-[10px] uppercase text-muted-foreground">
                                   Move to day
                                 </div>
@@ -503,6 +605,14 @@ export function BlockDetailPage() {
                                   <ChevronRight className="h-3 w-3" />
                                 )}
                                 <Dumbbell className="h-3 w-3 text-primary" />
+                                {daySessions.length > 1 && (
+                                  <span
+                                    className="shrink-0 font-mono text-[10px] text-muted-foreground"
+                                    title={`Session ${slotIdx + 1} of ${daySessions.length} on ${label}`}
+                                  >
+                                    {slotIdx + 1}/{daySessions.length}
+                                  </span>
+                                )}
                                 <span className="truncate text-xs font-semibold">
                                   {s.name || label}
                                 </span>

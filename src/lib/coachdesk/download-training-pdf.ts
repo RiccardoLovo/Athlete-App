@@ -35,7 +35,13 @@ export async function downloadTrainingPdf(opts: {
     .select("id, name, day_of_week, week_number")
     .eq("block_id", opts.blockId)
     .eq("status", "active")
-    .in("week_number", weekNumbers);
+    .in("week_number", weekNumbers)
+    // This query carried no ordering at all, so a printed week's days
+    // arrived in whatever order Postgres returned them — Thursday could
+    // precede Monday on paper.
+    .order("day_of_week")
+    .order("day_order")
+    .order("created_at");
   if (opts.scope === "day") sessQ = sessQ.eq("id", opts.sessionId!);
 
   const { data: sessions } = await sessQ;
@@ -146,8 +152,9 @@ export async function downloadTrainingPdf(opts: {
       arr.push(s);
       byDay.set(dn, arr);
     }
-    const days = Array.from(byDay.entries()).map(
-      ([day_number, daySessions]) => ({
+    const days = Array.from(byDay.entries())
+      .sort(([a], [b]) => a - b)
+      .map(([day_number, daySessions]) => ({
         day_number,
         sessions: daySessions.map((s) => ({
           name: s.name ?? null,
@@ -155,8 +162,7 @@ export async function downloadTrainingPdf(opts: {
             .filter((e) => e.session_id === s.id)
             .map(buildExercise),
         })),
-      }),
-    );
+      }));
     return { weekNumber: wn, days };
   });
 
