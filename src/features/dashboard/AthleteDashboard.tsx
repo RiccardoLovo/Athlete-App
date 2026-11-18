@@ -2135,6 +2135,7 @@ function LogWorkout({
                         />
                         <BlockLogInputs
                           sessionExerciseId={e.id}
+                          clientId={client.id}
                           values={f.blockActuals ?? {}}
                           onChange={(blockId, next) =>
                             setForms((prev) => {

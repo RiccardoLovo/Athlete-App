@@ -21,10 +21,13 @@ type Block = BlockLike & { id: string; order_index: number };
  */
 export function BlockLogInputs({
   sessionExerciseId,
+  clientId,
   values,
   onChange,
 }: {
   sessionExerciseId: string;
+  /** Needed to show a heart-rate zone as actual beats. */
+  clientId?: string | null;
   values: Record<string, BlockActual>;
   onChange: (blockId: string, next: BlockActual) => void;
 }) {
@@ -35,7 +38,7 @@ export function BlockLogInputs({
       const { data, error } = await supabase
         .from("workout_blocks")
         .select(
-          "id, order_index, block_type, label, target_mode, target_unit, intensity_mode, distance_km, duration_min, pace, zone, pct_threshold",
+          "id, order_index, block_type, label, target_mode, target_unit, intensity_mode, distance_km, duration_min, pace, zone, pct_threshold, zone_basis",
         )
         .eq("session_exercise_id", sessionExerciseId)
         .order("order_index");
@@ -75,7 +78,7 @@ export function BlockLogInputs({
             <span className="shrink-0 rounded-md border border-border px-1.5 py-[3px] font-mono text-[9.5px] uppercase tracking-[0.09em] text-muted-foreground">
               {BLOCK_LABELS[b.block_type] ?? b.block_type}
             </span>
-            <BlockLine block={b} />
+            <BlockLine block={b} clientId={clientId} />
             <Input
               type="number"
               inputMode="decimal"

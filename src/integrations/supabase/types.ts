@@ -1085,6 +1085,7 @@ export type Database = {
           target_mode: string | null;
           target_unit: string | null;
           zone: number | null;
+          zone_basis: string;
         };
         Insert: {
           block_type: string;
@@ -1107,6 +1108,7 @@ export type Database = {
           target_mode?: string | null;
           target_unit?: string | null;
           zone?: number | null;
+          zone_basis?: string;
         };
         Update: {
           block_type?: string;
@@ -1129,6 +1131,7 @@ export type Database = {
           target_mode?: string | null;
           target_unit?: string | null;
           zone?: number | null;
+          zone_basis?: string;
         };
         Relationships: [
           {

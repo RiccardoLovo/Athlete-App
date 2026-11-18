@@ -7,6 +7,23 @@
 
 export type ZoneNumber = 1 | 2 | 3 | 4 | 5;
 
+/**
+ * Every threshold an athlete can have on file. One list, because the set
+ * had started to live in three places — the database constraint, the
+ * dialog that writes them and the hook that reads them — and they will
+ * not stay in step by hand.
+ */
+export const THRESHOLD_METRICS = [
+  "ftp_watts",
+  "css_pace_sec_per_100m",
+  "run_threshold_pace_sec_per_km",
+  "bike_speed_kmh",
+  "lthr_bpm",
+  "max_hr_bpm",
+] as const;
+
+export type ThresholdMetric = (typeof THRESHOLD_METRICS)[number];
+
 export const ZONE_LABELS: Record<ZoneNumber, string> = {
   1: "Recovery",
   2: "Endurance",
@@ -53,6 +70,70 @@ export function runZonePaceSec(
   zone: ZoneNumber,
 ): number {
   return Math.max(1, Math.round(thresholdSecPerKm + RUN_ZONE_OFFSET_SEC[zone]));
+}
+
+// Heart-rate zones as a percentage band per zone. Two references, because
+// athletes know one or the other.
+//
+// Threshold heart rate is preferred: it is measured like the pace and
+// power thresholds, so Z4 lands on threshold in every discipline and the
+// zones mean the same thing across them. Percentages follow the common
+// LTHR scheme, where threshold sits at the top of Z4.
+export const HR_ZONE_PCT_LTHR: Record<
+  ZoneNumber,
+  { min: number; max: number }
+> = {
+  1: { min: 0.7, max: 0.81 },
+  2: { min: 0.81, max: 0.89 },
+  3: { min: 0.9, max: 0.93 },
+  4: { min: 0.94, max: 0.99 },
+  5: { min: 1.0, max: 1.06 },
+};
+
+// Fallback on maximum heart rate, which more athletes can quote but which
+// places the zones less precisely — max HR is a ceiling, not a threshold,
+// and two athletes with the same ceiling can have very different ones.
+export const HR_ZONE_PCT_MAX: Record<ZoneNumber, { min: number; max: number }> =
+  {
+    1: { min: 0.5, max: 0.6 },
+    2: { min: 0.6, max: 0.7 },
+    3: { min: 0.7, max: 0.8 },
+    4: { min: 0.8, max: 0.9 },
+    5: { min: 0.9, max: 1.0 },
+  };
+
+/**
+ * The heart-rate band for a zone, in bpm. Returns null when neither
+ * reference is on file rather than guessing one from age — an age-
+ * predicted maximum is wrong by ten beats or more for most people, which
+ * is an entire zone.
+ */
+export function hrZoneBpm(
+  zone: ZoneNumber,
+  refs: { lthrBpm?: number | null; maxHrBpm?: number | null },
+): { min: number; max: number; basis: "lthr" | "max" } | null {
+  if (refs.lthrBpm != null && refs.lthrBpm > 0) {
+    const b = HR_ZONE_PCT_LTHR[zone];
+    return {
+      min: Math.round(refs.lthrBpm * b.min),
+      max: Math.round(refs.lthrBpm * b.max),
+      basis: "lthr",
+    };
+  }
+  if (refs.maxHrBpm != null && refs.maxHrBpm > 0) {
+    const b = HR_ZONE_PCT_MAX[zone];
+    return {
+      min: Math.round(refs.maxHrBpm * b.min),
+      max: Math.round(refs.maxHrBpm * b.max),
+      basis: "max",
+    };
+  }
+  return null;
+}
+
+/** "139–147 bpm" */
+export function formatHrBand(band: { min: number; max: number }): string {
+  return `${band.min}–${band.max} bpm`;
 }
 
 export function bikeZoneWatts(

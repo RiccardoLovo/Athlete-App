@@ -74,6 +74,7 @@ type Block = {
   pace: string | null;
   zone: number | null;
   pct_threshold: number | null;
+  zone_basis: "pace" | "hr";
   interval_count: number | null;
   double_peak: boolean | null;
   notes: string | null;
@@ -489,7 +490,7 @@ function BlockEditor({
           <span className="shrink-0 rounded-md border border-border px-1.5 py-[3px] font-mono text-[9.5px] uppercase tracking-[0.09em] text-muted-foreground">
             {BLOCK_LABELS[block.block_type]}
           </span>
-          <BlockLine block={block} />
+          <BlockLine block={block} clientId={clientId} />
           <div className="ml-auto flex shrink-0 items-center gap-0.5">
             <button
               onClick={() => setOpen((v) => !v)}
@@ -858,20 +859,38 @@ function SimpleBlockBody({
       </Select>
 
       <span className="ml-1 text-[10px] text-muted-foreground">Follow</span>
+      {/* Two decisions in one control, because to the coach they are one:
+          what the athlete holds. A zone can be held by pace and power or
+          by heart rate, and those are different sessions — heart rate
+          lags the effort, drifts through a long one, and climbs in heat
+          on a day the pace has not moved. */}
       <Select
-        value={local.intensity_mode}
-        onValueChange={(v) =>
-          save({ intensity_mode: v as "zone" | "pace" | "threshold" })
+        value={
+          local.intensity_mode === "zone"
+            ? local.zone_basis === "hr"
+              ? "zone_hr"
+              : "zone_pace"
+            : local.intensity_mode
         }
+        onValueChange={(v) => {
+          if (v === "zone_pace")
+            return save({ intensity_mode: "zone", zone_basis: "pace" });
+          if (v === "zone_hr")
+            return save({ intensity_mode: "zone", zone_basis: "hr" });
+          save({ intensity_mode: v as "pace" | "threshold" });
+        }}
       >
         <SelectTrigger
-          className="h-7 w-[86px] text-xs"
-          title="Which target the athlete must follow; the other is indicative"
+          className="h-7 w-[124px] text-xs"
+          title="What the athlete must hold; anything else shown is indicative"
         >
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="zone">Zone</SelectItem>
+          <SelectItem value="zone_pace">
+            Zone · {usesThreshold ? "power" : "pace"}
+          </SelectItem>
+          <SelectItem value="zone_hr">Zone · heart rate</SelectItem>
           {/* Bike and swim are prescribed against a threshold percentage.
               A pace on the bike is meaningless — it is wind and gradient. */}
           {usesThreshold ? (

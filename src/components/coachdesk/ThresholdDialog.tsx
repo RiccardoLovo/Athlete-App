@@ -15,11 +15,8 @@ import {
 import { toast } from "sonner";
 import { formatSecondsToPace, parsePaceToSeconds } from "@/lib/coachdesk/zones";
 
-export type Metric =
-  | "ftp_watts"
-  | "css_pace_sec_per_100m"
-  | "run_threshold_pace_sec_per_km"
-  | "bike_speed_kmh";
+import type { ThresholdMetric as Metric } from "@/lib/coachdesk/zones";
+export type { ThresholdMetric as Metric } from "@/lib/coachdesk/zones";
 
 type Test = {
   id: string;
@@ -72,6 +69,24 @@ const METRICS: {
     placeholder: "220",
     pace: false,
     format: (v) => `${v}W`,
+  },
+  {
+    id: "lthr_bpm",
+    title: "Threshold heart rate",
+    help: "Average heart rate over a hard effort of about an hour. Preferred over maximum heart rate: it is measured the way the pace and power thresholds are, so the zones line up across disciplines.",
+    inputLabel: "LTHR (bpm)",
+    placeholder: "165",
+    pace: false,
+    format: (v) => `${v} bpm`,
+  },
+  {
+    id: "max_hr_bpm",
+    title: "Maximum heart rate",
+    help: "Only used for heart-rate zones when no threshold heart rate is on file. A ceiling rather than a threshold, so it places the zones less precisely.",
+    inputLabel: "Max HR (bpm)",
+    placeholder: "190",
+    pace: false,
+    format: (v) => `${v} bpm`,
   },
   {
     id: "bike_speed_kmh",
