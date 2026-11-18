@@ -45,7 +45,7 @@ const METRICS: {
 }[] = [
   {
     id: "run_threshold_pace_sec_per_km",
-    title: "Run threshold pace",
+    title: "Lactate threshold pace (run)",
     help: "The fastest average pace holdable for about an hour. Choosing a zone on a run block fills the pace in from this.",
     inputLabel: "Pace (min:sec / km)",
     placeholder: "4:31",
@@ -54,7 +54,7 @@ const METRICS: {
   },
   {
     id: "css_pace_sec_per_100m",
-    title: "Swim CSS",
+    title: "Lactate threshold pace (swim, CSS)",
     help: "Critical swim speed — the pace holdable for about 30 minutes.",
     inputLabel: "Pace (min:sec / 100m)",
     placeholder: "1:32",
@@ -63,7 +63,7 @@ const METRICS: {
   },
   {
     id: "ftp_watts",
-    title: "Bike FTP",
+    title: "Lactate threshold power (FTP)",
     help: "Functional threshold power — the highest average power sustainable for about an hour.",
     inputLabel: "FTP (watts)",
     placeholder: "220",
@@ -72,8 +72,8 @@ const METRICS: {
   },
   {
     id: "lthr_bpm",
-    title: "Threshold heart rate",
-    help: "Average heart rate over a hard effort of about an hour. Preferred over maximum heart rate: it is measured the way the pace and power thresholds are, so the zones line up across disciplines.",
+    title: "Lactate threshold HR (LTHR)",
+    help: "Heart rate at lactate threshold — the average over a hard effort of about an hour. The same threshold the run pace and FTP describe, read in beats, so Z4 means the same thing whichever the coach prescribes against.",
     inputLabel: "LTHR (bpm)",
     placeholder: "165",
     pace: false,

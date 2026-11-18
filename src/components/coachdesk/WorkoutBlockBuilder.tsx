@@ -860,8 +860,9 @@ function SimpleBlockBody({
 
       <span className="ml-1 text-[10px] text-muted-foreground">Follow</span>
       {/* Two decisions in one control, because to the coach they are one:
-          what the athlete holds. A zone can be held by pace and power or
-          by heart rate, and those are different sessions — heart rate
+          what the athlete holds. The same lactate threshold can be held
+          by its pace or power, or by the heart rate that goes with it,
+          and those are different sessions — heart rate
           lags the effort, drifts through a long one, and climbs in heat
           on a day the pace has not moved. */}
       <Select
@@ -890,7 +891,7 @@ function SimpleBlockBody({
           <SelectItem value="zone_pace">
             Zone · {usesThreshold ? "power" : "pace"}
           </SelectItem>
-          <SelectItem value="zone_hr">Zone · heart rate</SelectItem>
+          <SelectItem value="zone_hr">Zone · HR</SelectItem>
           {/* Bike and swim are prescribed against a threshold percentage.
               A pace on the bike is meaningless — it is wind and gradient. */}
           {usesThreshold ? (
