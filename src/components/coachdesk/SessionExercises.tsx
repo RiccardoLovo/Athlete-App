@@ -359,7 +359,10 @@ export function ExerciseCard({
       {!expanded ? (
         se.exercises?.is_structured_container ? (
           <div className="mt-1">
-            <WorkoutBlockSummary sessionExerciseId={se.id} />
+            <WorkoutBlockSummary
+              sessionExerciseId={se.id}
+              discipline={se.exercises?.discipline}
+            />
           </div>
         ) : (
           <div className="mt-1 truncate text-[11px] text-muted-foreground">

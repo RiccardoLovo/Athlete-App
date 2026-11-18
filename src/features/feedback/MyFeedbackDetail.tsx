@@ -552,7 +552,10 @@ export function MyFeedbackDetail({
             ) : (
               <div className="mt-3 space-y-2">
                 {e.exercises?.is_structured_container && (
-                  <WorkoutBlockSummary sessionExerciseId={e.id} />
+                  <WorkoutBlockSummary
+                    sessionExerciseId={e.id}
+                    discipline={e.exercises?.discipline}
+                  />
                 )}
                 <div className="flex flex-wrap gap-4">
                   <div>

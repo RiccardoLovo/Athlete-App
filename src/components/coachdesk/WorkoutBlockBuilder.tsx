@@ -5,6 +5,7 @@ import {
   ArrowUp,
   ChevronDown,
   ChevronRight,
+  Pencil,
   Plus,
   Trash2,
 } from "lucide-react";
@@ -23,13 +24,17 @@ import {
 import { toast } from "sonner";
 import type { Discipline } from "@/lib/coachdesk/prescription";
 import { restText } from "@/lib/coachdesk/rest";
+import type { RoundLike } from "@/lib/coachdesk/blocks";
+import { BlockLine } from "./BlockLine";
 import {
   IntervalBuilder,
   type IntervalRow,
   intervalsQuery,
+  sessionRoundsKey,
   useLatestThreshold,
 } from "./IntervalBuilder";
 import { TemplateForm } from "./TemplateForm";
+import { SessionProfile } from "./SessionProfile";
 import {
   type ZoneNumber,
   bikePctToWatts,
@@ -125,6 +130,29 @@ export function WorkoutBlockBuilder({
         .order("order_index");
       if (error) throw error;
       return (data ?? []) as Block[];
+    },
+  });
+
+  // Every round in the session, unscoped by block: the profile places them
+  // all on one axis and filters by block itself. Kept as fresh as the block
+  // list so the shape redraws as the coach edits rather than after a save.
+  const { data: allRounds = [] } = useQuery({
+    queryKey: sessionRoundsKey(sessionExerciseId),
+    staleTime: 0,
+    refetchOnMount: "always",
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("prescription_intervals")
+        .select(
+          "workout_block_id, target_value, target_unit, rest_seconds, rest_mode, rest_ratio, pace_per_km, hr_zone",
+        )
+        .eq("session_exercise_id", sessionExerciseId)
+        .order("order_index");
+      if (error) throw error;
+      // rest_mode comes back as a bare string from PostgREST.
+      return (data ?? []) as unknown as (RoundLike & {
+        workout_block_id: string | null;
+      })[];
     },
   });
 
@@ -261,6 +289,17 @@ export function WorkoutBlockBuilder({
           </button>
         ))}
       </div>
+
+      {blocks.length > 0 && (
+        <div className="rounded-xl border border-border bg-card p-4">
+          <SessionProfile
+            blocks={blocks}
+            rounds={allRounds}
+            discipline={discipline}
+            showTotals
+          />
+        </div>
+      )}
 
       <div className="space-y-2">
         {blocks.map((block, idx) => (
@@ -439,43 +478,84 @@ function BlockEditor({
 
   if (!isGenerated) {
     return (
-      <div className="rounded border border-border bg-card px-2 py-1.5">
-        <div className="flex flex-wrap items-center gap-1.5">
-          <span className="shrink-0 rounded border border-border bg-secondary px-1.5 py-0.5 text-[10px] font-medium text-secondary-foreground">
+      <div className="rounded-xl border border-border bg-card">
+        <div className="flex items-center gap-3 px-3 py-2.5">
+          <span className="shrink-0 rounded-md border border-border px-1.5 py-[3px] font-mono text-[9.5px] uppercase tracking-[0.09em] text-muted-foreground">
             {BLOCK_LABELS[block.block_type]}
           </span>
-          <SimpleBlockBody
-            block={block}
-            discipline={discipline}
-            clientId={clientId}
-            onChanged={onChanged}
-          />
-          <span className="flex-1" />
-          {controls}
+          <BlockLine block={block} />
+          <div className="ml-auto flex shrink-0 items-center gap-0.5">
+            <button
+              onClick={() => setOpen((v) => !v)}
+              title={open ? "Done editing" : "Edit block"}
+              className={`rounded p-0.5 hover:bg-muted hover:text-foreground ${
+                open ? "text-foreground" : "text-muted-foreground"
+              }`}
+            >
+              <Pencil className="h-3.5 w-3.5" />
+            </button>
+            {controls}
+          </div>
         </div>
+
+        {/* The form only appears on demand: a row of selects is unreadable
+            as a prescription, and most of the time the coach is reading
+            the session rather than changing it. */}
+        {open && (
+          <div className="flex flex-wrap items-center gap-1.5 border-t border-border px-3 py-2.5">
+            <SimpleBlockBody
+              block={block}
+              discipline={discipline}
+              clientId={clientId}
+              onChanged={onChanged}
+            />
+          </div>
+        )}
       </div>
     );
   }
 
+  // Rounds that are all the same are one instruction repeated, so they are
+  // headed "Repeat 6×" and listed once. Rounds that differ are a sequence,
+  // and saying "repeat" about them would be a lie.
+  const roundCount = rounds.length || block.interval_count || 0;
+  const identical =
+    rounds.length > 1 &&
+    rounds.every(
+      (r) =>
+        r.target_value === rounds[0].target_value &&
+        r.target_unit === rounds[0].target_unit &&
+        r.hr_zone === rounds[0].hr_zone &&
+        r.pace_per_km === rounds[0].pace_per_km,
+    );
+  const heading =
+    roundCount === 0
+      ? BLOCK_LABELS[block.block_type]
+      : identical || !rounds.length
+        ? `Repeat ${roundCount}×`
+        : `${roundCount} rounds`;
+
   return (
-    <div className="rounded border border-border bg-card">
-      <div className="flex items-center gap-1.5 px-2 py-1.5">
+    <div className="rounded-xl border border-repeat/40 bg-repeat/[0.06]">
+      <div className="flex items-center gap-2 px-3 py-2.5">
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
-          className="flex min-w-0 flex-1 items-center gap-1.5 text-left"
+          className="flex min-w-0 flex-1 items-center gap-2 text-left"
         >
           {open ? (
-            <ChevronDown className="h-3 w-3 shrink-0 text-muted-foreground" />
+            <ChevronDown className="h-3.5 w-3.5 shrink-0 text-repeat" />
           ) : (
-            <ChevronRight className="h-3 w-3 shrink-0 text-muted-foreground" />
+            <ChevronRight className="h-3.5 w-3.5 shrink-0 text-repeat" />
           )}
-          <span className="shrink-0 rounded border border-border bg-secondary px-1.5 py-0.5 text-[10px] font-medium text-secondary-foreground">
-            {BLOCK_LABELS[block.block_type]}
+          <span className="text-[13px] font-medium italic text-repeat">
+            {heading}
           </span>
-          <span className="truncate text-[11px] text-muted-foreground">
-            {open ? "" : hasRounds ? "" : "open to build rounds"}
-          </span>
+          {!hasRounds && !open && (
+            <span className="truncate text-[11px] text-muted-foreground">
+              open to build rounds
+            </span>
+          )}
         </button>
         {controls}
       </div>
@@ -483,7 +563,7 @@ function BlockEditor({
       {!open && <CollapsedRounds rounds={rounds} />}
 
       {open && (
-        <div className="border-t border-border px-2 py-2">
+        <div className="border-t border-repeat/30 px-3 py-2.5">
           <GeneratedBlockBody
             block={block}
             discipline={discipline}

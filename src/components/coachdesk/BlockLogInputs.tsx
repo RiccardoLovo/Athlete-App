@@ -1,13 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
-import {
-  BLOCK_LABELS,
-  blockHasRounds,
-  blockIntensity,
-  blockTarget,
-  type BlockLike,
-} from "@/lib/coachdesk/blocks";
+import { BLOCK_LABELS, type BlockLike } from "@/lib/coachdesk/blocks";
+import { BlockLine } from "./BlockLine";
 
 export type BlockActual = {
   distanceKm: number | null;
@@ -53,7 +48,7 @@ export function BlockLogInputs({
 
   return (
     <div className="space-y-1.5">
-      <p className="text-xs font-medium text-muted-foreground">
+      <p className="font-mono text-[10px] uppercase tracking-wide text-muted-foreground">
         What you actually did
       </p>
       {blocks.map((b) => {
@@ -72,25 +67,15 @@ export function BlockLogInputs({
             : unit === "m"
               ? String(Math.round(v.distanceKm * 1000))
               : String(v.distanceKm);
-        const { primary } = blockIntensity(b);
-        const planned = blockHasRounds(b.block_type)
-          ? [BLOCK_LABELS[b.block_type] ?? b.block_type, primary]
-              .filter(Boolean)
-              .join(" · ")
-          : [
-              BLOCK_LABELS[b.block_type] ?? b.block_type,
-              blockTarget(b),
-              primary,
-            ]
-              .filter(Boolean)
-              .join(" · ");
-
         return (
           <div
             key={b.id}
-            className="flex flex-wrap items-center gap-2 rounded-md border border-border bg-muted/30 px-2 py-1.5"
+            className="flex flex-wrap items-center gap-2 rounded-lg border border-border bg-card px-2.5 py-2"
           >
-            <span className="min-w-0 flex-1 truncate text-xs">{planned}</span>
+            <span className="shrink-0 rounded-md border border-border px-1.5 py-[3px] font-mono text-[9.5px] uppercase tracking-[0.09em] text-muted-foreground">
+              {BLOCK_LABELS[b.block_type] ?? b.block_type}
+            </span>
+            <BlockLine block={b} />
             <Input
               type="number"
               inputMode="decimal"

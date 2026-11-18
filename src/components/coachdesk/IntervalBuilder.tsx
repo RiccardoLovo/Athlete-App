@@ -43,6 +43,15 @@ export type IntervalScope = {
   workoutBlockId?: string;
 };
 
+/**
+ * Every round in a session, unscoped by block — what the session profile
+ * draws from. Lives here beside the scoped key so that anything invalidating
+ * one is looking straight at the other.
+ */
+export function sessionRoundsKey(sessionExerciseId: string) {
+  return ["session-rounds", sessionExerciseId] as const;
+}
+
 export function intervalsKey(scope: IntervalScope) {
   return [
     "prescription-intervals",
@@ -179,6 +188,9 @@ export function IntervalBuilder({
 
   function invalidate() {
     qc.invalidateQueries({ queryKey: intervalsKey(scope) });
+    qc.invalidateQueries({
+      queryKey: sessionRoundsKey(scope.sessionExerciseId),
+    });
   }
 
   async function addRow() {
@@ -479,6 +491,9 @@ function IntervalRowEditor({
       // fine but the total stayed stuck at whatever it was after the last
       // add/delete/reorder.
       qc.invalidateQueries({ queryKey: intervalsKey(scopeRef.current) });
+      qc.invalidateQueries({
+        queryKey: sessionRoundsKey(scopeRef.current.sessionExerciseId),
+      });
       window.setTimeout(
         () => setStatus((s) => (s === "saved" ? "idle" : s)),
         1200,

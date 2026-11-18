@@ -10,10 +10,17 @@ import {
   Plus,
   X,
   PlayCircle,
+  Repeat,
 } from "lucide-react";
 import { ClientProfileDialog } from "@/components/coachdesk/ClientProfileDialog";
 import { WorkoutPhotos } from "@/components/coachdesk/WorkoutPhotos";
 import { WorkoutBlockSummary } from "@/components/coachdesk/WorkoutBlockSummary";
+import {
+  disciplineIcon,
+  primaryDiscipline,
+  sessionSubtitle,
+  sessionTitle,
+} from "@/lib/coachdesk/sessionTitle";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -295,7 +302,7 @@ function SessionList({
       const { data: exs } = ids.length
         ? await supabase
             .from("session_exercises")
-            .select("id, session_id, exercises(name_en)")
+            .select("id, session_id, exercises(name_en, discipline)")
             .in("session_id", ids)
         : { data: [] };
       const { data: logs } = ids.length
@@ -336,6 +343,45 @@ function SessionList({
       };
     })
     .filter((s) => s.exs.length > 0);
+
+  // The week as seven days rather than a list of sessions: a day with
+  // nothing on it is part of the plan rather than an absence, and a day can
+  // hold two sessions.
+  const todayISO = toISODate(new Date());
+  const tomorrowISO = toISODate(addDays(new Date(), 1));
+  const weekDays = Array.from({ length: 7 }, (_, i) => {
+    const dow = i + 1;
+    const date = plan
+      ? toISODate(
+          addDays(parseISODate(plan.start_date), weekStartOffsetDays + i),
+        )
+      : null;
+    const heading =
+      date === todayISO
+        ? "Today"
+        : date === tomorrowISO
+          ? "Tomorrow"
+          : DAY_LABELS_LOCAL[i];
+    const stamp = date
+      ? parseISODate(date)
+          .toLocaleDateString(undefined, {
+            weekday: "long",
+            day: "numeric",
+            month: "short",
+          })
+          .toUpperCase()
+      : "";
+    return {
+      dow,
+      date,
+      heading,
+      stamp,
+      isToday: date === todayISO,
+      sessions: sessionsWithExs.filter(
+        (s: any) => (s.day_of_week ?? 1) === dow,
+      ),
+    };
+  });
 
   async function handleDownload(
     scope: "day" | "week" | "block",
@@ -509,72 +555,80 @@ function SessionList({
             No workouts in this week yet.
           </Card>
         ) : (
-          <div className="space-y-2">
-            {sessionsWithExs.map((s: any) => {
-              const done = data!.logged.has(s.id);
-              return (
-                <Card
-                  key={s.id}
-                  className={`p-4 cursor-pointer hover:shadow ${done ? "border-foreground/30 bg-secondary/50" : ""}`}
-                >
-                  <div
-                    className="flex items-center gap-2"
-                    onClick={() => onPick(s)}
+          <div className="space-y-5">
+            {weekDays.map((day) => (
+              <div key={day.dow} className="space-y-2">
+                <div className="flex items-baseline gap-2">
+                  <h2
+                    className={`text-xl font-semibold ${
+                      day.isToday ? "" : "text-muted-foreground"
+                    }`}
                   >
-                    <span className="min-w-0 flex-1 truncate font-semibold">
-                      {s.name || s.day_label}
+                    {day.heading}
+                  </h2>
+                  {day.stamp && (
+                    <span className="font-mono text-[11px] tracking-wide text-muted-foreground">
+                      {day.stamp}
                     </span>
-                    {s.is_optional && (
-                      <Badge className="shrink-0 bg-yellow-100 text-yellow-800">
-                        Optional
-                      </Badge>
-                    )}
-                    {done && (
-                      <Check className="h-5 w-5 shrink-0 text-foreground" />
-                    )}
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="shrink-0"
-                      title="Download this day as PDF"
-                      disabled={downloading}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (weekInfo)
-                          handleDownload("day", {
-                            block: weekInfo.block,
-                            weekInBlock: weekInfo.weekInBlock,
-                            sessionId: s.id,
-                          });
-                      }}
-                    >
-                      <Download className="h-4 w-4" />
-                    </Button>
+                  )}
+                </div>
+
+                {day.sessions.length === 0 ? (
+                  <div className="rounded-xl border border-dashed border-border bg-muted/20 p-5 text-center text-sm text-muted-foreground">
+                    🛏 No training — rest day
                   </div>
-                  <div
-                    className="mt-1 text-xs text-muted-foreground"
-                    onClick={() => onPick(s)}
-                  >
-                    {s.exs.length} exercises
-                  </div>
-                  <div
-                    className="mt-2 flex flex-wrap gap-1"
-                    onClick={() => onPick(s)}
-                  >
-                    {s.exs.slice(0, 4).map((e: any, i: number) => (
-                      <Badge key={i} variant="outline" className="text-[10px]">
-                        {e.exercises?.name_en}
-                      </Badge>
-                    ))}
-                    {s.exs.length > 4 && (
-                      <Badge variant="outline" className="text-[10px]">
-                        +{s.exs.length - 4}
-                      </Badge>
-                    )}
-                  </div>
-                </Card>
-              );
-            })}
+                ) : (
+                  day.sessions.map((s: any) => {
+                    const done = data!.logged.has(s.id);
+                    return (
+                      <Card
+                        key={s.id}
+                        className={`cursor-pointer p-4 hover:shadow ${
+                          done ? "border-foreground/30 bg-secondary/50" : ""
+                        }`}
+                        onClick={() => onPick(s)}
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-border bg-muted text-lg">
+                            {disciplineIcon(primaryDiscipline(s.exs))}
+                          </span>
+                          <div className="min-w-0 flex-1">
+                            <div className="truncate font-semibold">
+                              {sessionTitle(s.name, s.exs)}
+                            </div>
+                            <div className="font-mono text-[10px] uppercase tracking-wide text-muted-foreground">
+                              {sessionSubtitle(s.exs)}
+                              {s.is_optional && " · optional"}
+                            </div>
+                          </div>
+                          {done && (
+                            <Check className="h-5 w-5 shrink-0 text-foreground" />
+                          )}
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="shrink-0"
+                            title="Download this day as PDF"
+                            disabled={downloading}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (weekInfo)
+                                handleDownload("day", {
+                                  block: weekInfo.block,
+                                  weekInBlock: weekInfo.weekInBlock,
+                                  sessionId: s.id,
+                                });
+                            }}
+                          >
+                            <Download className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </Card>
+                    );
+                  })
+                )}
+              </div>
+            ))}
           </div>
         )}
       </div>
@@ -866,6 +920,26 @@ function LogExtraSession({
 }
 
 type SetEntry = { weight: string; reps: string };
+
+/**
+ * Has the athlete put anything against this exercise yet? Used to mark it
+ * done in the collapsed list and to decide which one opens first.
+ */
+function hasEntry(f: ExForm | undefined): boolean {
+  if (!f) return false;
+  if (f.sets.some((s) => s.weight.trim() !== "" || s.reps.trim() !== ""))
+    return true;
+  if (f.distance.trim() || f.duration.trim() || f.pace.trim()) return true;
+  if (f.intervalActuals.some((v) => v.trim() !== "")) return true;
+  if (
+    Object.values(f.blockActuals).some(
+      (b) => b.distanceKm != null || b.durationMin != null,
+    )
+  )
+    return true;
+  return f.notes.trim() !== "";
+}
+
 type ExForm = {
   sets: SetEntry[];
   notes: string;
@@ -1358,6 +1432,9 @@ function LogWorkout({
   const [savedLogId, setSavedLogId] = useState<string | null>(null);
   const [watchUrl, setWatchUrl] = useState<string | null>(null);
   const [showAddExercise, setShowAddExercise] = useState(false);
+  // Which exercise is open. Null means "the first one still to do", so the
+  // session opens where the athlete left off without storing a cursor.
+  const [openEx, setOpenEx] = useState<string | null>(null);
   const [swapFor, setSwapFor] = useState<{
     id: string;
     exerciseId: string;
@@ -1789,15 +1866,25 @@ function LogWorkout({
     });
   }
 
+  // Where the session opens: the first exercise with nothing against it
+  // yet, so coming back mid-workout lands on what is still to do.
+  const firstOpenId =
+    exs.find((e: { id: string }) => !hasEntry(forms[e.id]))?.id ??
+    exs[0]?.id ??
+    null;
+
   return (
     <div className="h-[calc(100vh-3.5rem)] overflow-auto">
       <div className="mx-auto max-w-2xl space-y-4 p-4 sm:p-6">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <Button variant="ghost" size="icon" onClick={onBack}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-border bg-muted text-lg">
+            {disciplineIcon(primaryDiscipline(exs))}
+          </span>
           <h1 className="flex-1 text-xl font-bold">
-            {session.name || session.day_label}
+            {sessionTitle(session.name, exs)}
           </h1>
           <span
             className={`text-xs ${saveState === "error" ? "font-medium text-destructive" : "text-muted-foreground"}`}
@@ -1828,28 +1915,13 @@ function LogWorkout({
           </div>
         </Card>
 
-        <Card className="p-4">
-          <Label className="text-sm font-semibold">
-            Overall Effort (Borg Scale)
-          </Label>
-          <div className="mt-3 flex items-center gap-4">
-            <Slider
-              value={[borg]}
-              min={1}
-              max={10}
-              step={1}
-              onValueChange={(v) => setBorg(v[0])}
-              className="flex-1"
-            />
-            <Badge className={`${borgColor(borg)} text-base`}>{borg}/10</Badge>
-          </div>
-          <p className="mt-2 text-xs text-muted-foreground">
-            {BORG_LABELS[borg]}
-          </p>
-        </Card>
-
         {exs.map((e: any, i: number) => {
           const f = forms[e.id] ?? EMPTY_EXFORM;
+          const done = hasEntry(forms[e.id]);
+          // One exercise is open at a time. Everything stays mounted — the
+          // body is hidden, not unmounted — so no entry, draft or autosave
+          // behaviour changes with what happens to be on screen.
+          const isOpen = (openEx ?? firstOpenId) === e.id;
           const discipline = (e.exercises?.discipline ??
             "Strength") as ExerciseDiscipline;
           const isStrength = discipline === "Strength";
@@ -1869,9 +1941,16 @@ function LogWorkout({
             ? summarizeIntervals(rounds)
             : summarizePrescription(discipline, rowToPrescription(e), oneRm);
           return (
-            <Card key={e.id} className="p-4">
+            <Card
+              key={e.id}
+              className={`p-4 ${isOpen ? "" : "cursor-pointer"}`}
+              onClick={isOpen ? undefined : () => setOpenEx(e.id)}
+            >
               <div className="flex items-start justify-between gap-2">
                 <div className="flex flex-wrap items-center gap-1.5 font-semibold">
+                  {done && !isOpen && (
+                    <Check className="h-4 w-4 text-muted-foreground" />
+                  )}
                   {i + 1}. {e.exercises?.name_en ?? "Exercise removed"}
                   {e.added_by_client && (
                     <Badge
@@ -1944,218 +2023,250 @@ function LogWorkout({
                 </p>
               )}
 
-              {isStrength ? (
-                <div className="mt-3 space-y-2">
-                  <div className="grid grid-cols-[auto_1fr_1fr_auto] items-center gap-2 text-xs text-muted-foreground">
-                    <span className="w-8">Set</span>
-                    <span>
-                      Weight{e.load_mode === "bodyweight" ? "" : " (kg)"}
-                      {isPercentOneRm && oneRm == null && (
-                        <span className="ml-1 text-[10px]">
-                          — no 1RM on file, target {e.load_value}% 1RM
-                        </span>
-                      )}
-                    </span>
-                    <span>
-                      {e.target_mode === "Hold" ? "Hold (sec)" : "Reps"}
-                    </span>
-                    <span className="w-9" />
-                  </div>
-                  {f.sets.map((s, idx) => (
-                    <div
-                      key={idx}
-                      className="grid grid-cols-[auto_1fr_1fr_auto] items-center gap-2"
-                    >
-                      <span className="w-8 text-sm font-medium text-muted-foreground">
-                        #{idx + 1}
+              <div className={isOpen ? "" : "hidden"}>
+                {isStrength ? (
+                  <div className="mt-3 space-y-2">
+                    <div className="grid grid-cols-[auto_1fr_1fr_auto] items-center gap-2 text-xs text-muted-foreground">
+                      <span className="w-8">Set</span>
+                      <span>
+                        Weight{e.load_mode === "bodyweight" ? "" : " (kg)"}
+                        {isPercentOneRm && oneRm == null && (
+                          <span className="ml-1 text-[10px]">
+                            — no 1RM on file, target {e.load_value}% 1RM
+                          </span>
+                        )}
                       </span>
-                      <Input
-                        inputMode="decimal"
-                        className="h-11 text-base"
-                        placeholder={
-                          isPercentOneRm && oneRm == null
-                            ? `${e.load_value}% 1RM`
-                            : undefined
-                        }
-                        value={s.weight}
-                        onChange={(ev) =>
-                          updateSet(e.id, idx, { weight: ev.target.value })
-                        }
-                      />
-                      <Input
-                        inputMode="numeric"
-                        className="h-11 text-base"
-                        value={s.reps}
-                        onChange={(ev) =>
-                          updateSet(e.id, idx, { reps: ev.target.value })
-                        }
-                      />
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-9 w-9"
-                        onClick={() => removeSet(e.id, idx)}
-                        disabled={f.sets.length <= 1}
-                        aria-label="Remove set"
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
+                      <span>
+                        {e.target_mode === "Hold" ? "Hold (sec)" : "Reps"}
+                      </span>
+                      <span className="w-9" />
                     </div>
-                  ))}
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="h-9"
-                    onClick={() => addSet(e.id)}
-                  >
-                    <Plus className="mr-1 h-4 w-4" /> Add set
-                  </Button>
-                </div>
-              ) : isIntervals ? (
-                <div className="mt-3 space-y-2">
-                  <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2 text-xs text-muted-foreground">
-                    <span className="w-8">#</span>
-                    <span>Prescribed</span>
-                    <span className="w-24">Actual</span>
-                  </div>
-                  {rounds.map((round, idx) => {
-                    return (
+                    {f.sets.map((s, idx) => (
                       <div
-                        key={round.id}
-                        className="grid grid-cols-[auto_1fr_auto] items-center gap-2"
+                        key={idx}
+                        className="grid grid-cols-[auto_1fr_1fr_auto] items-center gap-2"
                       >
                         <span className="w-8 text-sm font-medium text-muted-foreground">
                           #{idx + 1}
                         </span>
-                        <span className="text-sm text-muted-foreground">
-                          {round.label ? `${round.label}: ` : ""}
-                          {describeIntervalRound(round)}
-                        </span>
                         <Input
                           inputMode="decimal"
-                          className="h-11 w-24 text-base"
-                          value={f.intervalActuals[idx] ?? ""}
+                          className="h-11 text-base"
+                          placeholder={
+                            isPercentOneRm && oneRm == null
+                              ? `${e.load_value}% 1RM`
+                              : undefined
+                          }
+                          value={s.weight}
                           onChange={(ev) =>
-                            updateIntervalActual(e.id, idx, ev.target.value)
+                            updateSet(e.id, idx, { weight: ev.target.value })
                           }
                         />
+                        <Input
+                          inputMode="numeric"
+                          className="h-11 text-base"
+                          value={s.reps}
+                          onChange={(ev) =>
+                            updateSet(e.id, idx, { reps: ev.target.value })
+                          }
+                        />
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-9 w-9"
+                          onClick={() => removeSet(e.id, idx)}
+                          disabled={f.sets.length <= 1}
+                          aria-label="Remove set"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
                       </div>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="mt-3 space-y-2">
-                  {e.exercises?.is_structured_container && (
-                    <>
-                      <WorkoutBlockSummary sessionExerciseId={e.id} />
-                      <BlockLogInputs
-                        sessionExerciseId={e.id}
-                        values={f.blockActuals ?? {}}
-                        onChange={(blockId, next) =>
-                          setForms((prev) => {
-                            const cur = prev[e.id] ?? EMPTY_EXFORM;
-                            return {
-                              ...prev,
-                              [e.id]: {
-                                ...cur,
-                                blockActuals: {
-                                  ...cur.blockActuals,
-                                  [blockId]: next,
-                                },
-                              },
-                            };
-                          })
-                        }
-                      />
-                    </>
-                  )}
-                  <div className="flex flex-wrap gap-4">
-                    <div>
-                      <Label className="text-xs">Duration (min)</Label>
-                      <Input
-                        type="number"
-                        inputMode="decimal"
-                        className="mt-1 h-11 w-28 text-base"
-                        value={f.duration}
-                        onChange={(ev) =>
-                          setForms((prev) => ({
-                            ...prev,
-                            [e.id]: {
-                              ...(prev[e.id] ?? EMPTY_EXFORM),
-                              duration: ev.target.value,
-                            },
-                          }))
-                        }
-                      />
+                    ))}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-9"
+                      onClick={() => addSet(e.id)}
+                    >
+                      <Plus className="mr-1 h-4 w-4" /> Add set
+                    </Button>
+                  </div>
+                ) : isIntervals ? (
+                  <div className="mt-3 space-y-2">
+                    <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2 text-xs text-muted-foreground">
+                      <span className="w-8">#</span>
+                      <span>Prescribed</span>
+                      <span className="w-24">Actual</span>
                     </div>
-                    {distanceUnit && (
+                    {rounds.map((round, idx) => {
+                      return (
+                        <div
+                          key={round.id}
+                          className="grid grid-cols-[auto_1fr_auto] items-center gap-2"
+                        >
+                          <span className="w-8 text-sm font-medium text-muted-foreground">
+                            #{idx + 1}
+                          </span>
+                          <span className="text-sm text-muted-foreground">
+                            {round.label ? `${round.label}: ` : ""}
+                            {describeIntervalRound(round)}
+                          </span>
+                          <Input
+                            inputMode="decimal"
+                            className="h-11 w-24 text-base"
+                            value={f.intervalActuals[idx] ?? ""}
+                            onChange={(ev) =>
+                              updateIntervalActual(e.id, idx, ev.target.value)
+                            }
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="mt-3 space-y-2">
+                    {e.exercises?.is_structured_container && (
+                      <>
+                        <WorkoutBlockSummary
+                          sessionExerciseId={e.id}
+                          discipline={e.exercises?.discipline}
+                          chartOnly
+                        />
+                        <BlockLogInputs
+                          sessionExerciseId={e.id}
+                          values={f.blockActuals ?? {}}
+                          onChange={(blockId, next) =>
+                            setForms((prev) => {
+                              const cur = prev[e.id] ?? EMPTY_EXFORM;
+                              return {
+                                ...prev,
+                                [e.id]: {
+                                  ...cur,
+                                  blockActuals: {
+                                    ...cur.blockActuals,
+                                    [blockId]: next,
+                                  },
+                                },
+                              };
+                            })
+                          }
+                        />
+                      </>
+                    )}
+                    <div className="flex flex-wrap gap-4">
                       <div>
-                        <Label className="text-xs">
-                          Distance ({distanceUnit})
-                        </Label>
+                        <Label className="text-xs">Duration (min)</Label>
                         <Input
                           type="number"
                           inputMode="decimal"
                           className="mt-1 h-11 w-28 text-base"
-                          value={f.distance}
+                          value={f.duration}
                           onChange={(ev) =>
                             setForms((prev) => ({
                               ...prev,
                               [e.id]: {
                                 ...(prev[e.id] ?? EMPTY_EXFORM),
-                                distance: ev.target.value,
+                                duration: ev.target.value,
                               },
                             }))
                           }
                         />
                       </div>
-                    )}
-                    {showPace && (
-                      <div>
-                        <Label className="text-xs">Pace</Label>
-                        <Input
-                          placeholder={distanceUnit === "m" ? "/100m" : "/km"}
-                          className="mt-1 h-11 w-28 text-base"
-                          value={f.pace}
-                          onChange={(ev) =>
-                            setForms((prev) => ({
-                              ...prev,
-                              [e.id]: {
-                                ...(prev[e.id] ?? EMPTY_EXFORM),
-                                pace: ev.target.value,
-                              },
-                            }))
-                          }
-                        />
-                      </div>
-                    )}
+                      {distanceUnit && (
+                        <div>
+                          <Label className="text-xs">
+                            Distance ({distanceUnit})
+                          </Label>
+                          <Input
+                            type="number"
+                            inputMode="decimal"
+                            className="mt-1 h-11 w-28 text-base"
+                            value={f.distance}
+                            onChange={(ev) =>
+                              setForms((prev) => ({
+                                ...prev,
+                                [e.id]: {
+                                  ...(prev[e.id] ?? EMPTY_EXFORM),
+                                  distance: ev.target.value,
+                                },
+                              }))
+                            }
+                          />
+                        </div>
+                      )}
+                      {showPace && (
+                        <div>
+                          <Label className="text-xs">Pace</Label>
+                          <Input
+                            placeholder={distanceUnit === "m" ? "/100m" : "/km"}
+                            className="mt-1 h-11 w-28 text-base"
+                            value={f.pace}
+                            onChange={(ev) =>
+                              setForms((prev) => ({
+                                ...prev,
+                                [e.id]: {
+                                  ...(prev[e.id] ?? EMPTY_EXFORM),
+                                  pace: ev.target.value,
+                                },
+                              }))
+                            }
+                          />
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              {e.notes && (
-                <div className="mt-3 rounded border border-border bg-secondary p-2 text-sm text-secondary-foreground">
-                  <span className="font-semibold">Coach's notes:</span>{" "}
-                  {e.notes}
-                </div>
-              )}
+                {e.notes && (
+                  <div className="mt-3 rounded border border-border bg-secondary p-2 text-sm text-secondary-foreground">
+                    <span className="font-semibold">Coach's notes:</span>{" "}
+                    {e.notes}
+                  </div>
+                )}
 
-              <div className="mt-3">
-                <Label className="text-xs">Notes</Label>
-                <Input
-                  placeholder="How did it feel?"
-                  className="h-11 text-base"
-                  value={f.notes}
-                  onChange={(ev) =>
-                    setForms((prev) => ({
-                      ...prev,
-                      [e.id]: {
-                        ...(prev[e.id] ?? EMPTY_EXFORM),
-                        notes: ev.target.value,
-                      },
-                    }))
-                  }
-                />
+                <div className="mt-3">
+                  <Label className="text-xs">Notes</Label>
+                  <Input
+                    placeholder="How did it feel?"
+                    className="h-11 text-base"
+                    value={f.notes}
+                    onChange={(ev) =>
+                      setForms((prev) => ({
+                        ...prev,
+                        [e.id]: {
+                          ...(prev[e.id] ?? EMPTY_EXFORM),
+                          notes: ev.target.value,
+                        },
+                      }))
+                    }
+                  />
+                </div>
+
+                {/* The icon in the header is easy to miss on a phone, and an
+                    athlete who cannot do an exercise needs to find this at
+                    the moment they discover that — not hunt for it. */}
+                {e.exercise_id && !f.swap && (
+                  <button
+                    type="button"
+                    className="mt-3 flex w-full items-center gap-3 rounded-lg border border-border bg-muted/30 px-3 py-2.5 text-left hover:border-foreground/30"
+                    onClick={() =>
+                      setSwapFor({
+                        id: e.id,
+                        exerciseId: e.exercise_id,
+                        name: e.exercises?.name_en ?? "this exercise",
+                      })
+                    }
+                  >
+                    <Repeat className="h-4 w-4 shrink-0 text-muted-foreground" />
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-sm">Can't do this one?</span>
+                      <span className="block font-mono text-[10px] uppercase tracking-wide text-muted-foreground">
+                        Swap for an alternative
+                      </span>
+                    </span>
+                    <span className="shrink-0 text-muted-foreground">›</span>
+                  </button>
+                )}
               </div>
             </Card>
           );
@@ -2168,6 +2279,38 @@ function LogWorkout({
         >
           <Plus className="mr-1 h-4 w-4" /> Add an exercise
         </Button>
+
+        {/* Effort, notes and photos belong to the act of finishing rather
+            than to the top of a page nobody scrolls back up. */}
+        <h2 className="pt-2 text-lg font-semibold">Finish session</h2>
+
+        <Card className="p-4">
+          <Label className="text-sm font-semibold">
+            Overall Effort (Borg Scale)
+          </Label>
+          {/* Ten targets rather than a drag handle: a slider is precise
+              work, and this is filled in with tired, often wet hands. */}
+          <div className="mt-3 grid grid-cols-10 gap-1">
+            {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
+              <button
+                key={n}
+                type="button"
+                onClick={() => setBorg(n)}
+                aria-pressed={borg === n}
+                className={`h-11 rounded-lg border text-sm tabular-nums transition-colors ${
+                  borg === n
+                    ? "border-foreground bg-foreground font-semibold text-background"
+                    : "border-border text-muted-foreground hover:border-foreground/40"
+                }`}
+              >
+                {n}
+              </button>
+            ))}
+          </div>
+          <p className="mt-2 text-xs text-muted-foreground">
+            {BORG_LABELS[borg]}
+          </p>
+        </Card>
 
         <Card className="p-4">
           <Label className="text-sm font-semibold">Overall Notes</Label>

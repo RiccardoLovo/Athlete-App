@@ -25,6 +25,13 @@ export type BlockLike = {
   pace?: string | null;
   zone?: number | null;
   pct_threshold?: number | null;
+  // An interval block may carry only a count and a block-level rest, with no
+  // prescription_intervals rows behind it — that is how the plain builder
+  // writes them, and the session profile has to be able to draw those too.
+  interval_count?: number | null;
+  rest_mode?: "seconds" | "ratio" | null;
+  rest_seconds?: number | null;
+  rest_ratio?: number | null;
 };
 
 export type RoundLike = {

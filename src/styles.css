@@ -47,6 +47,12 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-ring-offset-background: var(--background);
+  --color-repeat: var(--repeat);
+  --color-zone-1: var(--zone-1);
+  --color-zone-2: var(--zone-2);
+  --color-zone-3: var(--zone-3);
+  --color-zone-4: var(--zone-4);
+  --color-zone-5: var(--zone-5);
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
@@ -66,7 +72,21 @@
   /* Pure monochrome palette: every token below is chroma-0 (pure gray)
      except --destructive and --warning, which stay colored on purpose —
      red/yellow are kept as the only semantic color, reserved for errors
-     and warnings. */
+     and warnings.
+
+     The zone ramp below is the one further exception, added deliberately.
+     Training zones are ordered and comparable, so cool-to-hot carries real
+     meaning in a session's shape in a way a gray ramp cannot. It is used
+     for zones only — never to decorate. */
+  /* Repeated work is wrapped in a container of its own colour so a round
+     that happens twice is read once. Structural, not semantic — it marks
+     repetition, never a state. */
+  --repeat: oklch(0.62 0.12 85);
+  --zone-1: oklch(0.58 0.05 240);
+  --zone-2: oklch(0.55 0.13 240);
+  --zone-3: oklch(0.55 0.13 155);
+  --zone-4: oklch(0.65 0.14 75);
+  --zone-5: oklch(0.55 0.19 30);
   --radius: 0.625rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.18 0 0);
@@ -110,6 +130,14 @@
 }
 
 .dark {
+  /* Lifted against the dark ground so the ramp stays legible at the small
+     sizes a session profile draws at. */
+  --repeat: oklch(0.78 0.13 85);
+  --zone-1: oklch(0.65 0.05 240);
+  --zone-2: oklch(0.7 0.12 240);
+  --zone-3: oklch(0.72 0.13 155);
+  --zone-4: oklch(0.78 0.14 80);
+  --zone-5: oklch(0.68 0.18 35);
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.96 0 0);
   --card: oklch(0.2 0 0);
