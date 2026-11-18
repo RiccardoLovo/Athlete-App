@@ -22,12 +22,15 @@ type Block = BlockLike & { id: string; order_index: number };
 export function BlockLogInputs({
   sessionExerciseId,
   clientId,
+  discipline,
   values,
   onChange,
 }: {
   sessionExerciseId: string;
   /** Needed to show a heart-rate zone as actual beats. */
   clientId?: string | null;
+  /** Heart-rate bands differ per sport. */
+  discipline?: string | null;
   values: Record<string, BlockActual>;
   onChange: (blockId: string, next: BlockActual) => void;
 }) {
@@ -78,7 +81,7 @@ export function BlockLogInputs({
             <span className="shrink-0 rounded-md border border-border px-1.5 py-[3px] font-mono text-[9.5px] uppercase tracking-[0.09em] text-muted-foreground">
               {BLOCK_LABELS[b.block_type] ?? b.block_type}
             </span>
-            <BlockLine block={b} clientId={clientId} />
+            <BlockLine block={b} clientId={clientId} discipline={discipline} />
             <Input
               type="number"
               inputMode="decimal"

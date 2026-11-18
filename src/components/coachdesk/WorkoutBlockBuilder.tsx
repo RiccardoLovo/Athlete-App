@@ -490,7 +490,11 @@ function BlockEditor({
           <span className="shrink-0 rounded-md border border-border px-1.5 py-[3px] font-mono text-[9.5px] uppercase tracking-[0.09em] text-muted-foreground">
             {BLOCK_LABELS[block.block_type]}
           </span>
-          <BlockLine block={block} clientId={clientId} />
+          <BlockLine
+            block={block}
+            clientId={clientId}
+            discipline={discipline}
+          />
           <div className="ml-auto flex shrink-0 items-center gap-0.5">
             <button
               onClick={() => setOpen((v) => !v)}
@@ -860,9 +864,10 @@ function SimpleBlockBody({
 
       <span className="ml-1 text-[10px] text-muted-foreground">Follow</span>
       {/* Two decisions in one control, because to the coach they are one:
-          what the athlete holds. The same lactate threshold can be held
-          by its pace or power, or by the heart rate that goes with it,
-          and those are different sessions — heart rate
+          what the athlete holds. Pace, power and heart rate are measured
+          by separate tests against separate references, and holding a
+          zone by one is a different session from holding it by another
+          — heart rate
           lags the effort, drifts through a long one, and climbs in heat
           on a day the pace has not moved. */}
       <Select

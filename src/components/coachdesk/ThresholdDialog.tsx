@@ -27,7 +27,12 @@ type Test = {
 };
 
 /**
- * The four numbers a session's targets are derived from. Each is a dated
+ * The thresholds a session's targets are derived from. They are separate
+ * field tests in different units, not one number restated: FTP estimates
+ * sustainable power, CSS comes from a two-time-trial critical-speed
+ * model, run threshold pace from one sustained effort, LTHR is the heart
+ * rate at threshold. They land in the same region of intensity but do
+ * not convert into one another, so none is ever derived from another. Each is a dated
  * measurement rather than a property of the athlete, because a threshold
  * from eight months ago produces confidently wrong paces.
  *
@@ -45,8 +50,8 @@ const METRICS: {
 }[] = [
   {
     id: "run_threshold_pace_sec_per_km",
-    title: "Lactate threshold pace (run)",
-    help: "The fastest average pace holdable for about an hour. Choosing a zone on a run block fills the pace in from this.",
+    title: "Run threshold pace",
+    help: "The fastest average pace holdable for about an hour, from one sustained time trial. Choosing a zone on a run block fills the pace in from this.",
     inputLabel: "Pace (min:sec / km)",
     placeholder: "4:31",
     pace: true,
@@ -54,8 +59,8 @@ const METRICS: {
   },
   {
     id: "css_pace_sec_per_100m",
-    title: "Lactate threshold pace (swim, CSS)",
-    help: "Critical swim speed — the pace holdable for about 30 minutes.",
+    title: "Critical swim speed (CSS)",
+    help: "From a 400 m and a 200 m time trial. A critical-speed model rather than a measured threshold, which is why it is tested differently from the others.",
     inputLabel: "Pace (min:sec / 100m)",
     placeholder: "1:32",
     pace: true,
@@ -63,8 +68,8 @@ const METRICS: {
   },
   {
     id: "ftp_watts",
-    title: "Lactate threshold power (FTP)",
-    help: "Functional threshold power — the highest average power sustainable for about an hour.",
+    title: "Functional threshold power (FTP)",
+    help: "The highest average power sustainable for about an hour. A field estimate, not a measured physiological boundary — roughly 95% of critical power.",
     inputLabel: "FTP (watts)",
     placeholder: "220",
     pace: false,
@@ -72,8 +77,8 @@ const METRICS: {
   },
   {
     id: "lthr_bpm",
-    title: "Lactate threshold HR (LTHR)",
-    help: "Heart rate at lactate threshold — the average over a hard effort of about an hour. The same threshold the run pace and FTP describe, read in beats, so Z4 means the same thing whichever the coach prescribes against.",
+    title: "Lactate threshold heart rate (LTHR)",
+    help: "Average heart rate over the last 20 minutes of a 30-minute time trial, ridden or run alone. Drives heart-rate zones only — it is its own test, not a conversion of the pace or power thresholds, and the bands differ between running and cycling.",
     inputLabel: "LTHR (bpm)",
     placeholder: "165",
     pace: false,

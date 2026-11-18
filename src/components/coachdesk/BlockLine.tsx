@@ -26,10 +26,14 @@ import { useLatestThreshold } from "./IntervalBuilder";
 export function BlockLine({
   block,
   clientId,
+  discipline,
 }: {
   block: BlockLike;
   /** Needed to turn a heart-rate zone into actual beats. */
   clientId?: string | null;
+  /** Friel publishes different %LTHR bands per sport, so the band for a
+   *  zone depends on which one this block belongs to. */
+  discipline?: string | null;
 }) {
   const byHr = block.zone_basis === "hr";
   const { data: lthrBpm } = useLatestThreshold(
@@ -47,7 +51,7 @@ export function BlockLine({
 
   const band =
     byHr && block.zone != null
-      ? hrZoneBpm(block.zone as ZoneNumber, { lthrBpm, maxHrBpm })
+      ? hrZoneBpm(block.zone as ZoneNumber, discipline, { lthrBpm, maxHrBpm })
       : null;
 
   return (
@@ -88,7 +92,9 @@ export function BlockLine({
           letting it read like a pace zone. */}
       {byHr && block.zone != null && (
         <span className="font-mono text-[11px] text-muted-foreground">
-          {band ? formatHrBand(band) : "no HR reference on file"}
+          {band
+            ? `${formatHrBand(band)}${band.approximate ? " approx." : ""}`
+            : "no HR reference on file"}
         </span>
       )}
 

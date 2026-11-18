@@ -72,17 +72,31 @@ export function runZonePaceSec(
   return Math.max(1, Math.round(thresholdSecPerKm + RUN_ZONE_OFFSET_SEC[zone]));
 }
 
-// Heart-rate zones as a percentage band per zone. Two references, because
-// athletes know one or the other.
+// Heart-rate zones.
 //
-// Threshold heart rate is preferred: it is measured like the pace and
-// power thresholds, so Z4 lands on threshold in every discipline and the
-// zones mean the same thing across them. Percentages follow the common
-// LTHR scheme, where threshold sits at the top of Z4.
-export const HR_ZONE_PCT_LTHR: Record<
-  ZoneNumber,
-  { min: number; max: number }
-> = {
+// The four thresholds this app stores are NOT one number in four units.
+// FTP is a field estimate of sustainable power (and roughly 95% of
+// critical power, not a physiological boundary); CSS comes from a
+// two-time-trial critical-speed model; run threshold pace comes from one
+// longer effort; LTHR is the heart rate at threshold. They point at the
+// same region of intensity — around LT2 — but they are separate
+// measurements that do not convert into one another, so nothing here
+// derives one from another. Each zone system is driven by its own
+// reference.
+//
+// Friel publishes DIFFERENT %LTHR bands for running and cycling, and the
+// difference is not cosmetic: his cycling Z2 starts at 81% where running
+// starts at 85%. Using one table for both would misprescribe every easy
+// ride or run by several beats.
+const HR_PCT_LTHR_RUN: Record<ZoneNumber, { min: number; max: number }> = {
+  1: { min: 0.7, max: 0.85 },
+  2: { min: 0.85, max: 0.89 },
+  3: { min: 0.9, max: 0.94 },
+  4: { min: 0.95, max: 0.99 },
+  5: { min: 1.0, max: 1.06 },
+};
+
+const HR_PCT_LTHR_BIKE: Record<ZoneNumber, { min: number; max: number }> = {
   1: { min: 0.7, max: 0.81 },
   2: { min: 0.81, max: 0.89 },
   3: { min: 0.9, max: 0.93 },
@@ -90,42 +104,53 @@ export const HR_ZONE_PCT_LTHR: Record<
   5: { min: 1.0, max: 1.06 },
 };
 
-// Fallback on maximum heart rate, which more athletes can quote but which
-// places the zones less precisely — max HR is a ceiling, not a threshold,
-// and two athletes with the same ceiling can have very different ones.
-export const HR_ZONE_PCT_MAX: Record<ZoneNumber, { min: number; max: number }> =
-  {
-    1: { min: 0.5, max: 0.6 },
-    2: { min: 0.6, max: 0.7 },
-    3: { min: 0.7, max: 0.8 },
-    4: { min: 0.8, max: 0.9 },
-    5: { min: 0.9, max: 1.0 },
-  };
+// Percent-of-maximum is a different system again, not a restatement of
+// the Friel bands — a cruder fallback for athletes who know a ceiling but
+// have never tested a threshold.
+const HR_PCT_MAX: Record<ZoneNumber, { min: number; max: number }> = {
+  1: { min: 0.5, max: 0.6 },
+  2: { min: 0.6, max: 0.7 },
+  3: { min: 0.7, max: 0.8 },
+  4: { min: 0.8, max: 0.9 },
+  5: { min: 0.9, max: 1.0 },
+};
+
+export type HrBasis = "lthr" | "max";
 
 /**
- * The heart-rate band for a zone, in bpm. Returns null when neither
- * reference is on file rather than guessing one from age — an age-
- * predicted maximum is wrong by ten beats or more for most people, which
- * is an entire zone.
+ * The heart-rate band for a zone, in bpm, with the reference it came from
+ * so the caller can say which. Null when neither reference is on file:
+ * an age-predicted maximum is commonly out by ten beats or more, which is
+ * a whole zone, so none is guessed.
+ *
+ * Swimming has no published Friel table. The run bands are used and the
+ * caller is told, because heart rate in water runs several beats lower
+ * than on land — immersion alone lowers it — so a swim band is indicative
+ * at best.
  */
 export function hrZoneBpm(
   zone: ZoneNumber,
+  discipline: string | null | undefined,
   refs: { lthrBpm?: number | null; maxHrBpm?: number | null },
-): { min: number; max: number; basis: "lthr" | "max" } | null {
+): { min: number; max: number; basis: HrBasis; approximate: boolean } | null {
+  const approximate = discipline === "Swimming";
   if (refs.lthrBpm != null && refs.lthrBpm > 0) {
-    const b = HR_ZONE_PCT_LTHR[zone];
+    const table = discipline === "Cycling" ? HR_PCT_LTHR_BIKE : HR_PCT_LTHR_RUN;
+    const b = table[zone];
     return {
       min: Math.round(refs.lthrBpm * b.min),
       max: Math.round(refs.lthrBpm * b.max),
       basis: "lthr",
+      approximate,
     };
   }
   if (refs.maxHrBpm != null && refs.maxHrBpm > 0) {
-    const b = HR_ZONE_PCT_MAX[zone];
+    const b = HR_PCT_MAX[zone];
     return {
       min: Math.round(refs.maxHrBpm * b.min),
       max: Math.round(refs.maxHrBpm * b.max),
       basis: "max",
+      approximate,
     };
   }
   return null;
@@ -133,7 +158,7 @@ export function hrZoneBpm(
 
 /** "139–147 bpm" */
 export function formatHrBand(band: { min: number; max: number }): string {
-  return `${band.min}–${band.max} bpm`;
+  return `${band.min}\u2013${band.max} bpm`;
 }
 
 export function bikeZoneWatts(
