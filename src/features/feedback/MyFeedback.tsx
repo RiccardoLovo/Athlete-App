@@ -118,7 +118,7 @@ export function MyFeedback({ wrap }: { wrap?: boolean } = {}) {
               return (
                 <Card
                   key={s.id}
-                  className={`cursor-pointer p-4 transition hover:shadow ${logged ? "" : "border-yellow-300 bg-yellow-50/40"}`}
+                  className={`cursor-pointer p-4 transition hover:shadow ${logged ? "" : "border-warning/40 bg-warning/10"}`}
                   onClick={() => setOpenId(s.id)}
                 >
                   <div className="flex items-start gap-3">

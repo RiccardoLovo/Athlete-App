@@ -251,7 +251,7 @@ export function FeedbackDetail({
                   {i + 1}. {se?.exercises?.name_en ?? "Exercise"}
                 </div>
                 {e.swapped && (
-                  <div className="mt-1.5 flex flex-wrap items-center gap-2 rounded-md border border-amber-500/40 bg-amber-500/10 px-2 py-1.5 text-xs">
+                  <div className="mt-1.5 flex flex-wrap items-center gap-2 rounded-md border border-warning/40 bg-warning/10 px-2 py-1.5 text-xs">
                     <span className="font-medium">
                       Did {e.swapped.name_en} instead
                     </span>

@@ -194,7 +194,7 @@ export function CopyWeekDialog({
               </div>
             </div>
             {sourceWeek !== "" && !sourceHasSessions && (
-              <p className="mt-2 text-xs text-amber-600">
+              <p className="mt-2 text-xs text-warning">
                 This week has no sessions — the destination will be cleared but
                 nothing will be added.
               </p>

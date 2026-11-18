@@ -644,7 +644,7 @@ function BorgTab({ rows }: { rows: Row[] }) {
     <Card className="p-4">
       <div className="mb-3 flex items-center gap-2">
         {warn && (
-          <Badge className="bg-red-600 text-white">
+          <Badge className="bg-destructive text-white">
             <AlertTriangle className="mr-1 h-3 w-3" /> High perceived exertion —
             consider adjusting load
           </Badge>

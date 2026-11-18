@@ -25,14 +25,11 @@ export function SessionProfile({
   blocks,
   rounds,
   discipline,
-  showTotals = false,
   className,
 }: {
   blocks: (BlockLike & { id: string })[];
   rounds: (RoundLike & { workout_block_id?: string | null })[];
   discipline: string | null | undefined;
-  /** The coach's builder shows totals; the athlete's summary does not. */
-  showTotals?: boolean;
   className?: string;
 }) {
   const profile = useMemo(
@@ -46,55 +43,96 @@ export function SessionProfile({
   if (!profile.segments.length || !profile.axis) return null;
 
   return (
-    <div className={cn("space-y-3", className)}>
-      {showTotals && <Totals profile={profile} blocks={blocks.length} />}
-      <div>
-        <div className="flex h-20 items-end gap-[3px]">
-          {profile.segments.map((s) => (
-            <Bar key={s.key} seg={s} profile={profile} />
-          ))}
-        </div>
-        <Axis profile={profile} />
+    <div className={cn(className)}>
+      <div className="flex h-20 items-end gap-[3px]">
+        {profile.segments.map((s) => (
+          <Bar key={s.key} seg={s} profile={profile} />
+        ))}
       </div>
+      <Axis profile={profile} />
     </div>
   );
 }
 
-function Totals({ profile, blocks }: { profile: Profile; blocks: number }) {
+/**
+ * What the session adds up to. Reads from the same profile the chart draws,
+ * so the numbers and the picture can never disagree — and unlike a plain
+ * sum it accounts for rests and for distances turned into time by a pace.
+ *
+ * Renders whether or not the chart can, because a total is still worth
+ * having when the shape is not drawable. Where some blocks carry nothing
+ * to count, it says so rather than presenting a part as the whole.
+ */
+export function SessionTotals({
+  blocks,
+  rounds,
+  discipline,
+  className,
+}: {
+  blocks: (BlockLike & { id: string })[];
+  rounds: (RoundLike & { workout_block_id?: string | null })[];
+  discipline: string | null | undefined;
+  className?: string;
+}) {
+  const profile = useMemo(
+    () => buildProfile(blocks, rounds, discipline),
+    [blocks, rounds, discipline],
+  );
+  if (!blocks.length) return null;
+
+  const work = profile.segments.filter((s) => s.kind === "work");
+  const timed = work.filter((s) => s.durationMin != null);
+  const measured = work.filter((s) => s.distanceKm != null);
+  const minutes = profile.segments.reduce(
+    (a, s) => a + (s.durationMin ?? 0),
+    0,
+  );
+  const km = work.reduce((a, s) => a + (s.distanceKm ?? 0), 0);
+
   const items: { label: string; value: string; unit?: string }[] = [];
-  if (profile.totalMin != null)
+  if (timed.length)
     items.push({
       label: "Time",
-      value: String(Math.round(profile.totalMin)),
+      value: String(Math.round(minutes)),
       unit: "MIN",
     });
-  if (profile.totalKm != null)
+  if (measured.length)
     items.push({
       label: "Distance",
-      value: String(Math.round(profile.totalKm * 100) / 100),
+      value: String(Math.round(km * 100) / 100),
       unit: "KM",
     });
   if (profile.hardestZone != null)
     items.push({ label: "Hardest zone", value: `Z${profile.hardestZone}` });
-  items.push({ label: "Blocks", value: String(blocks) });
+  items.push({ label: "Blocks", value: String(blocks.length) });
+
+  const uncounted = work.length - Math.max(timed.length, measured.length);
 
   return (
-    <div className="flex flex-wrap gap-x-8 gap-y-3">
-      {items.map((it) => (
-        <div key={it.label}>
-          <div className="font-mono text-[9.5px] uppercase tracking-[0.1em] text-muted-foreground">
-            {it.label}
+    <div className={cn("space-y-1.5", className)}>
+      <div className="flex flex-wrap gap-x-8 gap-y-3">
+        {items.map((it) => (
+          <div key={it.label}>
+            <div className="font-mono text-[9.5px] uppercase tracking-[0.1em] text-muted-foreground">
+              {it.label}
+            </div>
+            <div className="text-xl font-medium tabular-nums">
+              {it.value}
+              {it.unit && (
+                <span className="ml-1 text-[11px] font-normal text-muted-foreground">
+                  {it.unit}
+                </span>
+              )}
+            </div>
           </div>
-          <div className="text-xl font-medium tabular-nums">
-            {it.value}
-            {it.unit && (
-              <span className="ml-1 text-[11px] font-normal text-muted-foreground">
-                {it.unit}
-              </span>
-            )}
-          </div>
-        </div>
-      ))}
+        ))}
+      </div>
+      {uncounted > 0 && (
+        <p className="text-[10px] text-muted-foreground">
+          {uncounted} {uncounted === 1 ? "block is" : "blocks are"} not counted
+          — no target set.
+        </p>
+      )}
     </div>
   );
 }

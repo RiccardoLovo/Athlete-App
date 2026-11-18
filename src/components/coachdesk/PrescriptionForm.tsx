@@ -626,7 +626,7 @@ function StrengthForm({
             step="0.5"
           />
           {isPct && pct != null && !showSuggestion && oneRmKg == null && (
-            <div className="mt-1 rounded bg-amber-100 px-1.5 py-0.5 text-[10px] text-amber-800 dark:bg-amber-500/15 dark:text-amber-300">
+            <div className="mt-1 rounded bg-warning/10 px-1.5 py-0.5 text-[10px] text-warning">
               {t("strength.no_1rm")}
             </div>
           )}

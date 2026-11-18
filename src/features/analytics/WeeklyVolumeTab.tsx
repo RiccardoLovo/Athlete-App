@@ -169,7 +169,7 @@ export function WeeklyVolumeTab({ clientId }: { clientId: string }) {
   return (
     <div className="space-y-3">
       {uncapturedTotal > 0 && (
-        <Card className="border-amber-500/40 bg-amber-500/5 p-3 text-sm">
+        <Card className="border-warning/40 bg-warning/5 p-3 text-sm">
           <p className="font-medium">
             {uncapturedTotal} of {sessionsTotal} endurance sessions were written
             before structured blocks
@@ -247,7 +247,7 @@ export function WeeklyVolumeTab({ clientId }: { clientId: string }) {
                               )}
                             </div>
                             {r.sessions_unmeasured > 0 && (
-                              <div className="text-[11px] text-amber-600">
+                              <div className="text-[11px] text-warning">
                                 {r.sessions_unmeasured} not captured
                               </div>
                             )}
@@ -272,7 +272,7 @@ export function WeeklyVolumeTab({ clientId }: { clientId: string }) {
                                           "—"}
                                       </span>
                                       {actText && (
-                                        <span className="text-emerald-600">
+                                        <span className="text-success">
                                           done {actText}
                                         </span>
                                       )}

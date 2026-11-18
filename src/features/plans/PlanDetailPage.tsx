@@ -21,15 +21,17 @@ import {
 
 type Block = { id: string; name: string; position: number; weeks: number };
 
-// Grayscale ramp — blocks are told apart by lightness, not hue. Kept dark
-// enough throughout that the white timeline-segment labels stay readable.
+// Blocks are told apart by lightness, not hue — but against the page's own
+// foreground rather than fixed grays, which inverted badly: bg-neutral-900
+// on a dark page was a black bar on a black background. Labels take
+// text-background so they stay readable in either theme.
 const BLOCK_COLORS = [
-  "bg-neutral-900",
-  "bg-neutral-700",
-  "bg-neutral-500",
-  "bg-neutral-800",
-  "bg-neutral-600",
-  "bg-neutral-950",
+  "bg-foreground",
+  "bg-foreground/75",
+  "bg-foreground/55",
+  "bg-foreground/85",
+  "bg-foreground/65",
+  "bg-foreground/45",
 ];
 
 export function PlanDetailPage() {
@@ -232,7 +234,7 @@ export function PlanDetailPage() {
                 {blocks.map((b, i) => (
                   <div
                     key={b.id}
-                    className={`${BLOCK_COLORS[i % BLOCK_COLORS.length]} flex items-center justify-center text-[10px] font-semibold text-white`}
+                    className={`${BLOCK_COLORS[i % BLOCK_COLORS.length]} flex items-center justify-center text-[10px] font-semibold text-background`}
                     style={{ width: `${(b.weeks / totalWeeks) * 100}%` }}
                     title={b.name}
                   >

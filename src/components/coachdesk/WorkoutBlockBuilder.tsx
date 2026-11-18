@@ -34,7 +34,7 @@ import {
   useLatestThreshold,
 } from "./IntervalBuilder";
 import { TemplateForm } from "./TemplateForm";
-import { SessionProfile } from "./SessionProfile";
+import { SessionProfile, SessionTotals } from "./SessionProfile";
 import {
   type ZoneNumber,
   bikePctToWatts,
@@ -291,12 +291,16 @@ export function WorkoutBlockBuilder({
       </div>
 
       {blocks.length > 0 && (
-        <div className="rounded-xl border border-border bg-card p-4">
+        <div className="space-y-3 rounded-xl border border-border bg-card p-4">
+          <SessionTotals
+            blocks={blocks}
+            rounds={allRounds}
+            discipline={discipline}
+          />
           <SessionProfile
             blocks={blocks}
             rounds={allRounds}
             discipline={discipline}
-            showTotals
           />
         </div>
       )}
@@ -335,8 +339,6 @@ export function WorkoutBlockBuilder({
           </Button>
         ))}
       </div>
-
-      <TotalsFooter blocks={blocks} />
 
       <div>
         <Label className="text-xs font-semibold">Coach notes</Label>
@@ -930,71 +932,5 @@ function SimpleBlockBody({
         </span>
       )}
     </>
-  );
-}
-
-function TotalsFooter({ blocks }: { blocks: Block[] }) {
-  const simpleBlocks = blocks.filter(
-    (b) => b.block_type !== "intervals" && b.block_type !== "pyramid",
-  );
-  const totalKm = simpleBlocks
-    .filter((b) => b.target_mode === "distance")
-    .reduce((s, b) => s + (b.distance_km ?? 0), 0);
-  const totalMin = simpleBlocks
-    .filter((b) => b.target_mode === "time")
-    .reduce((s, b) => s + (b.duration_min ?? 0), 0);
-
-  const generatedBlocks = blocks.filter(
-    (b) => b.block_type === "intervals" || b.block_type === "pyramid",
-  );
-  const { data: generatedTotals } = useQuery({
-    queryKey: [
-      "workout-block-round-totals",
-      generatedBlocks.map((b) => b.id).join(","),
-    ],
-    enabled: generatedBlocks.length > 0,
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("prescription_intervals")
-        .select("target_value, target_unit, workout_block_id")
-        .in(
-          "workout_block_id",
-          generatedBlocks.map((b) => b.id),
-        );
-      let km = 0;
-      let min = 0;
-      for (const r of (data ?? []) as {
-        target_value: number | null;
-        target_unit: string;
-      }[]) {
-        if (r.target_value == null) continue;
-        if (r.target_unit === "meters") km += r.target_value / 1000;
-        else if (r.target_unit === "seconds") min += r.target_value / 60;
-        else if (r.target_unit === "minutes") min += r.target_value;
-      }
-      return { km, min };
-    },
-  });
-
-  const km = totalKm + (generatedTotals?.km ?? 0);
-  const min = totalMin + (generatedTotals?.min ?? 0);
-
-  if (km <= 0 && min <= 0) return null;
-
-  return (
-    <div className="rounded border border-border bg-muted/40 px-2 py-1.5 text-[11px] text-muted-foreground">
-      Total:{" "}
-      {km > 0 && (
-        <span className="font-medium text-foreground">
-          {Math.round(km * 100) / 100}km
-        </span>
-      )}
-      {km > 0 && min > 0 && " · "}
-      {min > 0 && (
-        <span className="font-medium text-foreground">
-          {Math.round(min)} min
-        </span>
-      )}
-    </div>
   );
 }

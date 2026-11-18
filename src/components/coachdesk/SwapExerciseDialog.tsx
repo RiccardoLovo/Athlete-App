@@ -54,7 +54,7 @@ const REASONS: { id: SwapReason; label: string; group: string }[] = [
 
 const TIER_STYLE: Record<string, string> = {
   curated: "border-primary/60 text-primary",
-  "same movement": "border-sky-500/60 text-sky-500",
+  "same movement": "border-success/60 text-success",
   "matched on axes": "border-border text-muted-foreground",
 };
 
@@ -173,13 +173,13 @@ export function SwapExerciseDialog({
                 </div>
                 <dl className="mt-1.5 space-y-0.5 text-[11px]">
                   <div className="flex gap-2">
-                    <dt className="w-14 shrink-0 uppercase text-emerald-600">
+                    <dt className="w-14 shrink-0 uppercase text-success">
                       same
                     </dt>
                     <dd className="text-muted-foreground">{s.same_text}</dd>
                   </div>
                   <div className="flex gap-2">
-                    <dt className="w-14 shrink-0 uppercase text-amber-600">
+                    <dt className="w-14 shrink-0 uppercase text-warning">
                       changed
                     </dt>
                     <dd className="text-muted-foreground">{s.changed_text}</dd>

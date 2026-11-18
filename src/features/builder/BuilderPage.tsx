@@ -550,7 +550,7 @@ export function BuilderPage() {
             </span>
           )}
           {ctx.is_optional && (
-            <span className="rounded-full border border-yellow-300 bg-yellow-100 px-2 py-0.5 text-[11px] text-yellow-800 dark:bg-yellow-500/15 dark:text-yellow-300">
+            <span className="rounded-full border border-warning/40 bg-warning/10 px-2 py-0.5 text-[11px] text-warning">
               Optional
             </span>
           )}
@@ -600,7 +600,7 @@ export function BuilderPage() {
               </div>
               <button
                 onClick={() => toggleOptional()}
-                className={`rounded-full border px-2 py-0.5 text-[10px] ${ctx.is_optional ? "border-yellow-300 bg-yellow-100 text-yellow-800 dark:bg-yellow-500/15 dark:text-yellow-300" : "border-border text-muted-foreground hover:text-foreground"}`}
+                className={`rounded-full border px-2 py-0.5 text-[10px] ${ctx.is_optional ? "border-warning/40 bg-warning/10 text-warning" : "border-border text-muted-foreground hover:text-foreground"}`}
               >
                 Optional
               </button>

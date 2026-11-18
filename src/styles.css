@@ -47,6 +47,9 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-ring-offset-background: var(--background);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
   --color-repeat: var(--repeat);
   --color-zone-1: var(--zone-1);
   --color-zone-2: var(--zone-2);
@@ -70,9 +73,10 @@
 
 :root {
   /* Pure monochrome palette: every token below is chroma-0 (pure gray)
-     except --destructive and --warning, which stay colored on purpose —
-     red/yellow are kept as the only semantic color, reserved for errors
-     and warnings.
+     except --destructive, --warning and --success, which stay colored on
+     purpose — red/amber/green are the only semantic colors, reserved for
+     errors, attention and confirmation. Components use these tokens
+     rather than Tailwind palette classes, which ignore the theme.
 
      The zone ramp below is the one further exception, added deliberately.
      Training zones are ordered and comparable, so cool-to-hot carries real
@@ -111,7 +115,7 @@
   --border: oklch(0.9 0 0);
   --input: oklch(0.9 0 0);
   --ring: oklch(0.5 0 0);
-  --success: oklch(0.3 0 0);
+  --success: oklch(0.52 0.13 150);
   --warning: oklch(0.78 0.15 80);
   --warning-foreground: oklch(0.25 0.04 80);
   --chart-1: oklch(0.2 0 0);
@@ -159,7 +163,7 @@
   --border: oklch(1 0 0 / 12%);
   --input: oklch(1 0 0 / 16%);
   --ring: oklch(0.7 0 0);
-  --success: oklch(0.85 0 0);
+  --success: oklch(0.72 0.14 152);
   --warning: oklch(0.8 0.15 80);
   --warning-foreground: oklch(0.2 0.04 80);
   --chart-1: oklch(0.9 0 0);

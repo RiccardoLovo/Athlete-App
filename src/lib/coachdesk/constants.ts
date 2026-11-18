@@ -130,12 +130,15 @@ export const BORG_LABELS: Record<number, string> = {
   10: "Maximum effort",
 };
 
-// Monochrome: effort intensity reads through darkness, not hue.
+// Effort reads on the same cool-to-hot ramp as training zones, so a hard
+// session looks hard wherever it appears. The fixed grays this replaced
+// ignored the theme: bg-neutral-950 is invisible against a dark page.
 export function borgColor(v: number): string {
-  if (v <= 3) return "bg-neutral-300 text-neutral-900";
-  if (v <= 5) return "bg-neutral-500 text-white";
-  if (v <= 8) return "bg-neutral-700 text-white";
-  return "bg-neutral-950 text-white";
+  if (v <= 2) return "border-zone-1/40 bg-zone-1/15 text-zone-1";
+  if (v <= 4) return "border-zone-2/40 bg-zone-2/15 text-zone-2";
+  if (v <= 6) return "border-zone-3/40 bg-zone-3/15 text-zone-3";
+  if (v <= 8) return "border-zone-4/40 bg-zone-4/15 text-zone-4";
+  return "border-zone-5/40 bg-zone-5/15 text-zone-5";
 }
 
 export const SEED_EXERCISES: Array<{

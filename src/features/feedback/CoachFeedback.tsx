@@ -73,7 +73,7 @@ export function CoachFeedback({
       <div className="mb-4 flex items-center justify-between">
         <h1 className="text-2xl font-bold">Client Feedback</h1>
         {pendingCount > 0 && (
-          <Badge className="bg-red-600 text-white">
+          <Badge className="bg-destructive text-white">
             {pendingCount} pending
           </Badge>
         )}
@@ -111,7 +111,7 @@ export function CoachFeedback({
           {logs.map((l) => (
             <Card
               key={l.id}
-              className={`cursor-pointer p-4 transition hover:shadow ${l.status === "pending" ? "border-yellow-300 bg-yellow-50/40" : ""}`}
+              className={`cursor-pointer p-4 transition hover:shadow ${l.status === "pending" ? "border-warning/40 bg-warning/10" : ""}`}
               onClick={() => setSelectedId(l.id)}
             >
               <div className="flex items-start gap-3">
@@ -165,7 +165,7 @@ export function CoachFeedback({
                   {l.borg_scale}/10
                 </Badge>
                 {l.status === "pending" ? (
-                  <Clock className="h-5 w-5 text-yellow-600" />
+                  <Clock className="h-5 w-5 text-warning" />
                 ) : (
                   <Check className="h-5 w-5 text-foreground" />
                 )}

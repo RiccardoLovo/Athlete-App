@@ -38,7 +38,9 @@ function NavLink({
       <Icon className="h-4 w-4 shrink-0" />
       <span className="hidden sm:inline">{label}</span>
       {badge ? (
-        <Badge className="ml-0.5 bg-red-600 text-white sm:ml-1">{badge}</Badge>
+        <Badge className="ml-0.5 bg-destructive text-white sm:ml-1">
+          {badge}
+        </Badge>
       ) : null}
     </Link>
   );

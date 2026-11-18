@@ -6,7 +6,7 @@ import {
   blockIntensity,
   blockTarget,
 } from "@/lib/coachdesk/blocks";
-import { SessionProfile } from "./SessionProfile";
+import { SessionProfile, SessionTotals } from "./SessionProfile";
 
 type Block = {
   id: string;
@@ -94,21 +94,6 @@ export function WorkoutBlockSummary({
 
   if (!blocks.length) return null;
 
-  // Running totals across the whole workout, in whichever units apply.
-  let totalKm = 0;
-  let totalMin = 0;
-  for (const b of blocks) {
-    totalKm += b.distance_km ?? 0;
-    totalMin += b.duration_min ?? 0;
-  }
-  for (const r of rounds) {
-    if (r.target_value == null) continue;
-    if (r.target_unit === "meters") totalKm += Number(r.target_value) / 1000;
-    else if (r.target_unit === "seconds")
-      totalMin += Number(r.target_value) / 60;
-    else if (r.target_unit === "minutes") totalMin += Number(r.target_value);
-  }
-
   return (
     <div className="space-y-2 rounded border border-border bg-muted/30 p-2">
       <SessionProfile blocks={blocks} rounds={rounds} discipline={discipline} />
@@ -153,21 +138,13 @@ export function WorkoutBlockSummary({
             </div>
           );
         })}
-      {!chartOnly && (totalKm > 0 || totalMin > 0) && (
-        <div className="border-t border-border pt-1 text-[11px] text-muted-foreground">
-          Total:{" "}
-          {totalKm > 0 && (
-            <span className="font-medium text-foreground">
-              {Math.round(totalKm * 100) / 100}km
-            </span>
-          )}
-          {totalKm > 0 && totalMin > 0 && " · "}
-          {totalMin > 0 && (
-            <span className="font-medium text-foreground">
-              {Math.round(totalMin)} min
-            </span>
-          )}
-        </div>
+      {!chartOnly && (
+        <SessionTotals
+          blocks={blocks}
+          rounds={rounds}
+          discipline={discipline}
+          className="border-t border-border pt-2"
+        />
       )}
     </div>
   );

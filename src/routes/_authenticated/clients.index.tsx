@@ -368,10 +368,10 @@ function ClientsPage() {
                             search: { clientId: c.id },
                           });
                         }}
-                        className="relative inline-flex items-center justify-center rounded-full p-1 text-amber-600 hover:bg-amber-100"
+                        className="relative inline-flex items-center justify-center rounded-full p-1 text-warning hover:bg-warning/10"
                       >
                         <Bell className="h-4 w-4" />
-                        <span className="absolute -right-0.5 -top-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-red-600 text-[9px] font-bold text-white">
+                        <span className="absolute -right-0.5 -top-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-destructive text-[9px] font-bold text-white">
                           {trainingStatus.get(c.id)!.pendingCount}
                         </span>
                       </button>
@@ -386,7 +386,7 @@ function ClientsPage() {
                     {(() => {
                       const missing = trainingStatus?.get(c.id)?.missing ?? 0;
                       return missing > 0 ? (
-                        <Badge className="bg-red-600 text-white hover:bg-red-600">
+                        <Badge className="bg-destructive text-white hover:bg-destructive">
                           Behind — {missing} session{missing === 1 ? "" : "s"}
                         </Badge>
                       ) : (
