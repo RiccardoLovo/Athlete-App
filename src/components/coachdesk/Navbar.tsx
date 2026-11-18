@@ -156,7 +156,7 @@ export function Navbar() {
                   badge={unloggedCount}
                 />
               )}
-              <NavLink to="/my-1rm" icon={Activity} label="My 1RMs" />
+              <NavLink to="/my-stats" icon={Activity} label="My Stats" />
             </>
           )}
         </nav>

@@ -24,3 +24,6 @@ supabase/.temp/
 # Python bytecode from the exercise-bank scripts
 __pycache__/
 *.pyc
+
+# TanStack Start build cache
+.tanstack/

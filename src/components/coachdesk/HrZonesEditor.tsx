@@ -78,8 +78,14 @@ export function HrZonesEditor({ clientId }: { clientId: string }) {
     const bad = filled.find((r) => r.max < r.min);
     if (bad) return toast.error(`Zone ${bad.zone}: upper is below lower`);
 
-    const { data: u } = await supabase.auth.getUser();
-    if (!u.user) return;
+    // The row belongs to the athlete's coach whoever is typing it, now
+    // that athletes enter their own zones.
+    const { data: c } = await supabase
+      .from("clients")
+      .select("coach_id")
+      .eq("id", clientId)
+      .maybeSingle();
+    if (!c) return toast.error("Could not find this athlete");
 
     setSaving(true);
     // Replace the set rather than merge: a watch gives all five at once,
@@ -95,13 +101,13 @@ export function HrZonesEditor({ clientId }: { clientId: string }) {
     }
     const { error } = await supabase.from("client_hr_zones").insert(
       filled.map((r) => ({
-        coach_id: u.user!.id,
+        coach_id: c.coach_id,
         client_id: clientId,
         discipline: null,
         zone: r.zone,
         min_bpm: Math.round(r.min),
         max_bpm: Math.round(r.max),
-        source: "entered by coach",
+        source: "entered in app",
       })),
     );
     setSaving(false);

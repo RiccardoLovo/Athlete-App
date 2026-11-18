@@ -105,15 +105,12 @@ const METRICS: {
   },
 ];
 
-export function ThresholdDialog({
-  clientId,
-  clientName,
-  onClose,
-}: {
-  clientId: string;
-  clientName: string;
-  onClose: () => void;
-}) {
+/**
+ * The thresholds themselves, without the dialog around them, so the
+ * coach's client page and the athlete's own stats page show exactly the
+ * same fields rather than drifting into two half-matching forms.
+ */
+export function ThresholdFields({ clientId }: { clientId: string }) {
   const qc = useQueryClient();
   const [expanded, setExpanded] = useState<Metric | null>(null);
 
@@ -142,8 +139,18 @@ export function ThresholdDialog({
     if (!value || value <= 0) return toast.error("Enter a valid value");
     const { data: u } = await supabase.auth.getUser();
     if (!u.user) return;
+    // coach_id belongs to the client, not to whoever is typing — the
+    // athlete may now write these, and the row must still be filed under
+    // their coach.
+    const { data: c } = await supabase
+      .from("clients")
+      .select("coach_id")
+      .eq("id", clientId)
+      .maybeSingle();
+    if (!c) return toast.error("Could not find this athlete");
+
     const { error } = await supabase.from("client_threshold_tests").insert({
-      coach_id: u.user.id,
+      coach_id: c.coach_id,
       client_id: clientId,
       metric,
       value,
@@ -167,28 +174,42 @@ export function ThresholdDialog({
   }
 
   return (
+    <div className="space-y-3">
+      {METRICS.map((m) => (
+        <MetricSection
+          key={m.id}
+          meta={m}
+          tests={byMetric.get(m.id) ?? []}
+          expanded={expanded === m.id}
+          onToggle={() => setExpanded(expanded === m.id ? null : m.id)}
+          onAdd={async (value, date) => {
+            await addEntry(m.id, value, date);
+          }}
+          onDelete={(id) => deleteEntry(id, m.id)}
+        />
+      ))}
+    </div>
+  );
+}
+
+export function ThresholdDialog({
+  clientId,
+  clientName,
+  onClose,
+}: {
+  clientId: string;
+  clientName: string;
+  onClose: () => void;
+}) {
+  return (
     <Dialog open onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="max-h-[90vh] max-w-2xl overflow-auto">
         <DialogHeader>
           <DialogTitle>Thresholds — {clientName}</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-3">
-          <HrZonesEditor clientId={clientId} />
-          {METRICS.map((m) => (
-            <MetricSection
-              key={m.id}
-              meta={m}
-              tests={byMetric.get(m.id) ?? []}
-              expanded={expanded === m.id}
-              onToggle={() => setExpanded(expanded === m.id ? null : m.id)}
-              onAdd={async (value, date) => {
-                await addEntry(m.id, value, date);
-              }}
-              onDelete={(id) => deleteEntry(id, m.id)}
-            />
-          ))}
-        </div>
+        <HrZonesEditor clientId={clientId} />
+        <ThresholdFields clientId={clientId} />
 
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>

@@ -17,6 +17,7 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedExercisesRouteImport } from './routes/_authenticated/exercises'
 import { Route as AuthenticatedFeedbackRouteImport } from './routes/_authenticated/feedback'
 import { Route as AuthenticatedMy1rmRouteImport } from './routes/_authenticated/my-1rm'
+import { Route as AuthenticatedMyStatsRouteImport } from './routes/_authenticated/my-stats'
 import { Route as InviteTokenRouteImport } from './routes/invite.$token'
 import { Route as AuthenticatedAnalyticsClientIdRouteImport } from './routes/_authenticated/analytics.$clientId'
 import { Route as AuthenticatedBuilderSessionIdRouteImport } from './routes/_authenticated/builder.$sessionId'
@@ -62,6 +63,11 @@ const AuthenticatedFeedbackRoute = AuthenticatedFeedbackRouteImport.update({
 const AuthenticatedMy1rmRoute = AuthenticatedMy1rmRouteImport.update({
   id: '/my-1rm',
   path: '/my-1rm',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedMyStatsRoute = AuthenticatedMyStatsRouteImport.update({
+  id: '/my-stats',
+  path: '/my-stats',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const InviteTokenRoute = InviteTokenRouteImport.update({
@@ -114,6 +120,7 @@ export interface FileRoutesByFullPath {
   '/exercises': typeof AuthenticatedExercisesRoute
   '/feedback': typeof AuthenticatedFeedbackRoute
   '/my-1rm': typeof AuthenticatedMy1rmRoute
+  '/my-stats': typeof AuthenticatedMyStatsRoute
   '/invite/$token': typeof InviteTokenRoute
   '/analytics/$clientId': typeof AuthenticatedAnalyticsClientIdRoute
   '/builder/$sessionId': typeof AuthenticatedBuilderSessionIdRoute
@@ -130,6 +137,7 @@ export interface FileRoutesByTo {
   '/exercises': typeof AuthenticatedExercisesRoute
   '/feedback': typeof AuthenticatedFeedbackRoute
   '/my-1rm': typeof AuthenticatedMy1rmRoute
+  '/my-stats': typeof AuthenticatedMyStatsRoute
   '/invite/$token': typeof InviteTokenRoute
   '/analytics/$clientId': typeof AuthenticatedAnalyticsClientIdRoute
   '/builder/$sessionId': typeof AuthenticatedBuilderSessionIdRoute
@@ -148,6 +156,7 @@ export interface FileRoutesById {
   '/_authenticated/exercises': typeof AuthenticatedExercisesRoute
   '/_authenticated/feedback': typeof AuthenticatedFeedbackRoute
   '/_authenticated/my-1rm': typeof AuthenticatedMy1rmRoute
+  '/_authenticated/my-stats': typeof AuthenticatedMyStatsRoute
   '/invite/$token': typeof InviteTokenRoute
   '/_authenticated/analytics/$clientId': typeof AuthenticatedAnalyticsClientIdRoute
   '/_authenticated/builder/$sessionId': typeof AuthenticatedBuilderSessionIdRoute
@@ -166,6 +175,7 @@ export interface FileRouteTypes {
     | '/exercises'
     | '/feedback'
     | '/my-1rm'
+    | '/my-stats'
     | '/invite/$token'
     | '/analytics/$clientId'
     | '/builder/$sessionId'
@@ -182,6 +192,7 @@ export interface FileRouteTypes {
     | '/exercises'
     | '/feedback'
     | '/my-1rm'
+    | '/my-stats'
     | '/invite/$token'
     | '/analytics/$clientId'
     | '/builder/$sessionId'
@@ -199,6 +210,7 @@ export interface FileRouteTypes {
     | '/_authenticated/exercises'
     | '/_authenticated/feedback'
     | '/_authenticated/my-1rm'
+    | '/_authenticated/my-stats'
     | '/invite/$token'
     | '/_authenticated/analytics/$clientId'
     | '/_authenticated/builder/$sessionId'
@@ -274,6 +286,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMy1rmRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/my-stats': {
+      id: '/_authenticated/my-stats'
+      path: '/my-stats'
+      fullPath: '/my-stats'
+      preLoaderRoute: typeof AuthenticatedMyStatsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/invite/$token': {
       id: '/invite/$token'
       path: '/invite/$token'
@@ -331,6 +350,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedExercisesRoute: typeof AuthenticatedExercisesRoute
   AuthenticatedFeedbackRoute: typeof AuthenticatedFeedbackRoute
   AuthenticatedMy1rmRoute: typeof AuthenticatedMy1rmRoute
+  AuthenticatedMyStatsRoute: typeof AuthenticatedMyStatsRoute
   AuthenticatedAnalyticsClientIdRoute: typeof AuthenticatedAnalyticsClientIdRoute
   AuthenticatedBuilderSessionIdRoute: typeof AuthenticatedBuilderSessionIdRoute
   AuthenticatedClientsClientIdRoute: typeof AuthenticatedClientsClientIdRoute
@@ -344,6 +364,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedExercisesRoute: AuthenticatedExercisesRoute,
   AuthenticatedFeedbackRoute: AuthenticatedFeedbackRoute,
   AuthenticatedMy1rmRoute: AuthenticatedMy1rmRoute,
+  AuthenticatedMyStatsRoute: AuthenticatedMyStatsRoute,
   AuthenticatedAnalyticsClientIdRoute: AuthenticatedAnalyticsClientIdRoute,
   AuthenticatedBuilderSessionIdRoute: AuthenticatedBuilderSessionIdRoute,
   AuthenticatedClientsClientIdRoute: AuthenticatedClientsClientIdRoute,

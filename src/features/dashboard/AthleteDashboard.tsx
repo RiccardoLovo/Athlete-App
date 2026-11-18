@@ -11,6 +11,7 @@ import {
   X,
   PlayCircle,
   Repeat,
+  History,
 } from "lucide-react";
 import { ClientProfileDialog } from "@/components/coachdesk/ClientProfileDialog";
 import { WorkoutPhotos } from "@/components/coachdesk/WorkoutPhotos";
@@ -274,6 +275,8 @@ function SessionList({
   }, [plan?.start_date, currentWeekOffset]);
   const [downloading, setDownloading] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
+  // Finished blocks stay out of the way until asked for.
+  const [showPastBlocks, setShowPastBlocks] = useState(false);
   const [addingExtra, setAddingExtra] = useState(false);
 
   // Resolve current week info
@@ -416,13 +419,26 @@ function SessionList({
     runningOffset += b.weeks;
     return { block: b, startOffset };
   });
-  // Only the block being trained now and the ones still to come. A finished
-  // block is history the athlete does not need while logging today's session.
-  const blockSections = allBlockSections.filter(
+  // The logging screen leads with the block being trained now and the
+  // ones still to come. Finished blocks are not gone — they sit behind a
+  // row at the bottom, because "don't clutter today" and "never let me
+  // look back" are different things.
+  const currentAndFuture = allBlockSections.filter(
     ({ block, startOffset }: any) =>
       startOffset + block.weeks > currentWeekOffset,
   );
-  const pastBlockCount = allBlockSections.length - blockSections.length;
+  const pastSections = allBlockSections.filter(
+    ({
+      block,
+      startOffset,
+    }: {
+      block: { weeks: number };
+      startOffset: number;
+    }) => startOffset + block.weeks <= currentWeekOffset,
+  );
+  const blockSections = showPastBlocks
+    ? [...currentAndFuture, ...pastSections.slice().reverse()]
+    : currentAndFuture;
 
   return (
     <div className="h-[calc(100vh-3.5rem)] overflow-auto">
@@ -549,6 +565,21 @@ function SessionList({
             );
           })}
         </div>
+        {pastSections.length > 0 && (
+          <button
+            type="button"
+            onClick={() => setShowPastBlocks((v) => !v)}
+            className="flex w-full items-center gap-2 rounded-xl border border-dashed border-border px-4 py-3 text-left text-sm text-muted-foreground hover:border-foreground/30 hover:text-foreground"
+          >
+            <History className="h-4 w-4 shrink-0" />
+            <span className="flex-1">
+              {showPastBlocks ? "Hide" : "Show"} {pastSections.length} finished{" "}
+              {pastSections.length === 1 ? "block" : "blocks"}
+            </span>
+            <span>{showPastBlocks ? "−" : "+"}</span>
+          </button>
+        )}
+
         {sessionsWithExs.length === 0 ? (
           <Card className="p-8 text-center text-muted-foreground">
             <Dumbbell className="mx-auto mb-2 h-10 w-10 opacity-40" />
