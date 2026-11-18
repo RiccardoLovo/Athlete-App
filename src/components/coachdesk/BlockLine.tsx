@@ -11,6 +11,7 @@ import {
   type ZoneNumber,
 } from "@/lib/coachdesk/zones";
 import { useLatestThreshold } from "./IntervalBuilder";
+import { useOwnHrZones } from "./HrZonesEditor";
 
 /**
  * A block read as a sentence rather than a form: "15 min at 6:05/km".
@@ -44,6 +45,7 @@ export function BlockLine({
     byHr ? clientId : null,
     "max_hr_bpm",
   );
+  const { data: ownZones } = useOwnHrZones(byHr ? clientId : null);
 
   const target = blockTarget(block);
   const { primary, indicative } = blockIntensity(block);
@@ -51,7 +53,11 @@ export function BlockLine({
 
   const band =
     byHr && block.zone != null
-      ? hrZoneBpm(block.zone as ZoneNumber, discipline, { lthrBpm, maxHrBpm })
+      ? hrZoneBpm(block.zone as ZoneNumber, discipline, {
+          lthrBpm,
+          maxHrBpm,
+          explicit: ownZones,
+        })
       : null;
 
   return (

@@ -114,16 +114,20 @@ export function SessionTotals({
   );
   const km = work.reduce((a, s) => a + (s.distanceKm ?? 0), 0);
 
+  // Computed numbers are labelled EST. and carry an asterisk, and the
+  // footnote says what they lean on. A worked-out figure shown the same
+  // way as a prescribed one is the difference between a plan and a guess,
+  // and the athlete cannot tell them apart otherwise.
   const items: { label: string; value: string; unit?: string }[] = [];
   if (timed.length)
     items.push({
-      label: "Time",
+      label: profile.minEstimated ? "Est. time*" : "Time",
       value: String(Math.round(minutes)),
       unit: "MIN",
     });
   if (measured.length)
     items.push({
-      label: "Distance",
+      label: profile.kmEstimated ? "Est. distance*" : "Distance",
       value: String(Math.round(km * 100) / 100),
       unit: "KM",
     });
@@ -152,6 +156,17 @@ export function SessionTotals({
           </div>
         ))}
       </div>
+      {profile.estimatedFrom.length > 0 && (
+        <p className="text-[10px] text-muted-foreground">
+          *Worked out from{" "}
+          {profile.estimatedFrom
+            .map((p) =>
+              p === "pace" ? "the prescribed pace" : "a typical ride speed",
+            )
+            .join(" and ")}
+          .
+        </p>
+      )}
       {uncounted > 0 && (
         <p className="text-[10px] text-muted-foreground">
           {uncounted} {uncounted === 1 ? "block is" : "blocks are"} not counted

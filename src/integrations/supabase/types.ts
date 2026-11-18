@@ -113,6 +113,50 @@ export type Database = {
           },
         ];
       };
+      client_hr_zones: {
+        Row: {
+          client_id: string;
+          coach_id: string;
+          created_at: string;
+          discipline: string | null;
+          id: string;
+          max_bpm: number;
+          min_bpm: number;
+          source: string | null;
+          zone: number;
+        };
+        Insert: {
+          client_id: string;
+          coach_id: string;
+          created_at?: string;
+          discipline?: string | null;
+          id?: string;
+          max_bpm: number;
+          min_bpm: number;
+          source?: string | null;
+          zone: number;
+        };
+        Update: {
+          client_id?: string;
+          coach_id?: string;
+          created_at?: string;
+          discipline?: string | null;
+          id?: string;
+          max_bpm?: number;
+          min_bpm?: number;
+          source?: string | null;
+          zone?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "client_hr_zones_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "clients";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       client_invites: {
         Row: {
           client_id: string;

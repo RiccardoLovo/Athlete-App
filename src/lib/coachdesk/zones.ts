@@ -115,7 +115,8 @@ const HR_PCT_MAX: Record<ZoneNumber, { min: number; max: number }> = {
   5: { min: 0.9, max: 1.0 },
 };
 
-export type HrBasis = "lthr" | "max";
+/** Where a band came from; "own" is the athlete's own zones. */
+export type HrBasis = "own" | "lthr" | "max";
 
 /**
  * The heart-rate band for a zone, in bpm, with the reference it came from
@@ -131,8 +132,25 @@ export type HrBasis = "lthr" | "max";
 export function hrZoneBpm(
   zone: ZoneNumber,
   discipline: string | null | undefined,
-  refs: { lthrBpm?: number | null; maxHrBpm?: number | null },
+  refs: {
+    lthrBpm?: number | null;
+    maxHrBpm?: number | null;
+    /** Bands the athlete already has — from a watch or a lab. */
+    explicit?: { zone: number; min_bpm: number; max_bpm: number }[] | null;
+  },
 ): { min: number; max: number; basis: HrBasis; approximate: boolean } | null {
+  // Bands the athlete already uses beat any model. Recomputing them from
+  // a percentage would put the app a few beats away from the watch on
+  // their wrist, mid-session, with no way to tell which to believe.
+  const own = refs.explicit?.find((z) => z.zone === zone);
+  if (own)
+    return {
+      min: own.min_bpm,
+      max: own.max_bpm,
+      basis: "own",
+      approximate: false,
+    };
+
   const approximate = discipline === "Swimming";
   if (refs.lthrBpm != null && refs.lthrBpm > 0) {
     const table = discipline === "Cycling" ? HR_PCT_LTHR_BIKE : HR_PCT_LTHR_RUN;

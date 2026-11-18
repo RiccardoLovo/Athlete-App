@@ -14,12 +14,18 @@ import { blockHasRounds } from "./blocks";
 export type ProfileKind = "work" | "rest";
 export type ProfileAxis = "min" | "km" | null;
 
+/** Where a number came from, so the screen can say when it is a guess. */
+export type Provenance = "prescribed" | "pace" | "speed" | null;
+
 export type ProfileSegment = {
   key: string;
   kind: ProfileKind;
   label: string;
   durationMin: number | null;
   distanceKm: number | null;
+  /** "prescribed" = the coach set it. Anything else was worked out. */
+  durationFrom: Provenance;
+  distanceFrom: Provenance;
   zone: number | null;
   blockType: string;
 };
@@ -34,6 +40,11 @@ export type Profile = {
   totalMin: number | null;
   totalKm: number | null;
   hardestZone: number | null;
+  /** True when any part of that total was worked out rather than set. */
+  minEstimated: boolean;
+  kmEstimated: boolean;
+  /** What the estimates lean on, for the footnote. */
+  estimatedFrom: ("pace" | "speed")[];
   /** True when a duration was worked out from a pace rather than prescribed. */
   derived: boolean;
 };
@@ -156,6 +167,8 @@ export function buildProfile(
       label: "rest",
       durationMin: min,
       distanceKm: null,
+      durationFrom: min == null ? null : "prescribed",
+      distanceFrom: null,
       zone: 1,
       blockType: "rest",
     });
@@ -177,6 +190,15 @@ export function buildProfile(
             label: `${label} ${i + 1}`,
             durationMin: work,
             distanceKm: roundDistanceKm(r),
+            durationFrom:
+              work == null
+                ? null
+                : r.target_unit === "meters"
+                  ? discipline === "Cycling"
+                    ? "speed"
+                    : "pace"
+                  : "prescribed",
+            distanceFrom: roundDistanceKm(r) == null ? null : "prescribed",
             zone: r.hr_zone ?? b.zone ?? null,
             blockType: b.block_type,
           });
@@ -198,6 +220,8 @@ export function buildProfile(
             label: `${label} ${i + 1}`,
             durationMin: null,
             distanceKm: null,
+            durationFrom: null,
+            distanceFrom: null,
             zone: b.zone ?? null,
             blockType: b.block_type,
           });
@@ -213,6 +237,8 @@ export function buildProfile(
         label,
         durationMin: null,
         distanceKm: null,
+        durationFrom: null,
+        distanceFrom: null,
         zone: b.zone ?? null,
         blockType: b.block_type,
       });
@@ -226,11 +252,26 @@ export function buildProfile(
       kind: "work",
       label,
       durationMin: min,
+      durationFrom:
+        min == null
+          ? null
+          : b.target_mode === "time"
+            ? "prescribed"
+            : discipline === "Cycling"
+              ? "speed"
+              : "pace",
       distanceKm:
         b.distance_km != null
           ? Number(b.distance_km)
           : min != null
             ? distanceFromMinutes(min, discipline, ctx)
+            : null,
+      distanceFrom:
+        b.distance_km != null
+          ? "prescribed"
+          : distanceFromMinutes(min ?? 0, discipline, ctx) != null &&
+              min != null
+            ? "speed"
             : null,
       zone: b.zone ?? null,
       blockType: b.block_type,
@@ -248,9 +289,29 @@ export function buildProfile(
   const totalKm = work.every((s) => s.distanceKm != null)
     ? work.reduce((a, s) => a + (s.distanceKm ?? 0), 0)
     : null;
+  const minEstimated = segments.some(
+    (s) => s.durationFrom === "pace" || s.durationFrom === "speed",
+  );
+  const kmEstimated = work.some((s) => s.distanceFrom === "speed");
+  const estimatedFrom = Array.from(
+    new Set(
+      [
+        ...segments.map((s) => s.durationFrom),
+        ...work.map((s) => s.distanceFrom),
+      ].filter((p): p is "pace" | "speed" => p === "pace" || p === "speed"),
+    ),
+  );
+
   const zones = work.map((s) => s.zone).filter((z): z is number => z != null);
   const hardestZone = zones.length ? Math.max(...zones) : null;
-  const totals = { totalMin, totalKm, hardestZone };
+  const totals = {
+    totalMin,
+    totalKm,
+    hardestZone,
+    minEstimated,
+    kmEstimated,
+    estimatedFrom,
+  };
   const allMinutes =
     work.length > 0 && work.every((s) => s.durationMin != null);
   const allDistance =

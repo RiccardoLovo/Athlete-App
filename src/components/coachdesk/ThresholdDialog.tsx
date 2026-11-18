@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { formatSecondsToPace, parsePaceToSeconds } from "@/lib/coachdesk/zones";
+import { HrZonesEditor } from "./HrZonesEditor";
 
 import type { ThresholdMetric as Metric } from "@/lib/coachdesk/zones";
 export type { ThresholdMetric as Metric } from "@/lib/coachdesk/zones";
@@ -173,6 +174,7 @@ export function ThresholdDialog({
         </DialogHeader>
 
         <div className="space-y-3">
+          <HrZonesEditor clientId={clientId} />
           {METRICS.map((m) => (
             <MetricSection
               key={m.id}
