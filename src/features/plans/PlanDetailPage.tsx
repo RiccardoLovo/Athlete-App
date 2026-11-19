@@ -1,7 +1,16 @@
 import { Link, useNavigate, useParams } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Plus, Trash2, ChevronUp, ChevronDown } from "lucide-react";
+import {
+  ArrowLeft,
+  Plus,
+  Trash2,
+  ChevronUp,
+  ChevronDown,
+  Archive,
+  ArchiveRestore,
+  CopyPlus,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,7 +28,14 @@ import {
   toISODate,
 } from "@/lib/coachdesk/periodization";
 
-type Block = { id: string; name: string; position: number; weeks: number };
+type Block = {
+  id: string;
+  name: string;
+  position: number;
+  weeks: number;
+  /** Kept for reference, out of the calendar — no dates, never missed. */
+  archived: boolean;
+};
 
 // Blocks are told apart by lightness, not hue — but against the page's own
 // foreground rather than fixed grays, which inverted badly: bg-neutral-900
@@ -57,10 +73,25 @@ export function PlanDetailPage() {
     queryFn: async () => {
       const { data } = await supabase
         .from("training_blocks")
-        .select("id, name, position, weeks")
+        .select("id, name, position, weeks, archived")
         .eq("plan_id", planId)
         .order("position");
       return (data ?? []) as Block[];
+    },
+  });
+
+  // The athlete's other plans, so a block can be moved between them.
+  const { data: siblingPlans = [] } = useQuery({
+    queryKey: ["athlete-plans", plan?.athlete_id],
+    enabled: !!plan?.athlete_id,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("training_plans")
+        .select("id, name, status")
+        .eq("athlete_id", plan!.athlete_id)
+        .neq("id", planId)
+        .order("start_date");
+      return (data ?? []) as { id: string; name: string; status: string }[];
     },
   });
 
@@ -135,6 +166,107 @@ export function PlanDetailPage() {
   }
 
   // Editing a block's end date adjusts its `weeks` (rounded to whole weeks, min 1).
+  /**
+   * Park a block without losing it. Its sessions, prescriptions and every
+   * log against it stay; it simply leaves the calendar, so it stops
+   * pushing later blocks forward and stops generating missed sessions.
+   */
+  async function toggleArchived(b: Block) {
+    const { error } = await supabase
+      .from("training_blocks")
+      .update({ archived: !b.archived })
+      .eq("id", b.id);
+    if (error) return toast.error(error.message);
+    toast.success(
+      b.archived
+        ? `"${b.name}" is back in the calendar`
+        : `"${b.name}" archived — kept, but no longer scheduled`,
+    );
+    invalidate();
+  }
+
+  /**
+   * Repeat a block. Structure only: no workout logs come across, so the
+   * athlete is asked to log the work again as they do it and the original
+   * keeps its own history.
+   */
+  async function duplicateBlock(b: Block) {
+    const { data, error } = await supabase.rpc("copy_block", {
+      _source_block_id: b.id,
+      _target_plan_id: planId,
+      _name: `${b.name} (repeat)`,
+    });
+    if (error) return toast.error(error.message);
+    toast.success(`"${b.name}" duplicated — no logs carried over`);
+    invalidate();
+    void data;
+  }
+
+  /**
+   * Which plan the athlete is actually on.
+   *
+   * A unique index allows one active plan per athlete, so switching means
+   * standing the previous one down. Done here explicitly rather than
+   * leaving the coach to decode a constraint violation — and set to
+   * "completed" rather than "draft", because a plan that was trained and
+   * then superseded is finished, not unstarted.
+   */
+  async function setPlanStatus(next: string) {
+    if (next === "active") {
+      const { data: current } = await supabase
+        .from("training_plans")
+        .select("id, name")
+        .eq("athlete_id", plan!.athlete_id)
+        .eq("status", "active")
+        .neq("id", planId);
+      const others = (current ?? []) as { id: string; name: string }[];
+      if (others.length) {
+        if (
+          !confirm(
+            `"${others[0].name}" is the active plan. Mark it completed and ` +
+              `make "${plan!.name}" active instead? Nothing is deleted.`,
+          )
+        )
+          return;
+        const { error: e1 } = await supabase
+          .from("training_plans")
+          .update({ status: "completed" })
+          .in(
+            "id",
+            others.map((o) => o.id),
+          );
+        if (e1) return toast.error(e1.message);
+      }
+    }
+    const { error } = await supabase
+      .from("training_plans")
+      .update({ status: next as "draft" | "active" | "completed" })
+      .eq("id", planId);
+    if (error) return toast.error(error.message);
+    toast.success(`Plan marked ${next}`);
+    qc.invalidateQueries({ queryKey: ["plan", planId] });
+    qc.invalidateQueries({ queryKey: ["clients-training-status"] });
+  }
+
+  /** Move a block, with all its sessions and logs, to another plan. */
+  async function moveBlockToPlan(b: Block, targetPlanId: string) {
+    const { data: maxPos } = await supabase
+      .from("training_blocks")
+      .select("position")
+      .eq("plan_id", targetPlanId)
+      .order("position", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    const nextPos = ((maxPos?.position as number | undefined) ?? 0) + 1;
+    const { error } = await supabase
+      .from("training_blocks")
+      .update({ plan_id: targetPlanId, position: nextPos })
+      .eq("id", b.id);
+    if (error) return toast.error(error.message);
+    toast.success(`"${b.name}" moved — its sessions and logs went with it`);
+    invalidate();
+  }
+
   async function updateBlockEnd(b: Block, newEndISO: string) {
     if (!newEndISO) return;
     const bs = blockStart(plan.start_date, blocks, b.position);
@@ -212,9 +344,16 @@ export function PlanDetailPage() {
           <div className="flex-1">
             <div className="flex items-center gap-2">
               <h1 className="text-2xl font-bold">{plan.name}</h1>
-              <Badge variant="outline" className="capitalize">
-                {plan.status}
-              </Badge>
+              <select
+                value={plan.status}
+                onChange={(e) => setPlanStatus(e.target.value)}
+                className="h-7 rounded-md border border-border bg-background px-2 text-xs capitalize"
+                title="Draft and completed plans are history; only an active plan is the one being trained"
+              >
+                <option value="draft">draft</option>
+                <option value="active">active</option>
+                <option value="completed">completed</option>
+              </select>
             </div>
             <div className="text-sm text-muted-foreground">
               {formatRange(start, end)} · {totalWeeks} week
@@ -270,7 +409,10 @@ export function PlanDetailPage() {
                 const bs = blockStart(plan.start_date, blocks, b.position);
                 const be = blockEnd(plan.start_date, blocks, b.position);
                 return (
-                  <Card key={b.id} className="p-3">
+                  <Card
+                    key={b.id}
+                    className={`p-3 ${b.archived ? "border-dashed opacity-60" : ""}`}
+                  >
                     <div className="flex flex-wrap items-center gap-3">
                       <div
                         className={`h-8 w-2 rounded ${BLOCK_COLORS[i % BLOCK_COLORS.length]}`}
@@ -305,26 +447,41 @@ export function PlanDetailPage() {
                           className="h-8 w-16"
                         />
                       </div>
-                      <div className="flex items-center gap-1 text-xs">
-                        <span className="text-muted-foreground">Start</span>
-                        <Input
-                          key={`s-${b.id}-${toISODate(bs)}`}
-                          type="date"
-                          defaultValue={toISODate(bs)}
-                          onBlur={(e) => updateBlockStart(b, e.target.value)}
-                          className="h-8 w-[165px] min-w-0"
-                        />
-                      </div>
-                      <div className="flex items-center gap-1 text-xs">
-                        <span className="text-muted-foreground">End</span>
-                        <Input
-                          key={`e-${b.id}-${toISODate(be)}`}
-                          type="date"
-                          defaultValue={toISODate(be)}
-                          onBlur={(e) => updateBlockEnd(b, e.target.value)}
-                          className="h-8 w-[165px] min-w-0"
-                        />
-                      </div>
+                      {b.archived ? (
+                        /* No date fields at all. An archived block holds no
+                           slot in the chain, so blockStart would hand back
+                           the date of whichever block now occupies that
+                           position — a plausible wrong answer, which is
+                           worse than none. */
+                        <span className="font-mono text-[11px] uppercase tracking-wide text-muted-foreground">
+                          Archived · no dates · kept for reference
+                        </span>
+                      ) : (
+                        <>
+                          <div className="flex items-center gap-1 text-xs">
+                            <span className="text-muted-foreground">Start</span>
+                            <Input
+                              key={`s-${b.id}-${toISODate(bs)}`}
+                              type="date"
+                              defaultValue={toISODate(bs)}
+                              onBlur={(e) =>
+                                updateBlockStart(b, e.target.value)
+                              }
+                              className="h-8 w-[165px] min-w-0"
+                            />
+                          </div>
+                          <div className="flex items-center gap-1 text-xs">
+                            <span className="text-muted-foreground">End</span>
+                            <Input
+                              key={`e-${b.id}-${toISODate(be)}`}
+                              type="date"
+                              defaultValue={toISODate(be)}
+                              onBlur={(e) => updateBlockEnd(b, e.target.value)}
+                              className="h-8 w-[165px] min-w-0"
+                            />
+                          </div>
+                        </>
+                      )}
                       <div className="ml-auto flex items-center gap-1">
                         <Link
                           to="/plans/$planId/blocks/$blockId"
@@ -349,6 +506,48 @@ export function PlanDetailPage() {
                           onClick={() => moveBlock(b, 1)}
                         >
                           <ChevronDown className="h-4 w-4" />
+                        </Button>
+                        {siblingPlans.length > 0 && (
+                          <select
+                            value=""
+                            onChange={(e) => {
+                              if (e.target.value)
+                                moveBlockToPlan(b, e.target.value);
+                            }}
+                            className="h-8 rounded-md border border-border bg-background px-2 text-xs"
+                            title="Move this block to another plan — its sessions and logs go with it"
+                          >
+                            <option value="">Move to…</option>
+                            {siblingPlans.map((sp) => (
+                              <option key={sp.id} value={sp.id}>
+                                {sp.name} ({sp.status})
+                              </option>
+                            ))}
+                          </select>
+                        )}
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          title="Repeat this block — structure only, no logs"
+                          onClick={() => duplicateBlock(b)}
+                        >
+                          <CopyPlus className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          title={
+                            b.archived
+                              ? "Put back in the calendar"
+                              : "Archive — keep it, but take it out of the calendar"
+                          }
+                          onClick={() => toggleArchived(b)}
+                        >
+                          {b.archived ? (
+                            <ArchiveRestore className="h-4 w-4" />
+                          ) : (
+                            <Archive className="h-4 w-4" />
+                          )}
                         </Button>
                         <Button
                           size="icon"

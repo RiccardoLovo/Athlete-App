@@ -70,13 +70,14 @@ export function ClientProfileDialog({
     queryFn: async () => {
       const { data } = await supabase
         .from("clients")
-        .select("id, avatar_path, height_cm")
+        .select("id, avatar_path, height_cm, adherence_from")
         .eq("id", clientId)
         .single();
       return data as {
         id: string;
         avatar_path: string | null;
         height_cm: number | null;
+        adherence_from: string | null;
       };
     },
   });
@@ -155,6 +156,22 @@ export function ClientProfileDialog({
     toast.success("Photo updated");
     qc.invalidateQueries({ queryKey: ["client-profile", clientId] });
     qc.invalidateQueries({ queryKey: ["client-avatar-url"] });
+  }
+
+  async function saveAdherenceFrom(raw: string) {
+    const value = raw.trim() === "" ? null : raw;
+    const { error } = await supabase
+      .from("clients")
+      .update({ adherence_from: value })
+      .eq("id", clientId);
+    if (error) return toast.error(error.message);
+    toast.success(
+      value
+        ? `Adherence counted from ${value}`
+        : "Adherence counted over the whole history",
+    );
+    qc.invalidateQueries({ queryKey: ["clients-training-status"] });
+    qc.invalidateQueries({ queryKey: ["client-profile", clientId] });
   }
 
   async function saveHeight(value: string) {
@@ -308,6 +325,26 @@ export function ClientProfileDialog({
             <div className="mb-2 text-xs font-semibold uppercase text-muted-foreground">
               Stats
             </div>
+            {/* A line under the past. Adherence is derived from the
+                calendar, which is what makes it honest — and also means
+                restructuring a plan re-judges months nobody intended to
+                train. Setting this stops those weeks being counted; it
+                hides nothing and deletes nothing, and every weight and
+                threshold logged before it still counts. */}
+            <div className="space-y-1">
+              <Label className="text-xs">Count adherence from</Label>
+              <Input
+                type="date"
+                defaultValue={client?.adherence_from ?? ""}
+                onBlur={(e) => saveAdherenceFrom(e.target.value)}
+              />
+              <p className="text-[11px] text-muted-foreground">
+                Sessions planned before this date are never counted as missed.
+                Leave empty to judge the whole history. Logs, weights and
+                thresholds are untouched either way.
+              </p>
+            </div>
+
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
                 <Label className="text-xs">Height (cm)</Label>

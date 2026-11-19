@@ -47,7 +47,24 @@ export function nextMonday(from: Date = new Date()): Date {
   return addDays(d, offset);
 }
 
-export type BlockLike = { weeks: number; position: number };
+export type BlockLike = {
+  weeks: number;
+  position: number;
+  /**
+   * Kept for reference, out of the calendar. An archived block has no
+   * dates of its own and lends none to the blocks after it: leaving its
+   * weeks in the sum would push everything following it weeks into the
+   * future, which is the opposite of parking something.
+   */
+  archived?: boolean | null;
+};
+
+/** The blocks that actually occupy calendar time, in order. */
+export function scheduledBlocks<T extends BlockLike>(blocks: T[]): T[] {
+  return [...blocks]
+    .filter((b) => !b.archived)
+    .sort((a, b) => a.position - b.position);
+}
 
 // First day of a given block (1-indexed position) inside the plan.
 export function blockStart(
@@ -55,9 +72,8 @@ export function blockStart(
   blocks: BlockLike[],
   blockPosition: number,
 ): Date {
-  const sorted = [...blocks].sort((a, b) => a.position - b.position);
   let offset = 0;
-  for (const b of sorted) {
+  for (const b of scheduledBlocks(blocks)) {
     if (b.position >= blockPosition) break;
     offset += b.weeks * 7;
   }
@@ -76,7 +92,7 @@ export function blockEnd(
 }
 
 export function planEnd(planStart: string, blocks: BlockLike[]): Date {
-  const total = blocks.reduce((s, b) => s + b.weeks, 0);
+  const total = scheduledBlocks(blocks).reduce((s, b) => s + b.weeks, 0);
   if (total === 0) return parseISODate(planStart);
   return addDays(parseISODate(planStart), total * 7 - 1);
 }

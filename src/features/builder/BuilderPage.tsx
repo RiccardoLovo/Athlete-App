@@ -129,7 +129,7 @@ export function BuilderPage() {
       const { data: s } = await supabase
         .from("sessions")
         .select(
-          "id, name, notes, day_of_week, week_number, status, is_optional, target_borg, training_category_tags, body_region, block_id, training_blocks(id, name, plan_id, weeks, position, training_plans(id, name, start_date, athlete_id, clients(id, name, sport, goal, coach_id)))",
+          "id, name, notes, day_of_week, week_number, status, is_optional, target_borg, training_category_tags, body_region, block_id, training_blocks(id, name, plan_id, weeks, position, archived, training_plans(id, name, start_date, athlete_id, clients(id, name, sport, goal, coach_id)))",
         )
         .eq("id", sessionId)
         .single();
@@ -162,7 +162,7 @@ export function BuilderPage() {
     queryFn: async () => {
       const { data } = await supabase
         .from("training_blocks")
-        .select("position, weeks")
+        .select("position, weeks, archived")
         .eq("plan_id", planId!);
       return (data ?? []) as { position: number; weeks: number }[];
     },

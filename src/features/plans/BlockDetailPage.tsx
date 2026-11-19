@@ -93,7 +93,7 @@ export function BlockDetailPage() {
       const { data } = await supabase
         .from("training_blocks")
         .select(
-          "id, name, weeks, position, plan_id, training_plans(id, name, start_date, status, athlete_id, clients(id, name))",
+          "id, name, weeks, position, plan_id, archived, training_plans(id, name, start_date, status, athlete_id, clients(id, name, adherence_from))",
         )
         .eq("id", blockId)
         .single();
@@ -106,7 +106,7 @@ export function BlockDetailPage() {
     queryFn: async () => {
       const { data } = await supabase
         .from("training_blocks")
-        .select("position, weeks")
+        .select("position, weeks, archived")
         .eq("plan_id", planId);
       return (data ?? []) as { position: number; weeks: number }[];
     },
@@ -587,7 +587,12 @@ export function BlockDetailPage() {
                                 planned_date: dayISO,
                                 is_optional: s.is_optional,
                               },
-                              { ...logs, todayISO: toISODate(new Date()) },
+                              {
+                                ...logs,
+                                todayISO: toISODate(new Date()),
+                                adherenceFrom:
+                                  ctx.training_plans.clients?.adherence_from,
+                              },
                             )
                           : null;
                       return (

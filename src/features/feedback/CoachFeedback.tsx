@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Clock, Check, MessageSquare } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -42,6 +43,26 @@ export function CoachFeedback({
       })[];
     },
   });
+
+  async function markAllReviewed() {
+    const ids = logs.filter((l) => l.status === "pending").map((l) => l.id);
+    if (!ids.length) return;
+    if (
+      !confirm(
+        `Mark ${ids.length} session${ids.length === 1 ? "" : "s"} as reviewed? ` +
+          `Nothing the athlete logged is changed — only the pending flag.`,
+      )
+    )
+      return;
+    const { error } = await supabase
+      .from("workout_logs")
+      .update({ status: "reviewed" })
+      .in("id", ids);
+    if (error) return toast.error(error.message);
+    toast.success(`${ids.length} marked reviewed`);
+    qc.invalidateQueries({ queryKey: ["workout-logs"] });
+    qc.invalidateQueries({ queryKey: ["clients-training-status"] });
+  }
 
   // Deep-linked from the clients list bell: jump straight to that client's
   // most recent pending feedback the first time it becomes available.
@@ -101,6 +122,19 @@ export function CoachFeedback({
         >
           All
         </Button>
+        {/* Clearing a backlog one card at a time is how a coach stops
+            opening the queue at all. Only ever marks reviewed — it reads
+            nothing and changes no training data. */}
+        {filter === "pending" && logs.length > 1 && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="ml-auto"
+            onClick={markAllReviewed}
+          >
+            Mark all {logs.length} reviewed
+          </Button>
+        )}
       </div>
       {logs.length === 0 ? (
         <div className="py-20 text-center">

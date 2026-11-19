@@ -44,6 +44,7 @@ import {
   addDays,
   parseISODate,
   toISODate,
+  scheduledBlocks,
 } from "@/lib/coachdesk/periodization";
 import { clientWithPlansQuery } from "@/lib/coachdesk/client-queries";
 import { isMissed } from "@/lib/coachdesk/adherence";
@@ -95,9 +96,23 @@ function useClientsTrainingStatus(clientIds: string[]) {
     queryKey: ["clients-training-status", clientIds],
     enabled: clientIds.length > 0,
     queryFn: async () => {
+      // Each athlete's line under the past, so a restructured plan does
+      // not report months of work nobody intended to do as "behind".
+      const { data: floors } = await supabase
+        .from("clients")
+        .select("id, adherence_from")
+        .in("id", clientIds);
+      const adherenceFromByClient = new Map(
+        ((floors ?? []) as { id: string; adherence_from: string | null }[]).map(
+          (c) => [c.id, c.adherence_from],
+        ),
+      );
+
       const { data: plans } = await supabase
         .from("training_plans")
-        .select("athlete_id, start_date, training_blocks(id, position, weeks)")
+        .select(
+          "athlete_id, start_date, training_blocks(id, position, weeks, archived)",
+        )
         .in("athlete_id", clientIds);
       const planRows = (plans ?? []) as unknown as PlanRow[];
       const blockIds = planRows.flatMap((p) =>
@@ -161,9 +176,9 @@ function useClientsTrainingStatus(clientIds: string[]) {
         const clientId = plan.athlete_id;
         const status = result.get(clientId);
         if (!status) continue;
-        const blocks = (plan.training_blocks ?? [])
-          .slice()
-          .sort((a, b) => a.position - b.position);
+        // Archived blocks are kept for reference and are not scheduled,
+        // so nothing inside one can be behind.
+        const blocks = scheduledBlocks(plan.training_blocks ?? []);
         if (!blocks.length) continue;
         const offsets = new Map<string, number>();
         let cum = 0;
@@ -190,7 +205,11 @@ function useClientsTrainingStatus(clientIds: string[]) {
           if (
             isMissed(
               { id: s.id, planned_date: planned },
-              { finished, todayISO },
+              {
+                finished,
+                todayISO,
+                adherenceFrom: adherenceFromByClient.get(clientId),
+              },
             )
           )
             status.missing += 1;

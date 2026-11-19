@@ -283,6 +283,7 @@ export type Database = {
       };
       clients: {
         Row: {
+          adherence_from: string | null;
           avatar_path: string | null;
           coach_id: string;
           created_at: string;
@@ -298,6 +299,7 @@ export type Database = {
           user_id: string | null;
         };
         Insert: {
+          adherence_from?: string | null;
           avatar_path?: string | null;
           coach_id: string;
           created_at?: string;
@@ -313,6 +315,7 @@ export type Database = {
           user_id?: string | null;
         };
         Update: {
+          adherence_from?: string | null;
           avatar_path?: string | null;
           coach_id?: string;
           created_at?: string;
@@ -973,6 +976,7 @@ export type Database = {
       };
       training_blocks: {
         Row: {
+          archived: boolean;
           created_at: string;
           id: string;
           name: string;
@@ -982,6 +986,7 @@ export type Database = {
           weeks: number;
         };
         Insert: {
+          archived?: boolean;
           created_at?: string;
           id?: string;
           name: string;
@@ -991,6 +996,7 @@ export type Database = {
           weeks: number;
         };
         Update: {
+          archived?: boolean;
           created_at?: string;
           id?: string;
           name?: string;
@@ -1288,6 +1294,14 @@ export type Database = {
       coach_owns_session_exercise: {
         Args: { _se_id: string };
         Returns: boolean;
+      };
+      copy_block: {
+        Args: {
+          _name?: string;
+          _source_block_id: string;
+          _target_plan_id: string;
+        };
+        Returns: string;
       };
       copy_week: {
         Args: {

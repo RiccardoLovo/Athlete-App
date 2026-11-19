@@ -23,6 +23,8 @@ export type SessionState =
   | { kind: "missed" }
   /** Optional, and its day has passed. Not owed, so not missed. */
   | { kind: "passed-optional" }
+  /** Planned before the athlete's adherence_from line. Not judged. */
+  | { kind: "before-tracking" }
   | { kind: "today" }
   | { kind: "upcoming" };
 
@@ -35,6 +37,20 @@ export type AdherenceInput = {
   performedAt: Map<string, string>;
   /** Today, as an ISO date in the viewer's own timezone. */
   todayISO: string;
+  /**
+   * A line under the past: nothing planned before this date is ever
+   * counted as missed (clients.adherence_from).
+   *
+   * Needed because adherence is derived from the calendar. That is what
+   * makes it trustworthy, and it also means restructuring a plan
+   * retroactively re-judges months that were never going to be trained —
+   * an athlete coming back from injury does not need the app to open on
+   * forty missed sessions.
+   *
+   * It changes counting only. The sessions stay, the logs stay, and every
+   * weight and threshold recorded against them still counts.
+   */
+  adherenceFrom?: string | null;
 };
 
 export type AdherenceSession = {
@@ -63,16 +79,21 @@ export function daysBetween(a: string, b: string): number {
  */
 export function isMissed(
   s: AdherenceSession,
-  { finished, todayISO }: Pick<AdherenceInput, "finished" | "todayISO">,
+  {
+    finished,
+    todayISO,
+    adherenceFrom,
+  }: Pick<AdherenceInput, "finished" | "todayISO" | "adherenceFrom">,
 ): boolean {
   if (finished.has(s.id)) return false;
   if (s.is_optional) return false;
+  if (adherenceFrom && s.planned_date < adherenceFrom) return false;
   return daysBetween(todayISO, s.planned_date) < 0;
 }
 
 export function sessionState(
   s: AdherenceSession,
-  { finished, drafts, performedAt, todayISO }: AdherenceInput,
+  { finished, drafts, performedAt, todayISO, adherenceFrom }: AdherenceInput,
 ): SessionState {
   if (finished.has(s.id)) {
     const on = performedAt.get(s.id);
@@ -85,6 +106,11 @@ export function sessionState(
   // A draft is resumable whether or not its day has passed, so that is
   // what the card says. `isMissed` is what the rings count.
   if (drafts.has(s.id)) return { kind: "in-progress" };
+
+  // Before the line, an unfinished session is simply past, not missed.
+  // Shown as nothing rather than as a verdict.
+  if (adherenceFrom && s.planned_date < adherenceFrom)
+    return { kind: "before-tracking" };
 
   const offset = daysBetween(todayISO, s.planned_date);
   if (offset > 0) return { kind: "upcoming" };

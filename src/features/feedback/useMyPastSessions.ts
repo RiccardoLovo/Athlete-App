@@ -4,6 +4,7 @@ import {
   addDays,
   parseISODate,
   toISODate,
+  scheduledBlocks,
 } from "@/lib/coachdesk/periodization";
 import type { PlanSession } from "./feedback.types";
 
@@ -35,16 +36,20 @@ export function useMyPastSessions(clientId: string | undefined) {
       const { data: plans } = await supabase
         .from("training_plans")
         .select(
-          "id, start_date, status, training_blocks(id, name, position, weeks)",
+          "id, start_date, status, training_blocks(id, name, position, weeks, archived)",
         )
         .eq("athlete_id", clientId!);
       const rows: PlanSession[] = [];
       for (const plan of (plans ?? []) as any[]) {
-        const blocks = (plan.training_blocks ?? [])
-          .slice()
-          .sort((a: any, b: any) => a.position - b.position);
+        const blocks = (plan.training_blocks ?? []) as {
+          id: string;
+          name: string;
+          position: number;
+          weeks: number;
+          archived?: boolean | null;
+        }[];
         if (!blocks.length) continue;
-        const blockIds = blocks.map((b: any) => b.id);
+        const blockIds = blocks.map((b) => b.id);
         const { data: sess } = await supabase
           .from("sessions")
           .select(
@@ -87,7 +92,10 @@ export function useMyPastSessions(clientId: string | undefined) {
         // Block offsets in days from plan.start_date
         const offsets = new Map<string, number>();
         let cum = 0;
-        for (const b of blocks) {
+        // Archived blocks occupy no calendar time, so they neither get an
+        // offset nor push the blocks after them along. A session inside
+        // one has no planned date and is skipped below.
+        for (const b of scheduledBlocks(blocks)) {
           offsets.set(b.id, cum);
           cum += b.weeks * 7;
         }
@@ -95,12 +103,16 @@ export function useMyPastSessions(clientId: string | undefined) {
         for (const s of sList) {
           const c = counts.get(s.id) ?? 0;
           if (c === 0 && !s.is_client_added) continue;
-          const blk = blocks.find((b: any) => b.id === s.block_id);
+          const blk = blocks.find((b) => b.id === s.block_id);
           if (!blk) continue;
+          // An archived block has no offset because it has no dates. The
+          // `?? 0` fallback below would otherwise hand its sessions the
+          // plan's own start date and file months of parked work under
+          // week one.
+          const blockOffset = offsets.get(s.block_id);
+          if (blockOffset === undefined) continue;
           const off =
-            (offsets.get(s.block_id) ?? 0) +
-            (s.week_number - 1) * 7 +
-            (s.day_of_week - 1);
+            blockOffset + (s.week_number - 1) * 7 + (s.day_of_week - 1);
           const planned = toISODate(
             addDays(parseISODate(plan.start_date), off),
           );

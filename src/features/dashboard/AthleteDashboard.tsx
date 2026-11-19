@@ -63,6 +63,7 @@ import {
   formatLong,
   parseISODate,
   resolveDateToBlockWeekDay,
+  scheduledBlocks,
   toISODate,
 } from "@/lib/coachdesk/periodization";
 import { getEmbedUrl } from "@/lib/coachdesk/video";
@@ -105,7 +106,14 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 
-type Client = { id: string; name: string; sport: string; coach_id: string };
+type Client = {
+  id: string;
+  name: string;
+  sport: string;
+  coach_id: string;
+  /** Nothing planned before this is counted as missed. */
+  adherence_from: string | null;
+};
 
 const EMPTY_EXS: any[] = [];
 export const EMPTY_LAST_WEIGHTS: Record<string, string> = {};
@@ -194,7 +202,7 @@ export function AthleteDashboard() {
       if (!u.user) return null;
       const { data } = await supabase
         .from("clients")
-        .select("id, name, sport, coach_id")
+        .select("id, name, sport, coach_id, adherence_from")
         .eq("user_id", u.user.id)
         .maybeSingle();
       return data as Client | null;
@@ -255,17 +263,26 @@ function SessionList({
       const { data } = await supabase
         .from("training_plans")
         .select(
-          "id, name, start_date, status, training_blocks(id, name, position, weeks)",
+          "id, name, start_date, status, training_blocks(id, name, position, weeks, archived)",
         )
         .eq("athlete_id", client.id);
       return (data ?? []) as any[];
     },
   });
   const plan = allPlans?.find((p) => p.status === "active") ?? null;
-  const blocks = (plan?.training_blocks ?? [])
-    .slice()
-    .sort((a: any, b: any) => a.position - b.position);
-  const totalWeeks = blocks.reduce((s: number, b: any) => s + b.weeks, 0);
+  // Archived blocks are kept by the coach for reference and hold no place
+  // in the calendar, so the athlete's week navigation never walks through
+  // them and they lend no weeks to the blocks that follow.
+  const blocks = scheduledBlocks(
+    (plan?.training_blocks ?? []) as {
+      id: string;
+      name: string;
+      position: number;
+      weeks: number;
+      archived?: boolean | null;
+    }[],
+  );
+  const totalWeeks = blocks.reduce((s, b) => s + b.weeks, 0);
   // Which week of the whole plan today falls in. The athlete opens the app to
   // train now, so starting at week 1 of a plan that began months ago showed
   // them a block they had already finished.
@@ -439,6 +456,7 @@ function SessionList({
       drafts: data.drafts,
       performedAt: data.performedAt,
       todayISO,
+      adherenceFrom: client.adherence_from,
     };
     for (const s of sessionsWithExs) {
       states.set(s.id, sessionState(s, input));
