@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { sessionEquipment, type EquipmentRow } from "./equipment";
 import {
   exportTrainingPdf,
   type TrainingPdfScope,
@@ -77,6 +78,35 @@ export async function downloadTrainingPdf(opts: {
         .in("session_exercise_id", exerciseRowIds)
         .order("order_index")
     : { data: [] as any[] };
+
+  // Equipment for every session on the sheet, in one query.
+  const equipRows = (exs ?? []) as EquipmentRow[];
+  const annotIds = Array.from(
+    new Set(
+      equipRows.map((e) => e.exercise_id).filter((id): id is string => !!id),
+    ),
+  );
+  const { data: annots } = annotIds.length
+    ? await supabase
+        .from("exercise_annotations")
+        .select("exercise_id, equipment")
+        .in("exercise_id", annotIds)
+    : { data: [] as { exercise_id: string; equipment: string[] }[] };
+  const equipByExercise = new Map(
+    ((annots ?? []) as { exercise_id: string; equipment: string[] }[]).map(
+      (r) => [r.exercise_id, r.equipment],
+    ),
+  );
+  const equipmentFor = (sessionId: string): string[] =>
+    sessionEquipment(
+      equipRows
+        .filter((e) => e.session_id === sessionId)
+        .map((e) => ({
+          annotated: e.exercise_id ? equipByExercise.get(e.exercise_id) : null,
+          prescribed: (e.prescription as Record<string, unknown> | null)
+            ?.equipment,
+        })),
+    ).map((n) => n.label);
 
   const blocksBySE = new Map<string, any[]>();
   for (const b of (blockRows ?? []) as any[]) {
@@ -158,6 +188,7 @@ export async function downloadTrainingPdf(opts: {
         day_number,
         sessions: daySessions.map((s) => ({
           name: s.name ?? null,
+          equipment: equipmentFor(s.id),
           exercises: ((exs ?? []) as any[])
             .filter((e) => e.session_id === s.id)
             .map(buildExercise),

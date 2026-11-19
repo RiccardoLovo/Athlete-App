@@ -58,6 +58,8 @@ export interface PdfInterval {
 export interface PdfSession {
   name: string | null; // e.g. "AM Strength", null if unnamed
   exercises: PdfExercise[];
+  /** What to bring, already resolved and de-duplicated. */
+  equipment?: string[];
 }
 
 export interface PdfDay {
@@ -211,8 +213,9 @@ export function exportTrainingPdf(opts: {
     totalSessions: number,
     name: string | null,
     mix: string,
+    equipment?: string[],
   ) => {
-    ensureSpace(22);
+    ensureSpace(34);
     const label =
       totalSessions > 1
         ? `Session ${sessionIdx + 1} — ${name ?? mix}`
@@ -221,6 +224,19 @@ export function exportTrainingPdf(opts: {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(9);
     doc.text(label.toUpperCase(), M, cursorY + 9);
+
+    // On paper the equipment matters more than anywhere: a printed sheet
+    // is what gets carried to a gym with no phone on the floor.
+    if (equipment?.length) {
+      const line = `BRING: ${equipment.join(", ")}`;
+      const lines = doc.splitTextToSize(line, W - 2 * M) as string[];
+      setText(doc, C.textMuted);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8);
+      doc.text(lines, M, cursorY + 20);
+      cursorY += lines.length * 10;
+    }
+
     setDraw(doc, C.borderLo);
     doc.setLineWidth(0.5);
     doc.line(M, cursorY + 14, W - M, cursorY + 14);
@@ -568,7 +584,13 @@ export function exportTrainingPdf(opts: {
           new Set(session.exercises.map((e) => e.discipline)),
         );
         const mix = disciplines.join(" · ");
-        drawSessionHeader(sIdx, sessions.length, session.name, mix);
+        drawSessionHeader(
+          sIdx,
+          sessions.length,
+          session.name,
+          mix,
+          session.equipment,
+        );
         const sorted = [...session.exercises].sort(
           (a, b) => a.order_index - b.order_index,
         );

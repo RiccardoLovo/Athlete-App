@@ -1358,6 +1358,9 @@ export type Database = {
           block_name: string;
           block_position: number;
           discipline: string;
+          extra_km: number;
+          extra_minutes: number;
+          extra_sessions: number;
           plan_id: string;
           plan_name: string;
           planned_km: number;

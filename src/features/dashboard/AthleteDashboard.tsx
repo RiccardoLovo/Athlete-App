@@ -19,6 +19,12 @@ import { WorkoutBlockSummary } from "@/components/coachdesk/WorkoutBlockSummary"
 import { WeekRings } from "@/components/coachdesk/WeekRings";
 import { EffortChip, effortGap } from "@/components/coachdesk/TargetEffort";
 import {
+  equipmentLine,
+  sessionEquipment,
+  type EquipmentNeed,
+  type EquipmentRow,
+} from "@/lib/coachdesk/equipment";
+import {
   isMissed,
   lateLabel,
   sessionState,
@@ -315,7 +321,9 @@ function SessionList({
       const { data: exs } = ids.length
         ? await supabase
             .from("session_exercises")
-            .select("id, session_id, exercises(name_en, discipline)")
+            .select(
+              "id, session_id, exercise_id, prescription, exercises(name_en, discipline)",
+            )
             .in("session_id", ids)
         : { data: [] };
       const { data: logs } = ids.length
@@ -329,6 +337,42 @@ function SessionList({
       // means "opened", not "done". Only a log the athlete actually
       // finished leaves draft status behind — the week feed used to show
       // a check mark for a session with one number typed into it.
+      // One annotations query for the whole week, then equipment resolved
+      // per session. The alternative is one query per session card.
+      const equipRows = (exs ?? []) as EquipmentRow[];
+      const exerciseIds = Array.from(
+        new Set(
+          equipRows
+            .map((e) => e.exercise_id)
+            .filter((id): id is string => !!id),
+        ),
+      );
+      const { data: annots } = exerciseIds.length
+        ? await supabase
+            .from("exercise_annotations")
+            .select("exercise_id, equipment")
+            .in("exercise_id", exerciseIds)
+        : { data: [] };
+      const equipByExercise = new Map(
+        ((annots ?? []) as { exercise_id: string; equipment: string[] }[]).map(
+          (r) => [r.exercise_id, r.equipment],
+        ),
+      );
+      const equipmentBySession = new Map<string, EquipmentNeed[]>();
+      for (const id of ids) {
+        const mine = equipRows.filter((e) => e.session_id === id);
+        const needs = sessionEquipment(
+          mine.map((e) => ({
+            annotated: e.exercise_id
+              ? equipByExercise.get(e.exercise_id)
+              : null,
+            prescribed: (e.prescription as Record<string, unknown> | null)
+              ?.equipment,
+          })),
+        );
+        if (needs.length) equipmentBySession.set(id, needs);
+      }
+
       const rows = (logs ?? []) as {
         session_id: string;
         status: string;
@@ -351,6 +395,7 @@ function SessionList({
             .filter((l) => l.performed_at)
             .map((l) => [l.session_id, l.performed_at!]),
         ),
+        equipmentBySession,
       };
     },
   });
@@ -718,6 +763,16 @@ function SessionList({
                             <div className="font-mono text-[10px] uppercase tracking-wide text-muted-foreground">
                               {sessionSubtitle(s.exs)}
                               {s.is_optional && " · optional"}
+                              {/* Seen on the way out of the door, which is
+                                  the only moment it can still change what
+                                  the athlete puts in the bag. */}
+                              {!done &&
+                                (() => {
+                                  const line = equipmentLine(
+                                    data!.equipmentBySession.get(s.id) ?? [],
+                                  );
+                                  return line ? ` · 🎒 ${line}` : null;
+                                })()}
                               {/* Said plainly rather than hidden: a session
                                   moved by a day is normal, and the coach
                                   needs to see it as moved, not as missed. */}
@@ -1244,6 +1299,46 @@ async function addExistingExerciseToSession(
   } as never);
 }
 
+const EMPTY_EQUIPMENT: EquipmentNeed[] = [];
+
+/**
+ * What the athlete needs to bring for this session.
+ *
+ * Strength equipment is annotation data (one row per exercise, written by
+ * the exercise-bank importer and until now read only by the swap engine);
+ * swim gear is a string on the prescription. Both are collected here so
+ * the answer arrives with the session rather than being assembled from
+ * six rows the athlete would have to open one at a time.
+ */
+async function fetchSessionEquipment(
+  sessionExercises: { exercise_id: string | null; prescription?: unknown }[],
+): Promise<EquipmentNeed[]> {
+  const ids = Array.from(
+    new Set(
+      sessionExercises
+        .map((e) => e.exercise_id)
+        .filter((id): id is string => !!id),
+    ),
+  );
+  const { data } = ids.length
+    ? await supabase
+        .from("exercise_annotations")
+        .select("exercise_id, equipment")
+        .in("exercise_id", ids)
+    : { data: [] };
+  const byExercise = new Map(
+    ((data ?? []) as { exercise_id: string; equipment: string[] }[]).map(
+      (r) => [r.exercise_id, r.equipment],
+    ),
+  );
+  return sessionEquipment(
+    sessionExercises.map((e) => ({
+      annotated: e.exercise_id ? byExercise.get(e.exercise_id) : null,
+      prescribed: (e.prescription as Record<string, unknown> | null)?.equipment,
+    })),
+  );
+}
+
 const DISCIPLINE_DEFAULT_CATEGORY: Record<ExerciseDiscipline, string> = {
   Strength: "Resistance",
   Running: "Cardio",
@@ -1505,13 +1600,15 @@ function LogWorkout({
           )
           .map((e) => e.id),
       );
-      return { list, lastWeights, oneRms, intervalRounds };
+      const equipment = await fetchSessionEquipment(list);
+      return { list, lastWeights, oneRms, intervalRounds, equipment };
     },
   });
   const exs = exsData?.list ?? EMPTY_EXS;
   const lastWeights = exsData?.lastWeights ?? EMPTY_LAST_WEIGHTS;
   const oneRms = exsData?.oneRms ?? EMPTY_ONE_RMS;
   const intervalRounds = exsData?.intervalRounds ?? EMPTY_INTERVAL_ROUNDS;
+  const equipment = exsData?.equipment ?? EMPTY_EQUIPMENT;
 
   const { data: existingExLogsData } = useQuery({
     queryKey: ["my-fb-ex-logs", existingLog?.id],
@@ -2047,6 +2144,36 @@ function LogWorkout({
             <Badge className="bg-foreground text-background">Finished</Badge>
           )}
         </div>
+
+        {/* Before anything else on the page, because it is the one thing
+            that has to be read before leaving the house. Absent entirely
+            when there is nothing to bring, rather than an empty box
+            saying so. */}
+        {equipment.length > 0 && (
+          <Card className="p-4">
+            <Label className="text-sm font-semibold">Bring</Label>
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {equipment.map((need) => (
+                <span
+                  key={need.label}
+                  className="rounded-full border border-border bg-muted px-2.5 py-1 text-xs"
+                  title={
+                    need.count > 1
+                      ? `${need.count} exercises need this`
+                      : undefined
+                  }
+                >
+                  {need.label}
+                  {need.count > 1 && (
+                    <span className="ml-1 font-mono text-[10px] text-muted-foreground">
+                      ×{need.count}
+                    </span>
+                  )}
+                </span>
+              ))}
+            </div>
+          </Card>
+        )}
 
         <Card className="p-4">
           <Label className="text-sm font-semibold">Date performed</Label>

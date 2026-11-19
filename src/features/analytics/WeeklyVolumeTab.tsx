@@ -18,6 +18,10 @@ type VolumeRow = {
   actual_minutes: number;
   sessions_total: number;
   sessions_unmeasured: number;
+  /** Sessions the athlete logged themselves — never part of the plan. */
+  extra_km: number;
+  extra_minutes: number;
+  extra_sessions: number;
 };
 
 type ZoneRow = {
@@ -251,6 +255,25 @@ export function WeeklyVolumeTab({ clientId }: { clientId: string }) {
                                 {r.sessions_unmeasured} not captured
                               </div>
                             )}
+                            {/* Its own line, never added to the planned
+                                figure above. Folding it in would make a
+                                week where the athlete swapped the
+                                prescribed run for their own 15k read as
+                                the plan delivered and then some. */}
+                            {r.extra_sessions > 0 && (
+                              <div className="text-[11px] text-muted-foreground">
+                                <span className="text-foreground">
+                                  +
+                                  {fmtKm(r.extra_km, 0) ??
+                                    fmtMin(r.extra_minutes) ??
+                                    `${r.extra_sessions}×`}
+                                </span>{" "}
+                                self-logged
+                                {fmtKm(r.extra_km, 0) &&
+                                  fmtMin(r.extra_minutes) &&
+                                  ` · ${fmtMin(r.extra_minutes)}`}
+                              </div>
+                            )}
                             {openDiscipline === d && zones.length > 0 && (
                               <ul className="mt-1 space-y-0.5 border-t pt-1">
                                 {zones.map((z, i) => {
@@ -305,6 +328,15 @@ export function WeeklyVolumeTab({ clientId }: { clientId: string }) {
         time is shown and the distance left out. Inside a zone breakdown,
         &ldquo;done&rdquo; is what the athlete logged against that block — it
         appears only for sessions they logged block by block.
+      </p>
+
+      <p className="text-[11px] text-muted-foreground">
+        &ldquo;Self-logged&rdquo; is work the athlete added themselves. It is
+        kept out of the planned figures on purpose: it was never prescribed, so
+        counting it as delivered plan would hide the swap rather than show it.
+        Until now it appeared nowhere on this page at all — these sessions carry
+        their distance and duration on the session itself and have no exercises,
+        which is where every other number here comes from.
       </p>
     </div>
   );
