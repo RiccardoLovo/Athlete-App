@@ -704,25 +704,61 @@ function SessionList({
             const idx = allBlockSections.findIndex(
               (x: any) => x.block.id === block.id,
             );
+            const blockDates = plan?.start_date
+              ? (() => {
+                  const from = addDays(
+                    parseISODate(plan.start_date),
+                    startOffset * 7,
+                  );
+                  const to = addDays(from, block.weeks * 7 - 1);
+                  const fmt = (d: Date) =>
+                    d.toLocaleDateString(undefined, {
+                      day: "numeric",
+                      month: "short",
+                    });
+                  const startsInDays = Math.round(
+                    (+parseISODate(toISODate(from)) - +parseISODate(todayISO)) /
+                      86_400_000,
+                  );
+                  return {
+                    label:
+                      startsInDays > 0
+                        ? `Starts ${fmt(from)}${startsInDays <= 14 ? ` · in ${startsInDays} day${startsInDays === 1 ? "" : "s"}` : ""} — ${fmt(to)}`
+                        : `${fmt(from)} – ${fmt(to)}`,
+                  };
+                })()
+              : null;
             return (
               <Card
                 key={block.id}
                 className={`p-3 ${isCurrentBlock ? "border-primary/60 bg-primary/5" : ""}`}
               >
                 <div className="mb-2 flex flex-wrap items-center gap-2">
-                  <div className="flex min-w-0 flex-1 items-center gap-2">
-                    <Badge
-                      variant={isCurrentBlock ? "default" : "secondary"}
-                      className="shrink-0 text-[10px]"
-                    >
-                      Block {idx + 1}
-                    </Badge>
-                    <span className="min-w-0 truncate text-sm font-semibold">
-                      {block.name}
-                    </span>
-                    <span className="shrink-0 text-xs text-muted-foreground">
-                      · {block.weeks}w
-                    </span>
+                  <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+                    <div className="flex min-w-0 items-center gap-2">
+                      <Badge
+                        variant={isCurrentBlock ? "default" : "secondary"}
+                        className="shrink-0 text-[10px]"
+                      >
+                        Block {idx + 1}
+                      </Badge>
+                      <span className="min-w-0 truncate text-sm font-semibold">
+                        {block.name}
+                      </span>
+                      <span className="shrink-0 text-xs text-muted-foreground">
+                        · {block.weeks}w
+                      </span>
+                    </div>
+                    {/* When, not just how long. The card carried the length
+                      of a block and never its dates, so "when does the new
+                      one start" could not be answered from this page —
+                      which is the question an athlete waiting to restart
+                      is actually asking. */}
+                    {blockDates && (
+                      <span className="font-mono text-[10px] uppercase tracking-wide text-muted-foreground">
+                        {blockDates.label}
+                      </span>
+                    )}
                   </div>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -825,7 +861,20 @@ function SessionList({
         {sessionsWithExs.length === 0 ? (
           <Card className="p-8 text-center text-muted-foreground">
             <Dumbbell className="mx-auto mb-2 h-10 w-10 opacity-40" />
-            No workouts in this week yet.
+            {/* A week with nothing in it is usually a week the coach has
+                not written yet — but it can also be a week deliberately
+                left clear. Naming the block tells the two apart, so a
+                planned week off stops reading like missing data. */}
+            {weekInfo?.block?.name ? (
+              <>
+                <div className="font-medium text-foreground">
+                  {weekInfo.block.name}
+                </div>
+                <div className="mt-1">Nothing scheduled this week.</div>
+              </>
+            ) : (
+              "No workouts in this week yet."
+            )}
           </Card>
         ) : (
           <div className="space-y-5">
