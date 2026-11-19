@@ -1,4 +1,4 @@
-import { useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -248,6 +248,10 @@ function SessionList({
   client: Client;
   onPick: (s: any) => void;
 }) {
+  // Which plan and block to show. Empty means the active plan and today,
+  // which is what My Training has always meant; My Plans fills them in to
+  // look back at finished work.
+  const search = useSearch({ from: "/_authenticated/dashboard" });
   const DAY_LABELS_LOCAL = [
     "Monday",
     "Tuesday",
@@ -269,7 +273,14 @@ function SessionList({
       return (data ?? []) as any[];
     },
   });
-  const plan = allPlans?.find((p) => p.status === "active") ?? null;
+  // Normally the plan being trained. My Plans can point here at a finished
+  // one instead, so the athlete can look back at a block without the app
+  // pretending it is this week's work.
+  const plan =
+    (search.plan ? allPlans?.find((p) => p.id === search.plan) : null) ??
+    allPlans?.find((p) => p.status === "active") ??
+    null;
+  const viewingOtherPlan = !!plan && plan.status !== "active";
   // Archived blocks are kept by the coach for reference and hold no place
   // in the calendar, so the athlete's week navigation never walks through
   // them and they lend no weeks to the blocks that follow.
@@ -295,6 +306,18 @@ function SessionList({
     return Math.min(Math.max(weeksElapsed, 0), totalWeeks - 1);
   })();
 
+  // Opening a specific block means its first week, not today's — today is
+  // not inside a block that finished in September.
+  const requestedBlockOffset = (() => {
+    if (!search.block) return null;
+    let offset = 0;
+    for (const b of blocks) {
+      if (b.id === search.block) return offset;
+      offset += b.weeks;
+    }
+    return null;
+  })();
+
   const [weekOffset, setWeekOffset] = useState(currentWeekOffset); // 0..totalWeeks-1
   // The plan arrives after first render, so adopt the real current week once
   // it is known — but never fight the athlete if they have already navigated.
@@ -302,8 +325,17 @@ function SessionList({
   useEffect(() => {
     if (pickedWeekRef.current || !plan?.start_date) return;
     pickedWeekRef.current = true;
-    setWeekOffset(currentWeekOffset);
-  }, [plan?.start_date, currentWeekOffset]);
+    setWeekOffset(requestedBlockOffset ?? currentWeekOffset);
+  }, [plan?.start_date, currentWeekOffset, requestedBlockOffset]);
+
+  // A different block arriving from My Plans is a new instruction, not the
+  // athlete navigating, so it overrides the "don't fight them" guard above.
+  const lastBlockParam = useRef<string | undefined>(undefined);
+  useEffect(() => {
+    if (search.block === lastBlockParam.current) return;
+    lastBlockParam.current = search.block;
+    if (requestedBlockOffset !== null) setWeekOffset(requestedBlockOffset);
+  }, [search.block, requestedBlockOffset]);
   const [downloading, setDownloading] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   // Finished blocks stay out of the way until asked for.
@@ -707,6 +739,26 @@ function SessionList({
             </span>
             <span>{showPastBlocks ? "−" : "+"}</span>
           </button>
+        )}
+
+        {/* Looking back. Said plainly, because every other signal on this
+            page — "Today", the rings, what counts as missed — is written
+            for the week being trained now. */}
+        {viewingOtherPlan && (
+          <div className="flex flex-wrap items-center gap-2 rounded-xl border border-dashed border-border bg-muted/30 px-4 py-3 text-sm">
+            <History className="h-4 w-4 shrink-0 text-muted-foreground" />
+            <span className="flex-1">
+              Looking at <span className="font-medium">{plan?.name}</span>{" "}
+              <span className="text-muted-foreground">({plan?.status})</span>
+            </span>
+            <Link
+              to="/dashboard"
+              search={{ plan: undefined, block: undefined }}
+              className="underline"
+            >
+              Back to this week
+            </Link>
+          </div>
         )}
 
         {data && (

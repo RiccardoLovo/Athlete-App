@@ -8,6 +8,7 @@ import {
   Moon,
   Monitor,
   Activity,
+  CalendarDays,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -53,8 +54,14 @@ export function Navbar() {
   const isAthlete = !!role?.isAthlete;
   const isAdmin = !!role?.isAdmin;
   const hasClientProfile = !!role?.hasClientProfile;
+  const isCoach = !!role?.isCoach;
   const showAthleteLinks = isAthlete || hasClientProfile;
-  const showCoachLinks = !isAthlete; // admins/coaches keep coach links
+  // Was `!isAthlete`, which cost a coach who also trains under their own
+  // account every coach link they had — Clients, Exercises, Feedback and,
+  // through them, every plan and block screen. A self-coached athlete is
+  // the normal case here, not an edge one, so the two roles are read
+  // independently: have the coach role, get the coach links.
+  const showCoachLinks = isCoach;
   // Mixed coach+athlete accounts already reach both feedback views via the
   // coach "Feedback" link (it shows a My/Client tabs page) — a second nav
   // entry there would just be a duplicate link to the same route.
@@ -148,6 +155,7 @@ export function Navbar() {
           {showAthleteLinks && (
             <>
               <NavLink to="/dashboard" icon={Dumbbell} label="My Training" />
+              <NavLink to="/my-plans" icon={CalendarDays} label="My Plans" />
               {showAthleteFeedbackLink && (
                 <NavLink
                   to="/feedback"
