@@ -252,6 +252,7 @@ function SessionList({
   // which is what My Training has always meant; My Plans fills them in to
   // look back at finished work.
   const search = useSearch({ from: "/_authenticated/dashboard" });
+  const navigate = useNavigate();
   const DAY_LABELS_LOCAL = [
     "Monday",
     "Tuesday",
@@ -281,6 +282,14 @@ function SessionList({
     allPlans?.find((p) => p.status === "active") ??
     null;
   const viewingOtherPlan = !!plan && plan.status !== "active";
+  // A draft plan is the coach's workspace — not yet given to anyone — so
+  // it has no business in the athlete's list of their own training.
+  const visiblePlans = ((allPlans ?? []) as { id: string; status: string }[])
+    .filter((p) => p.status !== "draft")
+    .map(
+      (p) =>
+        p as { id: string; name: string; status: string; start_date: string },
+    );
   // Archived blocks are kept by the coach for reference and hold no place
   // in the calendar, so the athlete's week navigation never walks through
   // them and they lend no weeks to the blocks that follow.
@@ -605,11 +614,53 @@ function SessionList({
     <div className="h-[calc(100vh-3.5rem)] overflow-auto">
       <div className="mx-auto max-w-2xl space-y-4 p-4 sm:p-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
+          <div className="min-w-0">
             <h1 className="text-2xl font-bold">Hi, {client.name} 👋</h1>
-            <p className="text-sm text-muted-foreground">
-              Your training for this week
-            </p>
+            {/* Which plan this page is showing, and the way into the
+                others. The athlete had no way to reach a finished plan
+                from here at all — the page simply picked the active one
+                and said nothing about there being any others. */}
+            {visiblePlans.length > 1 ? (
+              <select
+                value={plan?.id ?? ""}
+                onChange={(e) => {
+                  const picked = visiblePlans.find(
+                    (p) => p.id === e.target.value,
+                  );
+                  navigate({
+                    to: "/dashboard",
+                    search: {
+                      // The active plan is the default view, so it clears
+                      // the parameter instead of pinning it.
+                      plan:
+                        picked && picked.status !== "active"
+                          ? picked.id
+                          : undefined,
+                      block: undefined,
+                    },
+                  });
+                }}
+                className="mt-1 max-w-full rounded-md border border-border bg-background px-2 py-1 text-sm"
+              >
+                {[...visiblePlans]
+                  .sort(
+                    (a, b) =>
+                      Number(b.status === "active") -
+                        Number(a.status === "active") ||
+                      String(b.start_date).localeCompare(String(a.start_date)),
+                  )
+                  .map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name}
+                      {p.status === "active" ? " — current" : ` — ${p.status}`}
+                    </option>
+                  ))}
+              </select>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                Your training for this week
+              </p>
+            )}
           </div>
           <div className="flex flex-wrap gap-2">
             <Button

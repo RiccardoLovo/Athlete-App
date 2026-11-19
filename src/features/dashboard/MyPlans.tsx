@@ -76,12 +76,15 @@ export function MyPlans() {
 
   if (isLoading) return null;
 
-  // The one being trained leads, whatever its start date says.
-  const sorted = [...plans].sort(
-    (a, b) =>
-      Number(b.status === "active") - Number(a.status === "active") ||
-      b.start_date.localeCompare(a.start_date),
-  );
+  // Draft plans are the coach's workspace, not yet given to anyone, so
+  // they are not part of the athlete's own training history.
+  const sorted = [...plans]
+    .filter((p) => p.status !== "draft")
+    .sort(
+      (a, b) =>
+        Number(b.status === "active") - Number(a.status === "active") ||
+        b.start_date.localeCompare(a.start_date),
+    );
 
   return (
     <div className="h-[calc(100vh-3.5rem)] overflow-auto">
