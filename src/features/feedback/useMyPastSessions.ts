@@ -7,6 +7,7 @@ import {
   scheduledBlocks,
 } from "@/lib/coachdesk/periodization";
 import type { PlanSession } from "./feedback.types";
+import { isMissed } from "@/lib/coachdesk/adherence";
 
 // Shared by MyFeedback (the full list) and the Navbar badge (just a count) —
 // same query key, so React Query serves both from one fetch/cache instead
@@ -20,10 +21,15 @@ export function useMyClientForFeedback(enabled = true) {
       if (!u.user) return null;
       const { data } = await supabase
         .from("clients")
-        .select("id, name, coach_id")
+        .select("id, name, coach_id, adherence_from")
         .eq("user_id", u.user.id)
         .maybeSingle();
-      return data as { id: string; name: string; coach_id: string } | null;
+      return data as {
+        id: string;
+        name: string;
+        coach_id: string;
+        adherence_from: string | null;
+      } | null;
     },
   });
 }
@@ -53,7 +59,7 @@ export function useMyPastSessions(clientId: string | undefined) {
         const { data: sess } = await supabase
           .from("sessions")
           .select(
-            "id, name, day_of_week, week_number, block_id, status, is_client_added, discipline, intensity, duration_minutes, distance_meters",
+            "id, name, day_of_week, week_number, block_id, status, is_optional, is_client_added, discipline, intensity, duration_minutes, distance_meters",
           )
           .in("block_id", blockIds)
           .eq("status", "active");
@@ -132,6 +138,7 @@ export function useMyPastSessions(clientId: string | undefined) {
             planned_date: planned,
             ex_count: c,
             types,
+            is_optional: !!s.is_optional,
             is_client_added: s.is_client_added,
             discipline: s.discipline,
             intensity: s.intensity,
@@ -147,9 +154,33 @@ export function useMyPastSessions(clientId: string | undefined) {
 }
 
 // Sessions due (planned today or earlier) with no workout_log yet.
+/**
+ * The number on the athlete's Feedback tab.
+ *
+ * This was the third place in the app counting the same idea and the only
+ * one still doing it by hand: `planned_date <= today && !log`. That
+ * counts an optional session the athlete chose to skip, counts a session
+ * they started and saved but never finished as done, and — the reason it
+ * showed 94 — ignores the adherence line entirely, so a restructured plan
+ * went on billing the athlete for months nobody intended to train.
+ *
+ * It now asks isMissed, like the coach's badge and the athlete's rings.
+ */
 export function useMyUnloggedCount(enabled = true) {
   const { data: client } = useMyClientForFeedback(enabled);
   const { data: sessions = [] } = useMyPastSessions(client?.id);
   const todayISO = toISODate(new Date());
-  return sessions.filter((s) => s.planned_date <= todayISO && !s.log).length;
+  const finished = new Set(
+    sessions.filter((s) => s.log && s.log.status !== "draft").map((s) => s.id),
+  );
+  return sessions.filter((s) =>
+    isMissed(
+      {
+        id: s.id,
+        planned_date: s.planned_date,
+        is_optional: s.is_optional,
+      },
+      { finished, todayISO, adherenceFrom: client?.adherence_from },
+    ),
+  ).length;
 }

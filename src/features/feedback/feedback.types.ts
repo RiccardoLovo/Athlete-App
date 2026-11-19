@@ -32,6 +32,8 @@ export type PlanSession = {
   planned_date: string; // yyyy-mm-dd
   ex_count: number;
   types: string[];
+  /** Optional work: skipping it is a choice, so it is never owed. */
+  is_optional: boolean;
   is_client_added: boolean;
   discipline: string | null;
   intensity: string | null;
