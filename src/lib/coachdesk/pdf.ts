@@ -306,10 +306,22 @@ export function exportTrainingPdf(opts: {
     const notesLines = e.notes ? doc.splitTextToSize(e.notes, innerW) : [];
     const notesH = notesLines.length ? notesLines.length * 10 + 6 : 0;
 
-    const bodyH = blocks.reduce((h, b) => {
+    // The coach's per-step note, wrapped and measured up front so the card
+    // is tall enough for it. Measured once and reused when drawing, rather
+    // than wrapped twice and trusted to agree.
+    const blockNoteLines = blocks.map((b) =>
+      b.notes?.trim()
+        ? (doc.splitTextToSize(b.notes.trim(), innerW - 18) as string[])
+        : [],
+    );
+
+    const bodyH = blocks.reduce((h, b, i) => {
       const rounds = blockHasRounds(b.block_type) ? b.rounds.length : 0;
       const restLines = b.rounds.filter((r) => roundRest(r)).length;
-      return h + blockH + rounds * roundH + restLines * roundH;
+      const noteH = blockNoteLines[i].length
+        ? blockNoteLines[i].length * 10 + 2
+        : 0;
+      return h + blockH + rounds * roundH + restLines * roundH + noteH;
     }, 0);
 
     const cardH = padY + nameH + bodyH + notesH + padY - 2;
@@ -335,7 +347,7 @@ export function exportTrainingPdf(opts: {
     }
     ty += nameH;
 
-    for (const b of blocks) {
+    for (const [bi, b] of blocks.entries()) {
       const label = BLOCK_LABELS[b.block_type] ?? b.block_type;
       const { primary, indicative } = blockIntensity(b);
 
@@ -379,6 +391,14 @@ export function exportTrainingPdf(opts: {
             ty += roundH;
           }
         });
+      }
+
+      if (blockNoteLines[bi].length) {
+        setText(doc, C.textMuted);
+        doc.setFont("helvetica", "italic");
+        doc.setFontSize(8);
+        doc.text(blockNoteLines[bi], innerLeft + 18, ty + 7);
+        ty += blockNoteLines[bi].length * 10 + 2;
       }
     }
 

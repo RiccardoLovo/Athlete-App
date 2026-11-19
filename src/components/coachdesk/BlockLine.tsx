@@ -109,6 +109,17 @@ export function BlockLine({
           {indicative}
         </span>
       )}
+
+      {/* The coach's note for this step. The builder has had a field for
+          it since blocks existed and no surface ever rendered it, so every
+          note written here was saved and shown to nobody — including back
+          to the coach outside the editor. It breaks to its own line
+          because it is a sentence, not another number in the series. */}
+      {block.notes?.trim() && (
+        <p className="w-full text-xs italic text-muted-foreground">
+          {block.notes.trim()}
+        </p>
+      )}
     </div>
   );
 }

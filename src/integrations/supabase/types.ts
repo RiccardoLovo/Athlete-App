@@ -914,6 +914,7 @@ export type Database = {
           name: string | null;
           notes: string;
           status: string;
+          target_borg: number | null;
           training_category_tags: string[];
           updated_at: string;
           week_number: number;
@@ -934,6 +935,7 @@ export type Database = {
           name?: string | null;
           notes?: string;
           status?: string;
+          target_borg?: number | null;
           training_category_tags?: string[];
           updated_at?: string;
           week_number: number;
@@ -954,6 +956,7 @@ export type Database = {
           name?: string | null;
           notes?: string;
           status?: string;
+          target_borg?: number | null;
           training_category_tags?: string[];
           updated_at?: string;
           week_number?: number;

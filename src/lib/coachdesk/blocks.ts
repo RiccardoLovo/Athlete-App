@@ -27,6 +27,13 @@ export type BlockLike = {
   pct_threshold?: number | null;
   /** What the zone is measured against: a pace/power band, or heart rate. */
   zone_basis?: "pace" | "hr" | null;
+  /**
+   * What the coach wants the athlete to feel or watch for in this step —
+   * "stay tall on the last two", "this should feel easy". The builder has
+   * had a field for it since blocks existed and nothing ever rendered it,
+   * so every note a coach wrote went nowhere.
+   */
+  notes?: string | null;
   // An interval block may carry only a count and a block-level rest, with no
   // prescription_intervals rows behind it — that is how the plain builder
   // writes them, and the session profile has to be able to draw those too.

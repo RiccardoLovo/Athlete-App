@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { borgColor, formatDistance } from "@/lib/coachdesk/constants";
+import { effortGap } from "@/components/coachdesk/TargetEffort";
 import { FeedbackDetail } from "./FeedbackDetail";
 import type { WorkoutLog } from "./feedback.types";
 
@@ -29,7 +30,7 @@ export function CoachFeedback({
       let q = supabase
         .from("workout_logs")
         .select(
-          "*, clients(id, name), sessions(day_of_week, week_number, name, discipline, duration_minutes, distance_meters, intensity, training_blocks(name, position))",
+          "*, clients(id, name), sessions(day_of_week, week_number, name, discipline, duration_minutes, distance_meters, intensity, target_borg, training_blocks(name, position))",
         )
         .neq("status", "draft") // athlete hasn't finished the workout yet
         .order("submitted_at", { ascending: false });
@@ -164,6 +165,17 @@ export function CoachFeedback({
                 <Badge className={borgColor(l.borg_scale)}>
                   {l.borg_scale}/10
                 </Badge>
+                {/* The queue is where a coach decides what to open first,
+                    so the mismatch has to be visible here and not one
+                    click in. */}
+                {(() => {
+                  const gap = effortGap(l.sessions?.target_borg, l.borg_scale);
+                  return gap?.notable ? (
+                    <span className="shrink-0 font-mono text-[10px] uppercase tracking-wide text-warning">
+                      {gap.delta > 0 ? `+${gap.delta}` : gap.delta} vs asked
+                    </span>
+                  ) : null;
+                })()}
                 {l.status === "pending" ? (
                   <Clock className="h-5 w-5 text-warning" />
                 ) : (

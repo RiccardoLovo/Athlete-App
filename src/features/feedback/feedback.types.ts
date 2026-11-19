@@ -15,6 +15,8 @@ export type WorkoutLog = {
     duration_minutes: number | null;
     distance_meters: number | null;
     intensity: string | null;
+    /** What the coach asked this session to feel like, if they said. */
+    target_borg: number | null;
     training_blocks: { name: string | null; position: number } | null;
   };
 };

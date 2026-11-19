@@ -41,7 +41,7 @@ export function BlockLogInputs({
       const { data, error } = await supabase
         .from("workout_blocks")
         .select(
-          "id, order_index, block_type, label, target_mode, target_unit, intensity_mode, distance_km, duration_min, pace, zone, pct_threshold, zone_basis",
+          "id, order_index, block_type, label, target_mode, target_unit, intensity_mode, distance_km, duration_min, pace, zone, pct_threshold, zone_basis, notes",
         )
         .eq("session_exercise_id", sessionExerciseId)
         .order("order_index");

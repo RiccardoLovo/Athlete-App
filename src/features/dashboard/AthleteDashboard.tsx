@@ -17,6 +17,7 @@ import { ClientProfileDialog } from "@/components/coachdesk/ClientProfileDialog"
 import { WorkoutPhotos } from "@/components/coachdesk/WorkoutPhotos";
 import { WorkoutBlockSummary } from "@/components/coachdesk/WorkoutBlockSummary";
 import { WeekRings } from "@/components/coachdesk/WeekRings";
+import { EffortChip, effortGap } from "@/components/coachdesk/TargetEffort";
 import {
   isMissed,
   lateLabel,
@@ -738,6 +739,12 @@ function SessionList({
                             <span className="shrink-0 rounded-full border border-warning/40 px-2 py-0.5 font-mono text-[9px] uppercase tracking-wide text-warning">
                               Missed
                             </span>
+                          )}
+                          {/* Visible before the session, not only while
+                              logging it: knowing a session is meant to
+                              feel easy is what stops it being raced. */}
+                          {!done && s.target_borg != null && (
+                            <EffortChip value={s.target_borg} />
                           )}
                           <Button
                             size="icon"
@@ -1552,6 +1559,10 @@ function LogWorkout({
   }, [blockLogRows]);
 
   const [borg, setBorg] = useState(5);
+  // How hard the coach said this should feel, if they said. Read off the
+  // session rather than fetched: the week query already selects it.
+  const targetBorg = (session.target_borg ?? null) as number | null;
+  const gap = effortGap(targetBorg, borg);
   const [overall, setOverall] = useState("");
   const [performedAt, setPerformedAt] = useState<string>(session.planned_date);
   const [forms, setForms] = useState<Record<string, ExForm>>({});
@@ -2426,6 +2437,19 @@ function LogWorkout({
           <Label className="text-sm font-semibold">
             Overall Effort (Borg Scale)
           </Label>
+          {/* What the coach asked for, said before you answer — the point
+              of a target is to aim at it, so hiding it until afterwards
+              would make it a grading scheme instead of an instruction.
+              It is marked on the scale, never preselected: the answer has
+              to be the athlete's own or the number means nothing. */}
+          {targetBorg != null && (
+            <p className="mt-1 text-xs text-muted-foreground">
+              Your coach asked for{" "}
+              <span className="font-medium text-foreground">
+                {targetBorg} — {BORG_LABELS[targetBorg]}
+              </span>
+            </p>
+          )}
           {/* Ten targets rather than a drag handle: a slider is precise
               work, and this is filled in with tired, often wet hands. */}
           <div className="mt-3 grid grid-cols-10 gap-1">
@@ -2435,10 +2459,15 @@ function LogWorkout({
                 type="button"
                 onClick={() => setBorg(n)}
                 aria-pressed={borg === n}
+                title={
+                  n === targetBorg ? "What your coach asked for" : undefined
+                }
                 className={`h-11 rounded-lg border text-sm tabular-nums transition-colors ${
                   borg === n
                     ? "border-foreground bg-foreground font-semibold text-background"
-                    : "border-border text-muted-foreground hover:border-foreground/40"
+                    : n === targetBorg
+                      ? "border-foreground/60 border-dashed text-foreground"
+                      : "border-border text-muted-foreground hover:border-foreground/40"
                 }`}
               >
                 {n}
@@ -2447,6 +2476,8 @@ function LogWorkout({
           </div>
           <p className="mt-2 text-xs text-muted-foreground">
             {BORG_LABELS[borg]}
+            {gap?.notable &&
+              ` · ${gap.delta > 0 ? `${gap.delta} harder` : `${-gap.delta} easier`} than asked`}
           </p>
         </Card>
 

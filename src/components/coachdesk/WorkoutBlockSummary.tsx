@@ -5,26 +5,15 @@ import {
   BLOCK_LABELS,
   blockIntensity,
   blockTarget,
+  type BlockLike,
 } from "@/lib/coachdesk/blocks";
 import { SessionProfile, SessionTotals } from "./SessionProfile";
 
-type Block = {
-  id: string;
-  block_type: string;
-  label: string | null;
-  target_mode: string | null;
-  target_unit: string | null;
-  intensity_mode: string | null;
-  distance_km: number | null;
-  duration_min: number | null;
-  pace: string | null;
-  zone: number | null;
-  pct_threshold: number | null;
-  interval_count: number | null;
-  rest_mode: "seconds" | "ratio" | null;
-  rest_seconds: number | null;
-  rest_ratio: number | null;
-};
+// One shape, from lib/coachdesk/blocks. The hand-written copy that used
+// to live here had already drifted: it was missing zone_basis, which the
+// query below selects and which decides whether a zone means a pace or a
+// heart rate.
+type Block = BlockLike & { id: string };
 
 type Round = {
   workout_block_id: string | null;
@@ -66,7 +55,7 @@ export function WorkoutBlockSummary({
       const { data, error } = await supabase
         .from("workout_blocks")
         .select(
-          "id, block_type, label, target_mode, target_unit, intensity_mode, distance_km, duration_min, pace, zone, pct_threshold, zone_basis, interval_count, rest_mode, rest_seconds, rest_ratio",
+          "id, block_type, label, target_mode, target_unit, intensity_mode, distance_km, duration_min, pace, zone, pct_threshold, zone_basis, interval_count, rest_mode, rest_seconds, rest_ratio, notes",
         )
         .eq("session_exercise_id", sessionExerciseId)
         .order("order_index");

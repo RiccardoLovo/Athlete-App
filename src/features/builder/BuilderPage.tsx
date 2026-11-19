@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { ExerciseVideoButton } from "@/components/coachdesk/ExerciseVideo";
 import { supabase } from "@/integrations/supabase/client";
+import { TargetEffortPicker } from "@/components/coachdesk/TargetEffort";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -128,7 +129,7 @@ export function BuilderPage() {
       const { data: s } = await supabase
         .from("sessions")
         .select(
-          "id, name, notes, day_of_week, week_number, status, is_optional, training_category_tags, body_region, block_id, training_blocks(id, name, plan_id, weeks, position, training_plans(id, name, start_date, athlete_id, clients(id, name, sport, goal, coach_id)))",
+          "id, name, notes, day_of_week, week_number, status, is_optional, target_borg, training_category_tags, body_region, block_id, training_blocks(id, name, plan_id, weeks, position, training_plans(id, name, start_date, athlete_id, clients(id, name, sport, goal, coach_id)))",
         )
         .eq("id", sessionId)
         .single();
@@ -357,6 +358,20 @@ export function BuilderPage() {
       .update({ name })
       .eq("id", sessionId);
     if (error) return toast.error(`Save failed: ${error.message}`);
+  }
+
+  /**
+   * How hard this session should feel. Saved on change rather than on
+   * blur: it is a ten-way choice, not free text, so there is no moment
+   * where the coach is mid-thought and a write would be premature.
+   */
+  async function updateTargetBorg(value: number | null) {
+    const { error } = await supabase
+      .from("sessions")
+      .update({ target_borg: value })
+      .eq("id", sessionId);
+    if (error) return toast.error(`Save failed: ${error.message}`);
+    qc.invalidateQueries({ queryKey: ["session-ctx", sessionId] });
     invalidate();
   }
   async function toggleTag(key: TrainingCategoryKey) {
@@ -484,6 +499,10 @@ export function BuilderPage() {
               </div>
             )}
           </div>
+          <TargetEffortPicker
+            value={ctx.target_borg as number | null}
+            onChange={updateTargetBorg}
+          />
           <Button variant="outline" onClick={() => setShowBank((v) => !v)}>
             {showBank ? "Hide" : "Show"} Bank
           </Button>

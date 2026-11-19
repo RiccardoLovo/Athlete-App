@@ -12,6 +12,7 @@ import {
   formatDistance,
   intensityLabel,
 } from "@/lib/coachdesk/constants";
+import { EffortChip, effortGap } from "@/components/coachdesk/TargetEffort";
 import { toast } from "sonner";
 import { useState } from "react";
 import { WorkoutPhotos } from "@/components/coachdesk/WorkoutPhotos";
@@ -51,7 +52,7 @@ export function FeedbackDetail({
       const { data: log } = await supabase
         .from("workout_logs")
         .select(
-          "*, clients(name), sessions(day_of_week, week_number, name, discipline, duration_minutes, distance_meters, intensity, training_blocks(name, position))",
+          "*, clients(name), sessions(day_of_week, week_number, name, discipline, duration_minutes, distance_meters, intensity, target_borg, training_blocks(name, position))",
         )
         .eq("id", id)
         .single();
@@ -122,6 +123,7 @@ export function FeedbackDetail({
 
   if (!data?.log) return <div className="p-6">Loading…</div>;
   const log: any = data.log;
+  const gap = effortGap(log?.sessions?.target_borg, log?.borg_scale);
 
   return (
     <div className="h-[calc(100vh-3.5rem)] overflow-auto">
@@ -199,6 +201,24 @@ export function FeedbackDetail({
             <span className="text-muted-foreground">
               {BORG_LABELS[log.borg_scale]}
             </span>
+          </div>
+          {/* Against what was asked. A reported 8 is good news on a
+              threshold session and a reason to phone the athlete on a
+              recovery run; the number alone cannot tell you which. */}
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            {log.sessions?.target_borg != null ? (
+              <EffortChip value={log.sessions.target_borg} label="Asked for" />
+            ) : (
+              <span className="font-mono text-[10px] uppercase tracking-wide text-muted-foreground">
+                No target was set for this session
+              </span>
+            )}
+            {gap?.notable && (
+              <span className="font-mono text-[10px] uppercase tracking-wide text-warning">
+                {gap.delta > 0 ? `${gap.delta} harder` : `${-gap.delta} easier`}{" "}
+                than asked
+              </span>
+            )}
           </div>
         </Card>
 
