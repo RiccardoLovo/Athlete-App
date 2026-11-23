@@ -130,3 +130,38 @@ export function roundRest(r: RoundLike): string | null {
 export function blockHasRounds(blockType: string): boolean {
   return blockType === "intervals" || blockType === "pyramid";
 }
+
+/**
+ * Read one interval round as if it were a block, so the same renderer can
+ * say it.
+ *
+ * The flat interval model predates structured blocks and has its own
+ * vocabulary: target_value plus target_unit where a block carries
+ * duration_min or distance_km, and hr_zone where a block carries zone
+ * plus zone_basis. The two describe the same thing, and the athlete
+ * should not get a worse sentence for a session that happens to be
+ * written in the older shape.
+ *
+ * hr_zone maps to a heart-rate zone, not a pace band — that is what the
+ * column means and what the old table said ("HR Z3") — so the sentence
+ * can resolve it to real beats from the athlete's own zones.
+ */
+export function roundAsBlock(
+  r: RoundLike & { label?: string | null },
+): BlockLike {
+  const v = r.target_value == null ? null : Number(r.target_value);
+  const unit = (r.target_unit ?? "").toLowerCase();
+  const isTime = unit === "minutes" || unit === "seconds";
+  return {
+    block_type: "intervals",
+    label: r.label ?? null,
+    target_mode: isTime ? "time" : v == null ? null : "distance",
+    target_unit: isTime ? "min" : "km",
+    duration_min: v == null || !isTime ? null : unit === "seconds" ? v / 60 : v,
+    distance_km: v == null || isTime ? null : unit === "meters" ? v / 1000 : v,
+    pace: r.pace_per_km ?? null,
+    zone: r.hr_zone ?? null,
+    zone_basis: r.hr_zone == null ? null : "hr",
+    intensity_mode: r.pace_per_km ? "pace" : "zone",
+  };
+}

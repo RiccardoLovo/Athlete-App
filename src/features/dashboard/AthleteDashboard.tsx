@@ -16,6 +16,9 @@ import {
 import { ClientProfileDialog } from "@/components/coachdesk/ClientProfileDialog";
 import { WorkoutPhotos } from "@/components/coachdesk/WorkoutPhotos";
 import { WorkoutBlockSummary } from "@/components/coachdesk/WorkoutBlockSummary";
+import { BlockLine } from "@/components/coachdesk/BlockLine";
+import { roundAsBlock } from "@/lib/coachdesk/blocks";
+import { restText } from "@/lib/coachdesk/rest";
 import { WeekRings } from "@/components/coachdesk/WeekRings";
 import { EffortChip, effortGap } from "@/components/coachdesk/TargetEffort";
 import {
@@ -79,7 +82,6 @@ import {
 import {
   DISCIPLINES as EXERCISE_DISCIPLINES,
   DISCIPLINE_ICON,
-  describeIntervalRound,
   hasIntervalRounds,
   rowToPrescription,
   summarizeIntervals,
@@ -1470,6 +1472,32 @@ async function addExistingExerciseToSession(
 }
 
 const EMPTY_EQUIPMENT: EquipmentNeed[] = [];
+const EMPTY_WITH_BLOCKS = new Set<string>();
+
+/**
+ * Which exercises in this session are built from structured blocks.
+ *
+ * Needed because the session screen has to choose between two ways of
+ * showing interval work, and an exercise can satisfy both conditions: it
+ * has rounds (the old flat table) and now also a parent block (the block
+ * sentences, the profile and the heart-rate bands). The blocks win, so
+ * the screen has to know they exist before deciding.
+ */
+async function fetchExercisesWithBlocks(
+  sessionExercises: { id: string }[],
+): Promise<Set<string>> {
+  const ids = sessionExercises.map((e) => e.id);
+  if (!ids.length) return new Set();
+  const { data } = await supabase
+    .from("workout_blocks")
+    .select("session_exercise_id")
+    .in("session_exercise_id", ids);
+  return new Set(
+    ((data ?? []) as { session_exercise_id: string }[]).map(
+      (r) => r.session_exercise_id,
+    ),
+  );
+}
 
 /**
  * What the athlete needs to bring for this session.
@@ -1771,7 +1799,15 @@ function LogWorkout({
           .map((e) => e.id),
       );
       const equipment = await fetchSessionEquipment(list);
-      return { list, lastWeights, oneRms, intervalRounds, equipment };
+      const withBlocks = await fetchExercisesWithBlocks(list);
+      return {
+        list,
+        lastWeights,
+        oneRms,
+        intervalRounds,
+        equipment,
+        withBlocks,
+      };
     },
   });
   const exs = exsData?.list ?? EMPTY_EXS;
@@ -1779,6 +1815,7 @@ function LogWorkout({
   const oneRms = exsData?.oneRms ?? EMPTY_ONE_RMS;
   const intervalRounds = exsData?.intervalRounds ?? EMPTY_INTERVAL_ROUNDS;
   const equipment = exsData?.equipment ?? EMPTY_EQUIPMENT;
+  const withBlocks = exsData?.withBlocks ?? EMPTY_WITH_BLOCKS;
 
   const { data: existingExLogsData } = useQuery({
     queryKey: ["my-fb-ex-logs", existingLog?.id],
@@ -2373,6 +2410,11 @@ function LogWorkout({
             e.exercises?.structure_type,
             rounds.length,
           );
+          // An exercise can satisfy both shapes at once: rounds from the
+          // old flat model and a parent block added since. The block wins
+          // — it is the one that can show the prescription as a sentence,
+          // draw the profile and resolve a zone to heart-rate beats.
+          const hasBlocks = withBlocks.has(e.id);
           const distanceUnit = distanceUnitFor(discipline);
           const showPace =
             discipline === "Running" ||
@@ -2536,6 +2578,17 @@ function LogWorkout({
                   </div>
                 ) : isIntervals ? (
                   <div className="mt-3 space-y-2">
+                    {/* The shape of the session, where the data supports
+                        it. Interval work written as flat rounds could
+                        never draw one; rounds given a parent block can. */}
+                    {hasBlocks && (
+                      <WorkoutBlockSummary
+                        sessionExerciseId={e.id}
+                        discipline={e.exercises?.discipline}
+                        clientId={client.id}
+                        chartOnly
+                      />
+                    )}
                     <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2 text-xs text-muted-foreground">
                       <span className="w-8">#</span>
                       <span>Prescribed</span>
@@ -2550,10 +2603,26 @@ function LogWorkout({
                           <span className="w-8 text-sm font-medium text-muted-foreground">
                             #{idx + 1}
                           </span>
-                          <span className="text-sm text-muted-foreground">
-                            {round.label ? `${round.label}: ` : ""}
-                            {describeIntervalRound(round)}
-                          </span>
+                          {/* The same sentence a structured block gets,
+                              rather than a run-on string: the target, the
+                              pace, and a heart-rate zone resolved to real
+                              beats from the athlete's own bands. Rest and
+                              effort follow it, since BlockLine does not
+                              carry them. */}
+                          <div className="min-w-0">
+                            <BlockLine
+                              block={roundAsBlock(round)}
+                              clientId={client.id}
+                              discipline={e.exercises?.discipline}
+                            />
+                            {(restText(round) || round.intensity) && (
+                              <span className="font-mono text-[10px] uppercase tracking-wide text-muted-foreground">
+                                {[round.intensity, restText(round)]
+                                  .filter(Boolean)
+                                  .join(" · ")}
+                              </span>
+                            )}
+                          </div>
                           <Input
                             inputMode="decimal"
                             className="h-11 w-24 text-base"
@@ -2568,7 +2637,7 @@ function LogWorkout({
                   </div>
                 ) : (
                   <div className="mt-3 space-y-2">
-                    {e.exercises?.is_structured_container && (
+                    {(e.exercises?.is_structured_container || hasBlocks) && (
                       <>
                         <WorkoutBlockSummary
                           sessionExerciseId={e.id}
